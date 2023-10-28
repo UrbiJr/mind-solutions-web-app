@@ -26,6 +26,18 @@
             "migrations/.gitignore"
         ]
     },
+    "phpstan/phpstan": {
+        "version": "1.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "5e490cc197fb6bb1ae22e5abbc531ddc633b6767"
+        },
+        "files": [
+            "phpstan.dist.neon"
+        ]
+    },
     "phpunit/phpunit": {
         "version": "9.6",
         "recipe": {
@@ -38,6 +50,21 @@
             ".env.test",
             "phpunit.xml.dist",
             "tests/bootstrap.php"
+        ]
+    },
+    "symfony/asset-mapper": {
+        "version": "6.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.3",
+            "ref": "e8c46ba5e488fc2d7462ab6832559ab93867370a"
+        },
+        "files": [
+            "assets/app.js",
+            "assets/styles/app.css",
+            "config/packages/asset_mapper.yaml",
+            "importmap.php"
         ]
     },
     "symfony/console": {
@@ -167,6 +194,15 @@
             "tests/bootstrap.php"
         ]
     },
+    "symfony/postmark-mailer": {
+        "version": "6.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.4",
+            "ref": "631f81f2fbf58126ae699a04b1d0984442613a19"
+        }
+    },
     "symfony/routing": {
         "version": "6.3",
         "recipe": {
@@ -254,6 +290,9 @@
         "files": [
             "config/packages/messenger.yaml"
         ]
+    },
+    "symfonycasts/verify-email-bundle": {
+        "version": "v1.14.0"
     },
     "twig/extra-bundle": {
         "version": "v3.7.1"

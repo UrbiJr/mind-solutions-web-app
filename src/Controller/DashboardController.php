@@ -14,9 +14,13 @@ class DashboardController extends AbstractController
 {
 
     #[Route('/dashboard', methods: ['GET'], name: 'dashboard')]
-    #[IsGranted('ROLE_MEMBER')]
     function showDashboard(#[CurrentUser] ?User $user)
     {
+        
+        if ($user && !in_array('ROLE_MEMBER', $user->getRoles())) {
+            return $this->redirectToRoute('dashboard_no_membership');
+        }
+        
         return $this->render(
             'base.html.twig',
             [
@@ -39,9 +43,13 @@ class DashboardController extends AbstractController
         );
     }
 
-    #[Route('/dashboard', methods: ['GET'], name: 'dashboard')]
+    #[Route('/dashboard/no-membership', methods: ['GET'], name: 'dashboard_no_membership')]
     function showNoMembership(#[CurrentUser] ?User $user,)
     {
+        if ($user && in_array('ROLE_MEMBER', $user->getRoles())) {
+            return $this->redirectToRoute('dashboard');
+        }
+
         $whopClientId = $this->getParameter('whop_client_id');
         $whopRedirectUri = $this->getParameter('whop_redirect_uri');
 

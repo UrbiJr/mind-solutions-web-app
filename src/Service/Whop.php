@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+use App\Exception\BadResponseException;
+use App\Exception\BadStatusCodeException;
+use App\Exception\InvalidLicenseKeyException;
 use GuzzleHttp\Client;
 
 class Whop
@@ -78,43 +81,44 @@ class Whop
 
     public function validateLicenseKey($licenseKey)
     {
-        $response = $this->client->request('GET', 'https://api.whop.com/api/v2/memberships/' . $licenseKey, [
+        if (!isset($licenseKey) || count($licenseKey) <= 0) {
+            throw new InvalidLicenseKeyException('empty value');
+        }
+
+        $response = $this->client->get('https://api.whop.com/api/v2/memberships/' . $licenseKey, [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'accept' => 'application/json',
             ],
+            'http_errors' => false,
         ]);
+
+        if ($response->getStatusCode() !== 200) {
+            throw new BadStatusCodeException($response->getStatusCode());
+        }
 
         // Convert JSON response to an associative array
         $respData = json_decode($response->getBody(), true);
 
         if (isset($respData["error"])) {
-            throw new \Exception($respData["message"]);
+            throw new BadResponseException($respData["message"]);
         }
 
         if (!isset($respData['id'])) {
-            throw new \Exception("Unexpected response validating license key");
+            throw new BadResponseException("membership id not found");
         }
-
-        /*
-        try {
-            $this->session->set('whop_manage_url', $respData["manage_url"]);
-            $this->session->set('license_key', $licenseKey);
-        } catch (\Exception $e) {
-        }
-        */
 
         if ($respData['valid'] !== true) {
             if (isset($respData['status'])) {
-                throw new \Exception("License key is not valid. Status: " . $respData['status']);
+                throw new InvalidLicenseKeyException("status: " . $respData['status']);
             } else {
-                throw new \Exception("License key is not valid");
+                throw new InvalidLicenseKeyException("license is expired");
             }
         } else {
             return $respData;
         }
 
-        throw new \Exception("Unexpected response validating license key");
+        throw new BadResponseException("Error parsing response data");
     }
 
     public function validateMembership($accessToken)

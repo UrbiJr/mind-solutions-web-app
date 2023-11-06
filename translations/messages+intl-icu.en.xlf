@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="UPAO_d3" resname="join_title">
+        <source>join_title</source>
+        <target>Join {siteName}!</target>
+      </trans-unit>
+      <trans-unit id="c3mgXWY" resname="This is your dashboard overview">
+        <source>This is your dashboard overview</source>
+        <target>This is your dashboard overview</target>
+      </trans-unit>
+      <trans-unit id="VMJREor" resname="Have a look at your analytics. Have you hopped on our Discord yet?">
+        <source>Have a look at your analytics. Have you hopped on our Discord yet?</source>
+        <target>Have a look at your analytics. Have you hopped on our Discord yet?</target>
+      </trans-unit>
+      <trans-unit id="Ytl.dQk" resname="Join Discord">
+        <source>Join Discord</source>
+        <target>Join Discord</target>
+      </trans-unit>
+      <trans-unit id="ihnlXKb" resname="Looks like you don't have an active plan yet. Join today with the best offer ever!">
+        <source>Looks like you don't have an active plan yet. Join today with the best offer ever!</source>
+        <target>Looks like you don't have an active plan yet. Join today with the best offer ever!</target>
+      </trans-unit>
+      <trans-unit id="Oyl_or_" resname="Already have a pass?">
+        <source>Already have a pass?</source>
+        <target>Already have a pass?</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

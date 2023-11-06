@@ -18,10 +18,15 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     // Allows a user to login with their email or discord username
     public function loadUserByIdentifier($identifier): ?User
     {
-        return $this->createQueryBuilder('u')
-            ->where('u.username = :identifier OR u.discordUsername = :identifier')
-            ->setParameter('identifier', $identifier)
-            ->getQuery()
+        $entityManager = $this->getEntityManager();
+
+        return $entityManager->createQuery(
+            'SELECT u
+                FROM App\Entity\User u
+                WHERE u.username = :query
+                OR u.discordUsername = :query'
+        )
+            ->setParameter('query', $identifier)
             ->getOneOrNullResult();
     }
 

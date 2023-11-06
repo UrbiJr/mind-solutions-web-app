@@ -15,83 +15,57 @@ use App\Security\EmailVerifier;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use App\Service\Whop;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class AuthController extends AbstractController
 {
-    private Whop $whop;
     private EmailVerifier $emailVerifier;
 
-    public function __construct(Whop $whop, EmailVerifier $emailVerifier)
+    public function __construct(EmailVerifier $emailVerifier)
     {
-        $this->whop = $whop;
         $this->emailVerifier = $emailVerifier;
     }
 
     #[Route('/auth/login', methods: ['GET', 'POST'], name: 'login')]
-    public function login(Request $request, AuthenticationUtils $authenticationUtils, EntityManagerInterface $entityManager)
+    public function login(#[CurrentUser] ?User $user, Request $request, AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManagerInterface)
     {
-        $user = new User();
+        // If the user is already authenticated, redirect them
+        if ($user) {
+            return $this->redirectToRoute('dashboard');
+        }
 
-        $error = null;
+        // last username entered by the user
+        $defaultData = array(
+            'username' => $authenticationUtils->getLastUsername(),
+        );
 
-        $form = $this->createFormBuilder($user)
+        $form = $this->createFormBuilder($defaultData)
             ->add('username', TextType::class, ['label' => 'Username or Email'])
             ->add('password', PasswordType::class)
+            ->add('_csrf_token', HiddenType::class, [
+                'data' => $csrfTokenManagerInterface->getToken('authenticate')->getValue(),
+            ])
             ->add('login', SubmitType::class, ['label' => 'Sign In'])
             ->getForm();
 
         $form->handleRequest($request);
+
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
 
         /*
             When initially loading the page in a browser, the form hasn't been submitted yet
             and $form->isSubmitted() returns false ...
         */
         if ($form->isSubmitted() && $form->isValid()) {
-            // get the login error if there is one
-            $error = $authenticationUtils->getLastAuthenticationError();
-
-            // last username entered by the user
-            $lastUsername = $authenticationUtils->getLastUsername();
-
-            /** @var \App\Entity\User $user */
-            $user = $this->getUser(); // Get the logged-in user
-
-            if ($user) {
-                try {
-                    // Assuming the user entity has a method getLicenseKey() to retrieve their license
-                    $licenseData = $this->whop->validateLicenseKey($user->getLicenseKey());
-
-                    if ($licenseData['valid']) {
-                        // Grant ROLE_MEMBER if the license is valid
-                        $user->addRole('ROLE_MEMBER');
-                    } else {
-                        // Remove ROLE_MEMBER if the license is not valid
-                        $user->removeRole('ROLE_MEMBER');
-                    }
-
-                    $entityManager->flush(); // Save changes to user roles
-
-                    // redirect to home
-                    return $this->redirectToRoute('home');
-                } catch (\Exception $e) {
-                    // Handle exceptions accordingly, perhaps log the error or notify the user
-                    $error = (object) [
-                        'messageKey' => $e->getMessage(),
-                        'messageData' => []
-                    ];
-                }
-            } else {
-                // Simulate an error object like Symfony's authentication error
-                $error = (object) [
-                    'messageKey' => 'User not found',
-                    'messageData' => []
-                ];
-            }
+            // User is already authenticated, redirect to dashboard
+            return $this->redirectToRoute('dashboard');
         }
 
         return $this->render('auth.html.twig', array(

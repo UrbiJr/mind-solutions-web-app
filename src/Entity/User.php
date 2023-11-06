@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -14,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Table(name: 'Users')]
 #[ORM\Index(name: 'fk_captcha_provider_id', columns: ['captcha_provider_id'])]
 #[ORM\UniqueConstraint(name: 'username', columns: ['username'])]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serializable
 {
@@ -86,6 +87,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
      */
     #[ORM\Column(name: 'discord_username', type: 'string', length: 32, nullable: true)]
     private $discordUsername;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'whop_manage_url', type: 'string', length: 256, nullable: true)]
+    private $whopManageUrl;
 
     /**
      * @var string|null
@@ -441,5 +448,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
     public function isVerified(): bool
     {
         return $this->isVerified;
+    }
+
+    /**
+     * Get the value of whopManageUrl
+     */
+    public function getWhopManageUrl()
+    {
+        return $this->whopManageUrl;
+    }
+
+    /**
+     * Set the value of whopManageUrl
+     *
+     * @return  self
+     */
+    public function setWhopManageUrl($whopManageUrl)
+    {
+        $this->whopManageUrl = $whopManageUrl;
+
+        return $this;
     }
 }

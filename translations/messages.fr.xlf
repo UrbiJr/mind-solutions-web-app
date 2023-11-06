@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="fr" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="c3mgXWY" resname="This is your dashboard overview">
+        <source>This is your dashboard overview</source>
+        <target>Ceci est l'aperçu de votre tableau de bord</target>
+      </trans-unit>
+      <trans-unit id="VMJREor" resname="Have a look at your analytics. Have you hopped on our Discord yet?">
+        <source>Have a look at your analytics. Have you hopped on our Discord yet?</source>
+        <target>Jetez un œil à vos analyses. Avez-vous déjà sauté sur notre Discord ?</target>
+      </trans-unit>
+      <trans-unit id="Ytl.dQk" resname="Join Discord">
+        <source>Join Discord</source>
+        <target>Rejoindre Discord</target>
+      </trans-unit>
+      <trans-unit id="ihnlXKb" resname="Looks like you don't have an active plan yet. Join today with the best offer ever!">
+        <source>Looks like you don't have an active plan yet. Join today with the best offer ever!</source>
+        <target>On dirait que vous n'avez pas encore de plan actif. Rejoignez-nous aujourd'hui avec la meilleure offre jamais vue !</target>
+      </trans-unit>
+      <trans-unit id="Oyl_or_" resname="Already have a pass?">
+        <source>Already have a pass?</source>
+        <target>Vous avez déjà un pass ?</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

@@ -28894,3 +28894,95 @@ pre[class*=language-] {
 }
 
 /*# sourceMappingURL=maps/hope-ui.min.css.map */
+
+/* Multi language selector */
+
+#locale-selector-modal .modal-content {
+    border:0
+}
+
+#locale-selector-modal .modal-header {
+    border-bottom: 0;
+    color:var(--white)
+}
+
+#locale-selector-modal .modal-header .close {
+    color: var(--white);
+    opacity:1
+}
+
+#locale-selector-modal .modal-body .locales {
+    list-style: none;
+    padding:0
+}
+
+@media (min-width: 768px) {
+    #locale-selector-modal .modal-body .locales {
+        grid-gap: 10px 20px;
+        display: grid;
+        grid-template-columns:repeat(2, 1fr)
+    }
+}
+
+#locale-selector-modal .modal-body .locales li {
+    border-radius: 4px;
+    margin-bottom: 10px;
+    position:relative
+}
+
+@media (min-width: 768px) {
+    #locale-selector-modal .modal-body .locales li {
+        margin:0
+    }
+}
+
+#locale-selector-modal .modal-body .locales li.rtl a {
+    direction:rtl
+}
+
+#locale-selector-modal .modal-body .locales li a {
+    align-items: center;
+    background: #fff;
+    border-radius: 4px;
+    color: #212529;
+    display: flex;
+    justify-content: space-between;
+    padding:10px 20px
+}
+
+#locale-selector-modal .modal-body .locales li a small {
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    color: #343a40;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-inline-start: 10px;
+    min-width: 26px;
+    padding: 2px 6px;
+    text-align: center;
+    text-transform:uppercase
+}
+
+#locale-selector-modal .modal-body .locales li:hover a {
+    outline: 3px solid var(--bs-primary);
+    outline-offset:-5px
+}
+
+#locale-selector-modal .modal-body .locales li:hover a small {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color:#fff
+}
+
+#locale-selector-modal .modal-body .locales li.active a, #locale-selector-modal .modal-body .locales li:hover.active a {
+    background: var(--bs-primary);
+    color: #fff;
+    outline:none
+}
+
+#locale-selector-modal .modal-body .locales li.active a small, #locale-selector-modal .modal-body .locales li:hover.active a small {
+    background: transparent;
+    border-color: #fff;
+    color:#fff
+}

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>Mind Solutions | Error</title>
+
+		{% block stylesheets %}
+
+			<!-- Favicon -->
+			<link
+			rel="icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon"/>
+
+			<!-- Library / Plugin Css Build -->
+			<link
+			rel="stylesheet" href="{{ asset('css/core/libs.min.css') }}"/>
+
+			<!-- Hope Ui Design System Css -->
+			<link
+			rel="stylesheet" href="{{ asset('css/hope-ui.min.css') }}"/>
+
+			<!-- Custom Css -->
+			<link
+			rel="stylesheet" href="{{ asset('css/custom.min.css') }}"/>
+
+			<!-- Dark Css -->
+			<link
+			rel="stylesheet" href="{{ asset('css/dark.min.css') }}"/>
+
+			<!-- Customizer Css -->
+			<link
+			rel="stylesheet" href="{{ asset('css/customizer.min.css') }}"/>
+
+			<!-- RTL Css -->
+			<link rel="stylesheet" href="{{ asset('css/rtl.min.css') }}"/>
+		{% endblock %}
+
+
+	</head>
+
+	<body
+		class=" " data-bs-spy="scroll" data-bs-target="#elements-section" data-bs-offset="0" tabindex="0">
+		<!-- loader Start -->
+		<div id="loading">
+			<div class="loader simple-loader">
+				<div class="loader-body"></div>
+			</div>
+		</div>
+		<!-- loader END -->
+
+		<div class="wrapper">
+			{{ include(subview) }}
+		</div>
+
+				{% block javascripts %}
+
+			<script src="{{ asset('js/custom-functions.js') }}"></script>
+			<script src="{{ asset('js/auth.js') }}"></script>
+			<script src="{{ asset('js/dashboard.js') }}"></script>
+			<script src="{{ asset('js/events.js') }}"></script>
+			<script src="{{ asset('js/inventory.js') }}"></script>
+			<script src="{{ asset('js/settings.js') }}"></script>
+			<script src="{{ asset('js/viagogo.js') }}"></script>
+
+			<!-- Library Bundle Script -->
+			<script src="{{ asset('js/core/libs.min.js') }}"></script>
+
+			<!-- External Library Bundle Script -->
+			<script src="{{ asset('js/core/external.min.js') }}"></script>
+
+			<!-- Widgetchart Script -->
+			<script src="{{ asset('js/charts/widgetcharts.js') }}"></script>
+
+			<!-- mapchart Script -->
+			<script src="{{ asset('js/charts/vectore-chart.js') }}"></script>
+			<script src="{{ asset('js/charts/dashboard.js') }}"></script>
+
+			<!-- fslightbox Script -->
+			<script src="{{ asset('js/plugins/fslightbox.js') }}"></script>
+
+			<!-- Settings Script -->
+			<script src="{{ asset('js/plugins/setting.js') }}"></script>
+
+			<!-- Slider-tab Script -->
+			<script src="{{ asset('js/plugins/slider-tabs.js') }}"></script>
+
+			<!-- Form Wizard Script -->
+			<script src="{{ asset('js/plugins/form-wizard.js') }}"></script>
+
+			<!-- App Script -->
+			<script src="{{ asset('js/hope-ui.js') }}" defer></script>
+
+            <script src="{{ asset('js/plugins/countdown.js') }}"></script>
+		{% endblock %}
+
+		
+	</body>
+
+</html>

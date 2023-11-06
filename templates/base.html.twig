@@ -248,7 +248,7 @@
 								</div>
 								<div id="bannerBtn" class="col-md-4" style="{{ (displayBannerBtn is defined and displayBannerBtn) ? '' : 'display: none;' }}">
 									<a id="{{ bannerBtnId }}" href="{{ bannerBtnAction }}" target="{{ bannerBtnTarget }}" class="btn btn-link btn-soft-light">
-										{{ bannerBtnIcon }}&nbsp;
+										{{ bannerBtnIcon|raw }}&nbsp;
 										{{ bannerBtnText|trans|raw }}
 									</a>
 									<div id="activateMembershipWrapper" class="row row-cols-1 text-center" style="display:none;">

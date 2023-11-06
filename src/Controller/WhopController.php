@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class WhopController extends AbstractController
@@ -15,13 +16,7 @@ class WhopController extends AbstractController
         $code = $request->query->get('code');
 
         if (!$code) {
-            $this->addFlash(
-                'error',
-                "Missing authorization code"
-            );
-            $url = $this->generateUrl('error_500');
-
-            return $this->redirect($url);
+            throw new \Exception('Missing authorization code');
         }
 
         $url = $this->generateUrl('whop_callback', [

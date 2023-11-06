@@ -1,4 +1,7 @@
-<div class="wrapper">
+{% extends 'error.html.twig' %}
+
+{% block content %}
+
 	<div class="container-fluid p-0">
 		<div class="iq-maintenance text-center">
 			<img src="{{ asset('/images/error/01.png') }}" class="img-fluid mb-4" alt="">
@@ -54,4 +57,5 @@
 			</svg>
 		</div>
 	</div>
-</div>
+
+{% endblock %}

@@ -81,7 +81,7 @@ class Whop
 
     public function validateLicenseKey($licenseKey)
     {
-        if (!isset($licenseKey) || count($licenseKey) <= 0) {
+        if (!isset($licenseKey) || strlen($licenseKey) <= 0) {
             throw new InvalidLicenseKeyException('empty value');
         }
 

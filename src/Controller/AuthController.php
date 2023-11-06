@@ -12,10 +12,12 @@ use App\Entity\User;
 use App\Form\Type\UserType;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
+use App\Service\Whop;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -26,10 +28,12 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 class AuthController extends AbstractController
 {
     private EmailVerifier $emailVerifier;
+    private Whop $whop;
 
-    public function __construct(EmailVerifier $emailVerifier)
+    public function __construct(EmailVerifier $emailVerifier, Whop $whop)
     {
         $this->emailVerifier = $emailVerifier;
+        $this->whop = $whop;
     }
 
     #[Route('/auth/login', methods: ['GET', 'POST'], name: 'login')]
@@ -81,8 +85,14 @@ class AuthController extends AbstractController
     }
 
     #[Route('/auth/register', methods: ['GET', 'POST'], name: 'register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    public function register(#[CurrentUser] ?User $user, Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
+
+        // If the user is already authenticated, redirect them
+        if ($user) {
+            return $this->redirectToRoute('dashboard');
+        }
+
         $user = new User();
 
         $form = $this->createForm(UserType::class, $user, [
@@ -178,6 +188,90 @@ class AuthController extends AbstractController
         }
 
         $this->addFlash('success', '🙌 Your email address has been verified! You are good to go now.');
+
+        return $this->redirectToRoute('login');
+    }
+
+    #[Route('/auth/whop-callback', methods: ['GET', 'POST'], name: 'whop_callback')]
+    public function whopCallback(#[CurrentUser] ?User $user, Request $request, Security $security, EntityManagerInterface $entityManager): Response
+    {
+        $code = $request->query->get('code');
+        $whopClientId = $this->getParameter('whop_client_id');
+        $whopRedirectUri = $this->getParameter('whop_redirect_uri');
+        $whopClientSecret = $this->getParameter('whop_client_secret');
+
+        $authToken = $this->whop->getAuthToken(
+            $code,
+            $whopClientId,
+            $whopClientSecret,
+            $whopRedirectUri,
+        );
+
+        $membership = $this->whop->validateMembership($authToken);
+
+        $userRepository = $entityManager->getRepository(User::class);
+
+        /** @var \App\Entity\User $dbUser */
+        $dbUser = $userRepository->findOneBy(['username' => $membership["email"]]);
+
+        if ($user && $dbUser && $user->getUsername() !== $dbUser->getUsername()) {
+            $this->addFlash(
+                'notice',
+                'Login required: use your Whop email to sign in.'
+            );
+
+            $security->logout(false);
+
+            return $this->redirectToRoute('login');
+        }
+
+        if ($dbUser) {
+            $dbUser->setImageUrl($membership["discord"]["image_url"]);
+            $dbUser->setDiscordID($membership["discord"]["id"]);
+
+            try {
+                $parts = explode('#', $membership["discord"]["username"]);
+                $username = $parts[0];
+            } catch (\Exception $e) {
+                $username = $membership["discord"]["username"];
+            }
+
+            $dbUser->setDiscordUsername($username);
+            $dbUser->setLicenseKey($membership["license_key"]);
+
+            $entityManager->persist($dbUser);
+
+            $dbUser->addRole('ROLE_MEMBER');
+            $dbUser->setWhopManageUrl($membership['manage_url']);
+            $entityManager->flush();
+
+            // log the user in on the current firewall
+            $redirectResponse = $security->login($dbUser, 'form_login');
+
+            setcookie('currency', 'EUR', time() + 12 * 60 * 60, '/');
+
+            $this->addFlash(
+                'success',
+                '🍾 Success! You have authenticated and bound your Whop membership to your account.'
+            );
+
+            return $this->redirectToRoute('dashboard');
+        }
+
+        $this->addFlash(
+            'notice',
+            'Account required: use your Whop email to sign up.'
+        );
+
+        $security->logout(false);
+
+        return $this->redirectToRoute('register', ['email' => $membership["email"]]);
+    }
+
+    #[Route('/logout', methods: ['GET'], name: 'logout')]
+    public function logout(Security $security)
+    {
+        $security->logout(false);
 
         return $this->redirectToRoute('login');
     }

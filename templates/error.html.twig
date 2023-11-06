@@ -49,52 +49,51 @@
 		</div>
 		<!-- loader END -->
 
-		<div class="wrapper">
-			{{ include(subview) }}
-		</div>
+		<div class="wrapper"> {% block content %}{% endblock %}
+			</div>
 
-				{% block javascripts %}
+			{% block javascripts %}
 
-			<script src="{{ asset('js/custom-functions.js') }}"></script>
-			<script src="{{ asset('js/auth.js') }}"></script>
-			<script src="{{ asset('js/dashboard.js') }}"></script>
-			<script src="{{ asset('js/events.js') }}"></script>
-			<script src="{{ asset('js/inventory.js') }}"></script>
-			<script src="{{ asset('js/settings.js') }}"></script>
-			<script src="{{ asset('js/viagogo.js') }}"></script>
+				<script src="{{ asset('js/custom-functions.js') }}"></script>
+				<script src="{{ asset('js/auth.js') }}"></script>
+				<script src="{{ asset('js/dashboard.js') }}"></script>
+				<script src="{{ asset('js/events.js') }}"></script>
+				<script src="{{ asset('js/inventory.js') }}"></script>
+				<script src="{{ asset('js/settings.js') }}"></script>
+				<script src="{{ asset('js/viagogo.js') }}"></script>
 
-			<!-- Library Bundle Script -->
-			<script src="{{ asset('js/core/libs.min.js') }}"></script>
+				<!-- Library Bundle Script -->
+				<script src="{{ asset('js/core/libs.min.js') }}"></script>
 
-			<!-- External Library Bundle Script -->
-			<script src="{{ asset('js/core/external.min.js') }}"></script>
+				<!-- External Library Bundle Script -->
+				<script src="{{ asset('js/core/external.min.js') }}"></script>
 
-			<!-- Widgetchart Script -->
-			<script src="{{ asset('js/charts/widgetcharts.js') }}"></script>
+				<!-- Widgetchart Script -->
+				<script src="{{ asset('js/charts/widgetcharts.js') }}"></script>
 
-			<!-- mapchart Script -->
-			<script src="{{ asset('js/charts/vectore-chart.js') }}"></script>
-			<script src="{{ asset('js/charts/dashboard.js') }}"></script>
+				<!-- mapchart Script -->
+				<script src="{{ asset('js/charts/vectore-chart.js') }}"></script>
+				<script src="{{ asset('js/charts/dashboard.js') }}"></script>
 
-			<!-- fslightbox Script -->
-			<script src="{{ asset('js/plugins/fslightbox.js') }}"></script>
+				<!-- fslightbox Script -->
+				<script src="{{ asset('js/plugins/fslightbox.js') }}"></script>
 
-			<!-- Settings Script -->
-			<script src="{{ asset('js/plugins/setting.js') }}"></script>
+				<!-- Settings Script -->
+				<script src="{{ asset('js/plugins/setting.js') }}"></script>
 
-			<!-- Slider-tab Script -->
-			<script src="{{ asset('js/plugins/slider-tabs.js') }}"></script>
+				<!-- Slider-tab Script -->
+				<script src="{{ asset('js/plugins/slider-tabs.js') }}"></script>
 
-			<!-- Form Wizard Script -->
-			<script src="{{ asset('js/plugins/form-wizard.js') }}"></script>
+				<!-- Form Wizard Script -->
+				<script src="{{ asset('js/plugins/form-wizard.js') }}"></script>
 
-			<!-- App Script -->
-			<script src="{{ asset('js/hope-ui.js') }}" defer></script>
+				<!-- App Script -->
+				<script src="{{ asset('js/hope-ui.js') }}" defer></script>
 
-            <script src="{{ asset('js/plugins/countdown.js') }}"></script>
-		{% endblock %}
+				<script src="{{ asset('js/plugins/countdown.js') }}"></script>
+			{% endblock %}
 
-		
-	</body>
 
-</html>
+		</body>
+
+	</html>

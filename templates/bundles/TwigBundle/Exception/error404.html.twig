@@ -1,26 +1,14 @@
-<div class="wrapper">
+{% extends 'error.html.twig' %}
+
+{% block content %}
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.0/TweenMax.min.js"></script>
 
 	<div class="gradient">
 		<div class="container">
 			<img src="{{ asset('/images/error/404.png') }}" class="img-fluid mb-4 w-50" alt="">
-			<h2 class="mb-0 mt-4 text-white">Not Found</h2>
+			<h2 class="mb-0 mt-4 text-white">Are you lost?</h2>
 			<p class="mt-2 text-white">
-				{% for message in app.flashes('notice') %}
-					<div class="alert alert-warning">
-						{{ message }}
-					</div>
-				{% endfor %}
-				{% for message in app.flashes('success') %}
-					<div class="alert alert-success">
-						{{ message }}
-					</div>
-				{% endfor %}
-				{% for message in app.flashes('error') %}
-					<div class="alert alert-danger">
-						{{ message }}
-					</div>
-				{% endfor %}
+				{{ 'http_error_404.description'|trans }}
 			</p>
 			<a class="btn bg-white text-primary d-inline-flex align-items-center" href="{{ path('dashboard') }}">Back to Home</a>
 		</div>
@@ -36,4 +24,5 @@
 			</div>
 		</div>
 	</div>
-</div>
+
+{% endblock %}

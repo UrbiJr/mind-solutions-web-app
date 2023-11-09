@@ -7,7 +7,7 @@ use App\Exception\BadStatusCodeException;
 use App\Exception\InvalidLicenseKeyException;
 use GuzzleHttp\Client;
 
-class Whop
+final class Whop
 {
 
     private $client;

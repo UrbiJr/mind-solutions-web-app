@@ -17,6 +17,8 @@ parameters:
     whop_client_id: '%env(WHOP_CLIENT_ID)%'
     whop_client_secret: '%env(WHOP_CLIENT_SECRET)%'
     mind_solutions_pass_id: '%env(MIND_SOLUTIONS_PASS_ID)%'
+    memcached_host: '%env(MEMCACHED_HOST)%'
+    memcached_port: '%env(MEMCACHED_PORT)%'
     item_statuses:
         listed: 'Active'
         not_listed: 'Inactive'
@@ -58,3 +60,24 @@ services:
         tags:
             - { name: 'kernel.event_subscriber' }
 
+    App\Service\Utils:
+        arguments:
+            $exchangeRateApiKey: '%env(EXCHANGE_RATE_API_KEY)%'
+            $jwtKey: '%env(JWT_KEY)%'
+
+    App\Service\Firestore:
+        arguments:
+            $projectId: '%env(FIREBASE_PROJECT_ID)%'
+            $keyFilePath: '%env(FIREBASE_SERVICE_ACCOUNT_KEY)%'
+
+    app.memcached:
+        class: Memcached
+        factory: ['Symfony\Component\Cache\Adapter\MemcachedAdapter', 'createConnection']
+        arguments:
+            - 'memcached://%memcached_host%:%memcached_port%'
+
+    Symfony\Component\Cache\Adapter\MemcachedAdapter:
+        arguments:
+            - '@app.memcached'
+            - ''
+            - 0

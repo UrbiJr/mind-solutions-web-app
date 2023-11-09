@@ -7,12 +7,15 @@ dashboard:
         _locale: '%locale%'
 
 controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
-    type: attribute
+    resource: ../src/Controller/
+    type: annotation
     prefix: /{_locale}
     requirements:
         _locale: '%app_locales%'
     defaults:
         _locale: '%locale%'
+    exclude: '../src/Controller/AJAXController.php'
+
+rest_api:
+    resource: ../src/Controller/AJAXController.php
+    type: annotation

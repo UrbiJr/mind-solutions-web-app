@@ -81,3 +81,7 @@ services:
             - '@app.memcached'
             - ''
             - 0
+
+    App\Repository\UserRepository:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

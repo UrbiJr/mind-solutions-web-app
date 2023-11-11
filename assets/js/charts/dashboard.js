@@ -1,9 +1,8 @@
 function getChartsData(type, startDate, endDate, sort, order, successCallback, errorCallback) {
   $.ajax({
-    url: '/chartsData', // Replace with the URL of your PHP script
+    url: `/api/user/chart/${type}`, // Replace with the URL of your PHP script
     type: 'GET',
     data: {
-      type: type,
       startDate: startDate,
       endDate: endDate,
       sort: sort,
@@ -184,7 +183,7 @@ function getChartsData(type, startDate, endDate, sort, order, successCallback, e
   }
 
   if (document.querySelectorAll('#d-inventory').length) {
-    getChartsData('inventoryValue', null, null, 'date', 'asc', (response) => {
+    getChartsData('inventory', null, null, 'date', 'asc', (response) => {
       const inventoryValues = response.series;
       $('.chart-legend-2.header-title h4').text(response.total.toFixed(2) + " " + response.currency);
 

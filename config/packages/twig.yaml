@@ -1,6 +1,10 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
     form_themes: ['bootstrap_5_layout.html.twig']
+    globals:
+        site_name: 'Mind Solutions'
+        whop_redirect_uri: '%env(WHOP_REDIRECT_URI)%'
+        whop_client_id: '%env(WHOP_CLIENT_ID)%'
 
 when@test:
     twig:

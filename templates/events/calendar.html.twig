@@ -1,0 +1,251 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Calendar
+{% endblock %}
+
+{% block content %}
+	<div class="conatiner-fluid content-inner mt-n5 py-0">
+		<div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-body d-flex justify-content-between align-items-center">
+							<div class="card-title mb-0">
+								<h4>Please welcome your new best ally.</h4>
+								<hr>
+								<h6>
+									<svg height="15px" version="1.1" viewbox="0 0 18 15" width="18px" xmlns="http://www.w3.org/2000/svg" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" xmlns:xlink="http://www.w3.org/1999/xlink">
+										<title/>
+										<desc/>
+										<defs/>
+										<g fill="none" fill-rule="evenodd" id="Page-1" stroke="none" stroke-width="1">
+											<g fill="green" id="Core" transform="translate(-423.000000, -47.000000)">
+												<g id="check" transform="translate(423.000000, 47.500000)">
+													<path d="M6,10.2 L1.8,6 L0.4,7.4 L6,13 L18,1 L16.6,-0.4 L6,10.2 Z" id="Shape"/>
+												</g>
+											</g>
+										</g>
+									</svg>
+									Do not miss anything, never again.</h6>
+								<h6>
+									<svg height="15px" version="1.1" viewbox="0 0 18 15" width="18px" xmlns="http://www.w3.org/2000/svg" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" xmlns:xlink="http://www.w3.org/1999/xlink">
+										<title/>
+										<desc/>
+										<defs/>
+										<g fill="none" fill-rule="evenodd" id="Page-1" stroke="none" stroke-width="1">
+											<g fill="green" id="Core" transform="translate(-423.000000, -47.000000)">
+												<g id="check" transform="translate(423.000000, 47.500000)">
+													<path d="M6,10.2 L1.8,6 L0.4,7.4 L6,13 L18,1 L16.6,-0.4 L6,10.2 Z" id="Shape"/>
+												</g>
+											</g>
+										</g>
+									</svg>
+									Stop wasting time: displayed are only the events that matter to you.</h6>
+								<h6>
+									<svg height="15px" version="1.1" viewbox="0 0 18 15" width="18px" xmlns="http://www.w3.org/2000/svg" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" xmlns:xlink="http://www.w3.org/1999/xlink">
+										<title/>
+										<desc/>
+										<defs/>
+										<g fill="none" fill-rule="evenodd" id="Page-1" stroke="none" stroke-width="1">
+											<g fill="green" id="Core" transform="translate(-423.000000, -47.000000)">
+												<g id="check" transform="translate(423.000000, 47.500000)">
+													<path d="M6,10.2 L1.8,6 L0.4,7.4 L6,13 L18,1 L16.6,-0.4 L6,10.2 Z" id="Shape"/>
+												</g>
+											</g>
+										</g>
+									</svg>
+									From the ones
+									<span class="text-primary">you own</span>
+									to the most
+									<span style="color: orange;">profitable</span>
+									suggested by us, for you.</h6>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="card  ">
+								<div class="card-body">
+									<div id="calendar1" class="calendar-s"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="eventInfoModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="eventInfoModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title event-title" id="eventInfoModalLabel"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-lg-12">
+							<p>Starts:
+								<b class="event-date"></b>
+							</p>
+							<!--<p>Genre: <b class="event-genre"></b></p>-->
+							<p>Location:
+								<b class="event-location"></b>
+							</p>
+							<hr>
+							<form class="mt-3 text-center" action="/" method="POST" onsubmit="return false">
+								<div class="row">
+									<div class="row d-flex flex-wrap align-items-center justify-content-center">
+										<div class="col-md-8">
+											<div class="form-group">
+												<label class="form-label">Remind Me:</label>
+												<select name="ticketType" class="form-select">
+													<option selected="" disabled="">Never</option>
+													<option value="event-starts">When event starts</option>
+													<option value="5-min-before">5 minutes before</option>
+													<option value="15-min-before">15 minutes before</option>
+													<option value="30-min-before">30 minutes before</option>
+													<option value="1-hr-before">1 hour before</option>
+													<option value="2-hr-before">2 hours before</option>
+													<option value="1-day-before">1 day before</option>
+													<option value="2-day-before">2 days before</option>
+												</select>
+											</div>
+											<button disabled type="submit" class="btn btn-primary">
+												<svg class="icon-24" width="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<path fill-rule="evenodd" clip-rule="evenodd" d="M12 17.8476C17.6392 17.8476 20.2481 17.1242 20.5 14.2205C20.5 11.3188 18.6812 11.5054 18.6812 7.94511C18.6812 5.16414 16.0452 2 12 2C7.95477 2 5.31885 5.16414 5.31885 7.94511C5.31885 11.5054 3.5 11.3188 3.5 14.2205C3.75295 17.1352 6.36177 17.8476 12 17.8476Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+													<path d="M14.3889 20.8572C13.0247 22.3719 10.8967 22.3899 9.51953 20.8572" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+												</svg>
+												Set Reminder (coming soon)
+											</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Close</button>
+					<a id="eventInfoViewBtn" class="btn btn-primary">View</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="releaseInfoModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="releaseInfoModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="releaseInfoModalLabel">Release Overview</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="card">
+								<div class="card-header d-flex justify-content-between">
+									<div class="header-title">
+										<h4 class="card-title event-title"></h4>
+									</div>
+								</div>
+								<div class="card-body">
+									<div class="row">
+										<div class="row d-flex">
+											<div class="col-md-6">
+												<div class="form-group">
+													<label class="form-label">Release Date & Time:</label>
+													<span class="release-date"></span>
+												</div>
+
+												<div class="form-group has-validation">
+													<label class="form-label">Retailer:</label>
+													<span class="retailer"></span>
+												</div>
+												<div class="form-group has-validation">
+													<label class="form-label">Early Link:</label>
+													<a class="early-link" target="_blank">click to open</a>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label class="form-label">Event Date & Time:</label>
+													<span class="event-date"></span>
+												</div>
+												<div class="form-group">
+													<label class="form-label">Location:</label>
+													<span class="event-location"></span>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="row d-flex">
+											<div class="col-md-12">
+												<div class="form-group">
+													<label class="form-label">Our Guide:</label>
+													<p class="comments"></p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="card">
+								<div class="card-header d-flex justify-content-between">
+									<div class="header-title">
+										<h4 class="card-title"></h4>
+									</div>
+								</div>
+								<div class="card-body">
+									<form class="mt-3 text-center" action="/" method="POST" onsubmit="return false">
+										<div class="row">
+											<div class="row d-flex flex-wrap align-items-center justify-content-center">
+												<div class="col-md-8">
+													<div class="form-group">
+														<label class="form-label">Remind Me ⏰</label>
+														<select name="ticketType" class="form-select">
+															<option selected="" disabled="">Never</option>
+															<option value="event-starts">When event starts</option>
+															<option value="5-min-before">5 minutes before</option>
+															<option value="15-min-before">15 minutes before</option>
+															<option value="30-min-before">30 minutes before</option>
+															<option value="1-hr-before">1 hour before</option>
+															<option value="2-hr-before">2 hours before</option>
+															<option value="1-day-before">1 day before</option>
+															<option value="2-day-before">2 days before</option>
+														</select>
+													</div>
+													<button disabled type="submit" class="btn btn-primary">
+														<svg class="icon-24" width="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+															<path fill-rule="evenodd" clip-rule="evenodd" d="M12 17.8476C17.6392 17.8476 20.2481 17.1242 20.5 14.2205C20.5 11.3188 18.6812 11.5054 18.6812 7.94511C18.6812 5.16414 16.0452 2 12 2C7.95477 2 5.31885 5.16414 5.31885 7.94511C5.31885 11.5054 3.5 11.3188 3.5 14.2205C3.75295 17.1352 6.36177 17.8476 12 17.8476Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+															<path d="M14.3889 20.8572C13.0247 22.3719 10.8967 22.3899 9.51953 20.8572" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+														</svg>
+														Set Reminder (coming soon)
+													</button>
+												</div>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Close</button>
+					<a target="_blank" id="releaseInfoLink" class="btn btn-primary">Go To Release</a>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

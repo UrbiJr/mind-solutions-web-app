@@ -237,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Handle any errors that occurred during the data fetching process
                 console.error('Error fetching event data:', error);
                 document.getElementById("overlay").style.display = "none";
-                showToast("Error", 'Error fetching event data: ' + error + `<hr><a class="btn btn-light" href="/?model=events&action=eventOverview&eventId=${eventId}">Go back</a>`, true);
+                showToast("Error", 'Error fetching event data: ' + error + `<hr><a class="btn btn-light" href="/${currentLocale}/events/${eventId}">Go back</a>`, true);
             });
         }
 
@@ -1091,7 +1091,7 @@ function resetForm() {
 }
 
 function showToast(title, body, isError = false, isSuccess = false) {
-    const toast = document.getElementById("toastMessage");
+    const toast = document.getElementById("bottomToast");
     toast.querySelector(".toast-header strong").textContent = title;
     toast.querySelector(".toast-body").innerHTML = body;
 

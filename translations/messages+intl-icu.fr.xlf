@@ -9,6 +9,46 @@
         <source>join_title</source>
         <target>Rejoindre {siteName}!</target>
       </trans-unit>
+      <trans-unit id="OWe6mRy" resname="calendar_title">
+        <source>calendar_title</source>
+        <target>{siteName} Calendrier</target>
+      </trans-unit>
+      <trans-unit id="qBGJ8n8" resname="This is your profile overview">
+        <source>This is your profile overview</source>
+        <target>__This is your profile overview</target>
+      </trans-unit>
+      <trans-unit id="sE7e4xM" resname="Have a look at your feed, create your ticket portfolio, and even more.">
+        <source>Have a look at your feed, create your ticket portfolio, and even more.</source>
+        <target>__Have a look at your feed, create your ticket portfolio, and even more.</target>
+      </trans-unit>
+      <trans-unit id="veYeNKY" resname="The only calendar that really matters.">
+        <source>The only calendar that really matters.</source>
+        <target>__The only calendar that really matters.</target>
+      </trans-unit>
+      <trans-unit id="4EI_obS" resname="Viagogo Events at a glance">
+        <source>Viagogo Events at a glance</source>
+        <target>__Viagogo Events at a glance</target>
+      </trans-unit>
+      <trans-unit id=".7uRUI_" resname="Filter, search and focus on your preferred events. Blazingly fast and effortlessly.">
+        <source>Filter, search and focus on your preferred events. Blazingly fast and effortlessly.</source>
+        <target>__Filter, search and focus on your preferred events. Blazingly fast and effortlessly.</target>
+      </trans-unit>
+      <trans-unit id="jfa0SPP" resname="View on Viagogo">
+        <source>View on Viagogo</source>
+        <target>__View on Viagogo</target>
+      </trans-unit>
+      <trans-unit id="SWM2jM." resname="menu.choose_language">
+        <source>menu.choose_language</source>
+        <target>__menu.choose_language</target>
+      </trans-unit>
+      <trans-unit id="ZYXSW95" resname="http_error_500.description">
+        <source>http_error_500.description</source>
+        <target>__http_error_500.description</target>
+      </trans-unit>
+      <trans-unit id="_W1eNz2" resname="http_error_404.description">
+        <source>http_error_404.description</source>
+        <target>__http_error_404.description</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -131,7 +131,7 @@ function onSubmitViagogoForm(form) {
             $('button[type="submit"]').prop('disabled', false);
 
             // Select the toast element
-            var toast = document.getElementById("toastMessage");
+            var toast = document.getElementById("bottomToast");
 
             // Initialize a new Bootstrap Toast instance
             var bootstrapToast = new bootstrap.Toast(toast);
@@ -156,7 +156,7 @@ function onSubmitViagogoForm(form) {
         $('button[type="submit"]').prop('disabled', false);
 
         // Select the toast element
-        var toast = document.getElementById("toastMessage");
+        var toast = document.getElementById("bottomToast");
 
         // Initialize a new Bootstrap Toast instance
         var bootstrapToast = new bootstrap.Toast(toast);

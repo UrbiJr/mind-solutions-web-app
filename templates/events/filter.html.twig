@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Viagogo Events
+{% endblock %}
+
+{% block content %}
+	<div class="conatiner-fluid content-inner mt-n5 py-0">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="card">
+					<div class="card-header d-flex justify-content-between">
+						<div class="header-title">
+							<h2 class="card-title">Viagogo Events</h4>
+							<p>Use available filters to reload results.</p>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="card">
+							<h5 class="card-title">Filters</h5>
+							{{ form_start(eventFilterForm, {'attr': {'onsubmit': 'return onSubmitFilterViagogoEvents(this);'}}) }}
+							{{ form_row(eventFilterForm.query) }}
+							{{ form_row(eventFilterForm.country) }}
+							{{ form_row(eventFilterForm.genre) }}
+							{{ form_row(eventFilterForm.submit) }}
+							{{ form_end(eventFilterForm) }}
+						</div>
+						<div class="table-responsive">
+							<table id="eventsTable" class="table table-striped" data-toggle="data-table">
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Floor Price</th>
+										<th>Start Date</th>
+										<th>Genre</th>
+										<th>Country</th>
+										<th>City</th>
+										<th>Venue</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+								<tfoot>
+									<tr>
+										<th>Name</th>
+										<th>Floor Price</th>
+										<th>Start Date</th>
+										<th>Genre</th>
+										<th>Country</th>
+										<th>City</th>
+										<th>Venue</th>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

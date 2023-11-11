@@ -1,0 +1,187 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+	<div class="conatiner-fluid content-inner mt-n5 py-0">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="card">
+					<div class="card-body">
+						<div class="d-flex flex-wrap align-items-center justify-content-between">
+							<div class="d-flex flex-wrap align-items-center">
+								<div class="profile-img position-relative me-3 mb-3 mb-lg-0 profile-logo profile-logo1">
+									{% set avatar = (user.imageUrl is defined and user.imageUrl != "") ? user.imageUrl : asset('/images/avatars/01.png') %}
+									<img src="{{ avatar }}" alt="User-Profile" class="theme-color-default-img img-fluid rounded-pill avatar-100">
+								</div>
+								<div class="d-flex flex-wrap align-items-center mb-3 mb-sm-0">
+									<h4 class="me-2 h4">{{ user.discordUsername }}</h4>
+									<span>
+										- Member since
+										{{ memberSince }}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="card">
+					<div class="card-header">
+						<div class="header-title">
+							<h4 class="card-title">About
+								<a href="{{ path('profile_settings') }}">
+									<svg class="icon-32" width="32" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M20.8064 7.62361L20.184 6.54352C19.6574 5.6296 18.4905 5.31432 17.5753 5.83872V5.83872C17.1397 6.09534 16.6198 6.16815 16.1305 6.04109C15.6411 5.91402 15.2224 5.59752 14.9666 5.16137C14.8021 4.88415 14.7137 4.56839 14.7103 4.24604V4.24604C14.7251 3.72922 14.5302 3.2284 14.1698 2.85767C13.8094 2.48694 13.3143 2.27786 12.7973 2.27808H11.5433C11.0367 2.27807 10.5511 2.47991 10.1938 2.83895C9.83644 3.19798 9.63693 3.68459 9.63937 4.19112V4.19112C9.62435 5.23693 8.77224 6.07681 7.72632 6.0767C7.40397 6.07336 7.08821 5.98494 6.81099 5.82041V5.82041C5.89582 5.29601 4.72887 5.61129 4.20229 6.52522L3.5341 7.62361C3.00817 8.53639 3.31916 9.70261 4.22975 10.2323V10.2323C4.82166 10.574 5.18629 11.2056 5.18629 11.8891C5.18629 12.5725 4.82166 13.2041 4.22975 13.5458V13.5458C3.32031 14.0719 3.00898 15.2353 3.5341 16.1454V16.1454L4.16568 17.2346C4.4124 17.6798 4.82636 18.0083 5.31595 18.1474C5.80554 18.2866 6.3304 18.2249 6.77438 17.976V17.976C7.21084 17.7213 7.73094 17.6516 8.2191 17.7822C8.70725 17.9128 9.12299 18.233 9.37392 18.6717C9.53845 18.9489 9.62686 19.2646 9.63021 19.587V19.587C9.63021 20.6435 10.4867 21.5 11.5433 21.5H12.7973C13.8502 21.5001 14.7053 20.6491 14.7103 19.5962V19.5962C14.7079 19.088 14.9086 18.6 15.2679 18.2407C15.6272 17.8814 16.1152 17.6807 16.6233 17.6831C16.9449 17.6917 17.2594 17.7798 17.5387 17.9394V17.9394C18.4515 18.4653 19.6177 18.1544 20.1474 17.2438V17.2438L20.8064 16.1454C21.0615 15.7075 21.1315 15.186 21.001 14.6964C20.8704 14.2067 20.55 13.7894 20.1108 13.5367V13.5367C19.6715 13.284 19.3511 12.8666 19.2206 12.3769C19.09 11.8873 19.16 11.3658 19.4151 10.928C19.581 10.6383 19.8211 10.3982 20.1108 10.2323V10.2323C21.0159 9.70289 21.3262 8.54349 20.8064 7.63277V7.63277V7.62361Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+										<circle cx="12.1747" cy="11.8891" r="2.63616" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></circle>
+									</svg>
+								</a>
+							</h4>
+						</div>
+					</div>
+					<div class="card-body">
+						<p>{{ user.about }}</p>
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-header">
+						<div class="header-title">
+							<h4 class="card-title">Connections
+								<a href="{{ path('profile_settings') }}">
+									<svg class="icon-32" width="32" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M20.8064 7.62361L20.184 6.54352C19.6574 5.6296 18.4905 5.31432 17.5753 5.83872V5.83872C17.1397 6.09534 16.6198 6.16815 16.1305 6.04109C15.6411 5.91402 15.2224 5.59752 14.9666 5.16137C14.8021 4.88415 14.7137 4.56839 14.7103 4.24604V4.24604C14.7251 3.72922 14.5302 3.2284 14.1698 2.85767C13.8094 2.48694 13.3143 2.27786 12.7973 2.27808H11.5433C11.0367 2.27807 10.5511 2.47991 10.1938 2.83895C9.83644 3.19798 9.63693 3.68459 9.63937 4.19112V4.19112C9.62435 5.23693 8.77224 6.07681 7.72632 6.0767C7.40397 6.07336 7.08821 5.98494 6.81099 5.82041V5.82041C5.89582 5.29601 4.72887 5.61129 4.20229 6.52522L3.5341 7.62361C3.00817 8.53639 3.31916 9.70261 4.22975 10.2323V10.2323C4.82166 10.574 5.18629 11.2056 5.18629 11.8891C5.18629 12.5725 4.82166 13.2041 4.22975 13.5458V13.5458C3.32031 14.0719 3.00898 15.2353 3.5341 16.1454V16.1454L4.16568 17.2346C4.4124 17.6798 4.82636 18.0083 5.31595 18.1474C5.80554 18.2866 6.3304 18.2249 6.77438 17.976V17.976C7.21084 17.7213 7.73094 17.6516 8.2191 17.7822C8.70725 17.9128 9.12299 18.233 9.37392 18.6717C9.53845 18.9489 9.62686 19.2646 9.63021 19.587V19.587C9.63021 20.6435 10.4867 21.5 11.5433 21.5H12.7973C13.8502 21.5001 14.7053 20.6491 14.7103 19.5962V19.5962C14.7079 19.088 14.9086 18.6 15.2679 18.2407C15.6272 17.8814 16.1152 17.6807 16.6233 17.6831C16.9449 17.6917 17.2594 17.7798 17.5387 17.9394V17.9394C18.4515 18.4653 19.6177 18.1544 20.1474 17.2438V17.2438L20.8064 16.1454C21.0615 15.7075 21.1315 15.186 21.001 14.6964C20.8704 14.2067 20.55 13.7894 20.1108 13.5367V13.5367C19.6715 13.284 19.3511 12.8666 19.2206 12.3769C19.09 11.8873 19.16 11.3658 19.4151 10.928C19.581 10.6383 19.8211 10.3982 20.1108 10.2323V10.2323C21.0159 9.70289 21.3262 8.54349 20.8064 7.63277V7.63277V7.62361Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+										<circle cx="12.1747" cy="11.8891" r="2.63616" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></circle>
+									</svg>
+								</a>
+							</h4>
+						</div>
+					</div>
+					<div class="card-body">
+						<ul class="list-inline m-0 p-0">
+							{% for platform, platformData in user.connections %}
+								{% if platformData["display"] %}
+									<li class="d-flex mb-4 align-items-center">
+										<div class="img-fluid rounded-pill">
+											<img class="platform avatar-40" alt="{{ platform }}" src="{{ asset('/images/brands/' ~ platform ~ '.svg') }}">
+										</div>
+										<div class="ms-3 flex-grow-1">
+											<h6>{{ platform }}</h6>
+											<p class="mb-0">{{ platformData["username"] }}</p>
+										</div>
+										<a href="{{ platformData["url"] }}" target="_blank" class="btn btn-outline-primary rounded-circle btn-icon btn-sm p-2">
+											<span class="btn-inner">
+												<svg class="icon-20" width="20" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<path fill-rule="evenodd" clip-rule="evenodd" d="M9.87651 15.2063C6.03251 15.2063 2.74951 15.7873 2.74951 18.1153C2.74951 20.4433 6.01251 21.0453 9.87651 21.0453C13.7215 21.0453 17.0035 20.4633 17.0035 18.1363C17.0035 15.8093 13.7415 15.2063 9.87651 15.2063Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+													<path fill-rule="evenodd" clip-rule="evenodd" d="M9.8766 11.886C12.3996 11.886 14.4446 9.841 14.4446 7.318C14.4446 4.795 12.3996 2.75 9.8766 2.75C7.3546 2.75 5.3096 4.795 5.3096 7.318C5.3006 9.832 7.3306 11.877 9.8456 11.886H9.8766Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+													<path d="M19.2036 8.66919V12.6792" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+													<path d="M21.2497 10.6741H17.1597" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+												</svg>
+											</span>
+										</a>
+									</li>
+								{% endif %}
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="card">
+					<div class="card-header d-flex justify-content-between">
+						<div class="header-title">
+							<h4 class="card-title">Recent Listings</h4>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="d-flex justify-content-start align-items-center">
+							<div class="pe-3">
+								<a href="#!">
+									<img class="platform avatar-40" width="50" height="50" alt="" src="{{asset('/images/icons/ticket.svg')}}" alt="">
+								</a>
+							</div>
+							<div>
+								<a href="#!">
+									<h6 class=" mb-1">British F1<br/>08 SEP 23</h6>
+								</a>
+								<p class="mb-0">109$</p>
+							</div>
+						</div>
+						<div class="d-flex justify-content-start align-items-center mt-4">
+							<div class="pe-3">
+								<a href="#!">
+									<img class="platform avatar-40" width="50" height="50" alt="" src="{{asset('/images/icons/ticket.svg')}}" alt="">
+								</a>
+							</div>
+							<div>
+								<a href="#!">
+									<h6 class=" mb-1">Travis Scott<br/>07 AUG 23</h6>
+								</a>
+								<p class="mb-0">79$</p>
+							</div>
+						</div>
+						<div class="d-flex justify-content-start align-items-center mt-4">
+							<div class="pe-3">
+								<a href="#!">
+									<img class="platform avatar-40" width="50" height="50" alt="" src="{{asset('/images/icons/ticket.svg')}}" alt="">
+								</a>
+							</div>
+							<div>
+								<a href="#!">
+									<h6 class=" mb-1">Taylor Swift<br/>01 OCT 23</h6>
+								</a>
+								<p class="mb-0">210$</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="profile-content tab-content">
+					{% if user.connections['twitter'] is defined and user.connections['twitter']['display'] %}
+						<div id="profile-feed" class="tab-pane fade active show">
+							<div class="card">
+								<a class="twitter-timeline" data-height="500" data-theme="light" href="https://twitter.com/{{ user.connections['twitter']['username'] }}?ref_src=twsrc%5Etfw">Tweets from
+									{{ user.connections['twitter']['username'] }}</a>
+								<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<div class="offcanvas offcanvas-bottom share-offcanvas" tabindex="-1" id="share-btn" aria-labelledby="shareBottomLabel">
+			<div class="offcanvas-header">
+				<h5 class="offcanvas-title" id="shareBottomLabel">Share</h5>
+				<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body small">
+				<div class="d-flex flex-wrap align-items-center">
+					<div class="text-center me-3 mb-3">
+						<img src="{{asset('/images/brands/08.png')}}" class="img-fluid rounded mb-2" alt="">
+						<h6>Facebook</h6>
+					</div>
+					<div class="text-center me-3 mb-3">
+						<img src="{{asset('/images/brands/09.png')}}" class="img-fluid rounded mb-2" alt="">
+						<h6>Twitter</h6>
+					</div>
+					<div class="text-center me-3 mb-3">
+						<img src="{{asset('/images/brands/10.png')}}" class="img-fluid rounded mb-2" alt="">
+						<h6>Instagram</h6>
+					</div>
+					<div class="text-center me-3 mb-3">
+						<img src="{{asset('/images/brands/11.png')}}" class="img-fluid rounded mb-2" alt="">
+						<h6>Google Plus</h6>
+					</div>
+					<div class="text-center me-3 mb-3">
+						<img src="{{asset('/images/brands/13.png')}}" class="img-fluid rounded mb-2" alt="">
+						<h6>In</h6>
+					</div>
+					<div class="text-center me-3 mb-3">
+						<img src="{{asset('/images/brands/12.png')}}" class="img-fluid rounded mb-2" alt="">
+						<h6>YouTube</h6>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

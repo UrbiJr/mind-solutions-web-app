@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    const input = document.getElementById('about');
-    const label = document.querySelector('.form-label[for="about"]');
+    const input = document.getElementById('user_about_about');
+    const label = document.querySelector('.form-label[for="user_about_about"]');
 
     if (input) {
         input.addEventListener('input', function () {

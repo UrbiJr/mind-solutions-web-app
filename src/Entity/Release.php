@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use DateTime;
 
 /**
  * Release
@@ -207,5 +208,19 @@ class Release
         return $this;
     }
 
+    public function getEventDateAsDateTime(): ?DateTime
+    {
+        if ($this->eventDate !== null) {
+            return new DateTime($this->eventDate);
+        }
+        return null;
+    }
 
+    public function getReleaseDateAsDateTime(): ?DateTime
+    {
+        if ($this->releaseDate !== null) {
+            return new DateTime($this->releaseDate);
+        }
+        return null;
+    }
 }

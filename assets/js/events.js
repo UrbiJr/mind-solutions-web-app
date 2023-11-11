@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if ($('#eventOverview').length) {
 
         // get eventId
-        const searchParams = new URLSearchParams(window.location.search);
-        const eventId = searchParams.get('eventId');
+        const pathSegments = window.location.pathname.split('/');
+        const eventId = pathSegments[pathSegments.length - 1];
 
         if (eventId === undefined || eventId == "") {
             return false;
@@ -64,7 +64,24 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             document.getElementById("floorPriceRating").innerHTML = ratingHtml;
-            document.getElementById("eventImage").setAttribute("src", `/images/events/${response.eventData._embedded.genre.name}.png`);
+            const eventImage = document.getElementById("eventImage");
+            switch (response.eventData._embedded.genre.name) {
+                case "Concert Tickets":
+                    eventImage.setAttribute("src", eventImage.getAttribute('data-concert-src'));
+                    break;
+
+                case "Sports Tickets":
+                    eventImage.setAttribute("src", eventImage.getAttribute('data-sports-src'));
+                    break;
+                
+                case "Theater Tickets":
+                    eventImage.setAttribute("src", eventImage.getAttribute('data-theater-src'));
+                    break;
+            
+                default:
+                    break;
+            }
+            
 
             // Update event date and on-sale date
             document.getElementById("eventDate").textContent = "Event Date: " + response.startDate;
@@ -150,7 +167,7 @@ function displaySearchResults(query) {
                 const resultItem = document.createElement("a");
                 resultItem.classList.add("dropdown-item");
                 const eventLink = document.createElement("a");
-                eventLink.href = `/?model=events&action=eventOverview&eventId=${event.id}`;
+                eventLink.href = `/${currentLocale}/events/${event.id}`;
                 eventLink.textContent = `${event.name} - ${event._embedded.venue.city}`;
                 resultItem.appendChild(eventLink);
                 resultsContainer.appendChild(resultItem);
@@ -182,15 +199,15 @@ function onSubmitFilterViagogoEvents(form) {
     var query, country, genre;
     $(form).serializeArray().forEach(function (field) {
         switch (field.name) {
-            case "query":
+            case "event_filter[query]":
                 query = field.value;
                 break;
 
-            case "country":
+            case "event_filter[country]":
                 country = field.value;
                 break;
 
-            case "genre":
+            case "event_filter[genre]":
                 genre = field.value;
                 break;
 
@@ -220,7 +237,7 @@ function onSubmitFilterViagogoEvents(form) {
                 });
 
                 var rowData = [
-                    '<a href="/?model=events&action=eventOverview&eventId=' + event.id + '">' + event.name + '</a>',
+                    `<a href="/${currentLocale}/events/${event.id}">${event.name}</a>`,
                     event.min_ticket_price ? event.min_ticket_price.display : 'N/A',
                     formattedStartDate,
                     event._embedded.genre.name,

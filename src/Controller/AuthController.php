@@ -72,8 +72,7 @@ class AuthController extends AbstractController
             return $this->redirectToRoute('dashboard');
         }
 
-        return $this->render('auth.html.twig', array(
-            'subview' => 'views/auth/login.html.twig',
+        return $this->render('auth/login.html.twig', array(
             'form' => $form,
             'error'         => $error,
             'showToast' => false,
@@ -143,9 +142,8 @@ class AuthController extends AbstractController
 
         // ... So, the form is created and rendered;
         return $this->render(
-            'auth.html.twig',
+            'auth/register.html.twig',
             [
-                'subview' => 'views/auth/register.html.twig',
                 'form' => $form,
                 'showToast' => false,
                 'toastClass' => 'bg-primary',

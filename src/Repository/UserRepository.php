@@ -4,13 +4,15 @@ namespace App\Repository;
 
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use App\Entity\User;
+use App\Service\Firestore;
+use App\Service\Utils;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 class UserRepository extends ServiceEntityRepository implements UserLoaderInterface
 {
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly Utils $utils, private readonly Firestore $firestore, private readonly string $projectDir)
     {
         parent::__construct($registry, User::class);
     }
@@ -67,5 +69,64 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
         $em = $this->getEntityManager();
         $em->persist($user);
         $em->flush();
+    }
+
+    public function exportInventoryToCSV(User $user)
+    {
+        $inventory = $this->firestore->get_user_inventory($user->getId());
+
+        $fileName = "user_{$user->getId()}_inventory.csv";
+        $filePath = $this->utils->pathCombine([$this->projectDir, 'downloads', $fileName]);
+        $csvFile = fopen($filePath, 'w');
+
+        // Add CSV header
+        $csvHeader = [
+            'ItemId',
+            'ViagogoEventId',
+            'ViagogoCategoryId',
+            'Name',
+            'Country',
+            'City',
+            'Location',
+            'Section',
+            'Row',
+            'Seats',
+            'TicketType',
+            'TicketGenre',
+            'Retailer',
+            'IndividualTicketCostAmount',
+            'IndividualTicketCostCurrency',
+            'OrderNumber',
+            'OrderEmail',
+            'Status',
+            'YourPricePerTicketAmount',
+            'YourPricePerTicketCurrency',
+            'TotalPayoutAmount',
+            'TotalPayoutCurrency',
+            'Quantity',
+            'QuantityRemain',
+            'Platform',
+            'SaleId',
+            'ListingId',
+            'ListingRestrictions',
+            'ListingTicketDetails',
+            'SaleDate',
+            'EventDate',
+            'PurchaseDate',
+            'SaleEndDate',
+            'DateLastModified',
+        ];
+
+        fputcsv($csvFile, $csvHeader, ";");
+
+        // Loop through inventory items for the user
+        foreach ($inventory as $inventoryItem) {
+            $csvRow = array_values($inventoryItem->toArray()); // Convert InventoryItem object to an array
+            fputcsv($csvFile, $csvRow, ";");
+        }
+
+        fclose($csvFile);
+
+        return [$fileName, $filePath];
     }
 }

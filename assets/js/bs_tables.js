@@ -98,7 +98,7 @@ function saleDetailFormatter(index, row) {
                 html.push('<p><small>Section: ' + section + '</p></small>');
                 html.push('<p><small>Row: ' + row + '</p></small>');
                 html.push('<p><small>Seats: ' + seatFrom + ' - ' + seatTo + '</p></small>');
-                html.push(`<a class="btn btn-soft-info" style="margin-bottom: 20px" href="http://localhost:8080/?model=events&action=eventOverview&eventId=${eventId}">
+                html.push(`<a class="btn btn-soft-info" style="margin-bottom: 20px" href="http://localhost:8080/${currentLocale}/events/${eventId}">
                 <i class="fa-solid fa-eye"></i> View Event
             </button>`);
                 html.push('</div>');

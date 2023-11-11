@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+	<div class="conatiner-fluid content-inner py-0" style="margin-top: 40px;">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="card">
+						<div class="card-header d-flex justify-content-between">
+							<div class="header-title">
+								<h4 class="card-title">Backup</h4>
+							</div>
+						</div>
+						<div class="card-body">
+							<p>Export your data and save it locally.</p>
+							{{ form(exportForm) }}
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-header d-flex justify-content-between">
+								<div class="header-title">
+									<h4 class="card-title">Restore</h4>
+								</div>
+							</div>
+							<div class="card-body">
+								<p>Import your data from a local backup.</p>
+								{{ form(importForm) }}
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-header d-flex justify-content-between">
+								<div class="header-title">
+									<h4 class="card-title">Account Setting</h4>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="acc-edit">
+									{{ form(settingsForm) }}
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="acc-edit">
+									{{ form(passwordForm) }}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<div class="card">
+							<div class="card-header d-flex justify-content-between">
+								<div class="header-title">
+									<h4 class="card-title">Connections</h4>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="acc-edit">
+									{{ form(connectionsForm) }}
+								</div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="card-header d-flex justify-content-between">
+								<div class="header-title">
+									<h4 class="card-title">About Me</h4>
+								</div>
+							</div>
+							<div class="card-body">
+								<p>Choose a bio for your public profile.</p>
+								{{ form(aboutForm) }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal for Dangerous Action Confirmation -->
+		<div class="modal fade" id="confirmRestoreModal" tabindex="-1" role="dialog" aria-labelledby="confirmRestoreModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="confirmRestoreModalLabel">Confirm Restore</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<p>
+							<b>Please read</b><br>You will lose all your current data in favor of the uploaded backup.<br>To confirm, please type "restore":</p>
+						<input type="text" id="confirmRestoreInput" class="form-control">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-warning" id="confirmRestoreBtn" disabled>Confirm</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}

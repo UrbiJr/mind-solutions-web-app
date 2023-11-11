@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<title>Mind Solutions | Authentication</title>
+		<title>Mind Solutions | {% block title %}{% endblock %}</title>
 
 		{% block stylesheets %}
 
@@ -47,7 +47,7 @@
 		</div>
 		<!-- loader END -->
 
-		<!-- Toast Will Appear Here -->
+		<!-- Alerts Will Appear Here -->
 		<div class="toast-container position-absolute top-0 end-0 p-3">
 			{% for message in app.flashes('notice') %}
 				<div class="alert alert-warning">
@@ -75,50 +75,49 @@
 			</div>
 		</div>
 
-		<div class="wrapper">
-			{{ include(subview) }}
-		</div>
+		<div class="wrapper"> {% block content %}{% endblock %}
+			</div>
 
-		{% block javascripts %}
+			{% block javascripts %}
 
-			<script src="{{ asset('js/custom-functions.js') }}"></script>
-			<script src="{{ asset('js/auth.js') }}"></script>
-			<script src="{{ asset('js/dashboard.js') }}"></script>
-			<script src="{{ asset('js/events.js') }}"></script>
-			<script src="{{ asset('js/inventory.js') }}"></script>
-			<script src="{{ asset('js/settings.js') }}"></script>
-			<script src="{{ asset('js/viagogo.js') }}"></script>
+				<script src="{{ asset('js/custom-functions.js') }}"></script>
+				<script src="{{ asset('js/auth.js') }}"></script>
+				<script src="{{ asset('js/dashboard.js') }}"></script>
+				<script src="{{ asset('js/events.js') }}"></script>
+				<script src="{{ asset('js/inventory.js') }}"></script>
+				<script src="{{ asset('js/settings.js') }}"></script>
+				<script src="{{ asset('js/viagogo.js') }}"></script>
 
-			<!-- Library Bundle Script -->
-			<script src="{{ asset('js/core/libs.min.js') }}"></script>
+				<!-- Library Bundle Script -->
+				<script src="{{ asset('js/core/libs.min.js') }}"></script>
 
-			<!-- External Library Bundle Script -->
-			<script src="{{ asset('js/core/external.min.js') }}"></script>
+				<!-- External Library Bundle Script -->
+				<script src="{{ asset('js/core/external.min.js') }}"></script>
 
-			<!-- Widgetchart Script -->
-			<script src="{{ asset('js/charts/widgetcharts.js') }}"></script>
+				<!-- Widgetchart Script -->
+				<script src="{{ asset('js/charts/widgetcharts.js') }}"></script>
 
-			<!-- mapchart Script -->
-			<script src="{{ asset('js/charts/vectore-chart.js') }}"></script>
-			<script src="{{ asset('js/charts/dashboard.js') }}"></script>
+				<!-- mapchart Script -->
+				<script src="{{ asset('js/charts/vectore-chart.js') }}"></script>
+				<script src="{{ asset('js/charts/dashboard.js') }}"></script>
 
-			<!-- fslightbox Script -->
-			<script src="{{ asset('js/plugins/fslightbox.js') }}"></script>
+				<!-- fslightbox Script -->
+				<script src="{{ asset('js/plugins/fslightbox.js') }}"></script>
 
-			<!-- Settings Script -->
-			<script src="{{ asset('js/plugins/setting.js') }}"></script>
+				<!-- Settings Script -->
+				<script src="{{ asset('js/plugins/setting.js') }}"></script>
 
-			<!-- Slider-tab Script -->
-			<script src="{{ asset('js/plugins/slider-tabs.js') }}"></script>
+				<!-- Slider-tab Script -->
+				<script src="{{ asset('js/plugins/slider-tabs.js') }}"></script>
 
-			<!-- Form Wizard Script -->
-			<script src="{{ asset('js/plugins/form-wizard.js') }}"></script>
+				<!-- Form Wizard Script -->
+				<script src="{{ asset('js/plugins/form-wizard.js') }}"></script>
 
-			<!-- App Script -->
-			<script src="{{ asset('js/hope-ui.js') }}" defer></script>
-		{% endblock %}
+				<!-- App Script -->
+				<script src="{{ asset('js/hope-ui.js') }}" defer></script>
+			{% endblock %}
 
 
-	</body>
+		</body>
 
-</html>
+	</html>

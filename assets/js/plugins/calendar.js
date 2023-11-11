@@ -1,6 +1,6 @@
 function getCalendarData(type, startDate, endDate, sort, order, successCallback, errorCallback) {
     $.ajax({
-        url: '/getCalendar', // Replace with the URL of your PHP script
+        url: '/api/user/calendar/merged', // Replace with the URL of your PHP script
         type: 'GET',
         data: {
             type: type,

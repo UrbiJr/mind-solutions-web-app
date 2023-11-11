@@ -139,6 +139,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
 
     public function __construct()
     {
+        $this->connections = array();
         $this->createdAt = new DateTime();
     }
 
@@ -214,6 +215,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
 
     public function setLicenseKey(?string $licenseKey): static
     {
+        if (!is_string($licenseKey)) {
+            throw new \InvalidArgumentException('License key must be a string.');
+        }
+
         $this->licenseKey = $licenseKey;
 
         return $this;
@@ -279,14 +284,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
         return $this;
     }
 
-    public function getAbout(): ?string
+    public function getConnection(string $key): ?array
     {
-        return $this->about;
+        if (isset($this->connections[$key])) {
+            return $this->connections[$key];
+        }
+
+        return null;
     }
 
-    public function setAbout(?string $about): static
+    public function setConnection(string $key, array $connection): static
     {
-        $this->about = $about;
+        $this->connections[$key] = $connection;
 
         return $this;
     }
@@ -466,6 +475,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
     public function setWhopManageUrl($whopManageUrl)
     {
         $this->whopManageUrl = $whopManageUrl;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of about
+     */ 
+    public function getAbout()
+    {
+        return $this->about;
+    }
+
+    public function setAbout(?string $about): static
+    {
+        $this->about = $about;
 
         return $this;
     }

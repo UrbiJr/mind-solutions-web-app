@@ -188,7 +188,7 @@ final class Firestore
     }
 
 
-    function delete_event_from_inventory($itemId, $userId)
+    function delete_inventory_item($itemId, $userId)
     {
         // Reference to the root "users" collection
         $usersCollectionRef = $this->con->collection('users');

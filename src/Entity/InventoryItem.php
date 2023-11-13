@@ -135,6 +135,78 @@ class InventoryItem
         $this->setTicketDetails($ticketDetails);
     }
 
+    public static function fromDataArray(User $user, array $inventoryItem): InventoryItem
+    {
+        $name = $inventoryItem['eventName'] ?? '';
+        $eventDate = isset($inventoryItem['eventDate']) ? new \DateTime($inventoryItem['eventDate']) : '';
+        $purchaseDate = isset($inventoryItem['purchaseDate']) ? new \DateTime($inventoryItem['purchaseDate']) : '';
+        $country = $inventoryItem['country'] ?? '';
+        $city = $inventoryItem['city'] ?? '';
+        $location = $inventoryItem['location'] ?? '';
+        $section = $inventoryItem['customSection'] && $inventoryItem['customSection'] != "" ? $inventoryItem['customSection'] : ($inventoryItem['section'] ?? '');
+        $row = $inventoryItem['row'] ?? '';
+        $seatFrom = $inventoryItem['seatFrom'] ?? null;
+        $seatTo = $inventoryItem['seatTo'] ?? null;
+        if ($inventoryItem['quantity'] === null || $inventoryItem['quantity'] <= 0) {
+            try {
+                $seatFromInt = intval($seatFrom);
+                $seatToInt = intval($seatTo);
+                $quantity = $seatToInt - $seatFromInt + 1;
+            } catch (\Exception $e) {
+                $quantity = 1;
+            }
+        } else {
+            $quantity = $inventoryItem['quantity'];
+        }
+        $quantityRemaining = $quantity;
+        $ticketGenre = $inventoryItem['ticketGenre'] ?? '';
+        $ticketType = $inventoryItem['ticketType'] ?? '';
+        $retailer = $inventoryItem['retailer'] ?? '';
+        $currency = $inventoryItem['currency'] ?? $user->getCurrency();
+        $individualTicketCost = isset($inventoryItem['ticketCost']) ? ['amount' => floatval($inventoryItem['ticketCost']), 'currency' => $currency] : null;
+        $orderNumber = $inventoryItem['orderNumber'] ?? '';
+        $orderEmail = $inventoryItem['orderEmail'] ?? '';
+        $viagogoEventId = $inventoryItem['eventId'] ?? null;
+        $viagogoCategoryId = $inventoryItem['categoryId'] ?? null;
+        $saleDate = isset($inventoryItem['saleDate']) ? new \DateTime($inventoryItem['saleDate']) : '';
+        $platform = $inventoryItem['platform'] ?? '';
+
+        return new InventoryItem(
+            null,
+            $viagogoEventId,
+            $viagogoCategoryId,
+            $name,
+            $eventDate,
+            $purchaseDate,
+            $country,
+            $city,
+            $location,
+            $section,
+            $row,
+            $seatFrom,
+            $seatTo,
+            $ticketType,
+            $ticketGenre,
+            $retailer,
+            $individualTicketCost,
+            $orderNumber,
+            $orderEmail,
+            InventoryItem::ITEM_NOT_LISTED,
+            null,
+            null,
+            null,
+            $quantity,
+            $quantityRemaining,
+            null,
+            $platform,
+            $saleDate,
+            null,
+            null,
+            null,
+            null,
+        );
+    }
+
     public function setId($id)
     {
         $this->id = isset($id) ? htmlspecialchars($id, ENT_QUOTES, 'UTF-8') : null;

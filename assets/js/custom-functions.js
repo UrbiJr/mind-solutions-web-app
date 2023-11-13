@@ -140,3 +140,9 @@ function haveSameElements(array1, array2) {
     // If all of the elements are equal, return true.
     return true;
 }
+
+// Helper function to format the date
+function formatDateToDateTimeLocal(dateString) {
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 16); // Formats to 'YYYY-MM-DDTHH:MM'
+}

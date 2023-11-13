@@ -132,9 +132,10 @@ function makeInventoryList(rows) {
 
 function getInventoryList(offset, limit, sort, order, successCallback, errorCallback) {
     $.ajax({
-        url: '/api/user/inventory/list', // Replace with the URL of your PHP script
+        url: '/api/user/inventory', // Replace with the URL of your PHP script
         type: 'GET',
         data: {
+            format: 'list',
             offset: offset,
             limit: limit,
             sort: sort,

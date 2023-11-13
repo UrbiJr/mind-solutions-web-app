@@ -28,6 +28,7 @@ final class Utils
             $exchangeRates = $this->fetchExchangeRates($currency);
             $cacheItem->set($exchangeRates);
             $cacheItem->expiresAfter(3600); // Cache for 1 hour
+            $this->cache->save($cacheItem);
         }
         return $cacheItem->get();
     }

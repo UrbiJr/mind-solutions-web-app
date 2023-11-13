@@ -108,10 +108,7 @@ function duplicateRelease(releaseId) {
     // Perform Ajax POST request
     $.ajax({
         type: "POST",
-        url: '/?model=releases&action=duplicate',
-        data: {
-            id: releaseId
-        },
+        url: `/api/admin/releases/copy/${releaseId}`,
         success: function (response) {
             // Handle the response from the server
             if (response.success === true) {

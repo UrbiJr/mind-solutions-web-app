@@ -162,85 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if ($("#form-wizard1").length) {
 
-        // get eventId
-        const searchParams = new URLSearchParams(window.location.search);
-        const action = searchParams.get('action');
-        if (action === "addEvent") {
-            /* add event to inventory by eventId */
-            const eventId = searchParams.get('eventId');
-
-            if (eventId === undefined || eventId == "") {
-                return false;
-            }
-
-            document.getElementById("overlay").style.display = "";
-
-            getEventOverviewData(eventId, function (result) {
-                if (result.eventData !== null && result.eventData.id) {
-                    document.getElementById("city").disabled = true;
-                    document.getElementById("location").disabled = true;
-                    document.getElementById("eventId").setAttribute('value', result.eventData.id);
-                    document.getElementById("city").setAttribute('value', result.eventData._embedded.venue.city);
-                    document.getElementById("location").setAttribute('value', result.eventData._embedded.venue.name);
-                    document.getElementById("categoryId").setAttribute('value', result.categoryId);
-                    var sectionSelect = document.getElementById("sectionSelect");
-                    Object.entries(result.sections.sections).forEach((section) => {
-                        if (sectionSelect.value === section[0]) {
-                            // there's already a selected option for this section  
-                            return;
-                        }
-
-                        // Create a new option element
-                        var option = document.createElement("option");
-
-                        // Set the value and text of the option
-                        option.value = section[0];
-                        option.text = section[0];
-
-                        // Append the option to the select element
-                        sectionSelect.appendChild(option);
-                    });
-
-                    var ticketGenreSelect = document.querySelector('select[name="ticketGenre"]');
-                    var ticketGenreOptions = ticketGenreSelect.options;
-                    for (var i = 0; i < ticketGenreOptions.length; i++) {
-                        if (ticketGenreOptions[i].value === result.eventData._embedded.genre.name) {
-                            ticketGenreOptions[i].selected = true;
-                            break; // Exit the loop once the correct option is selected
-                        }
-                    }
-
-                    var countrySelect = document.querySelector('select[name="country"]');
-                    var countryOptions = countrySelect.options;
-                    for (var i = 0; i < countryOptions.length; i++) {
-                        if (countryOptions[i].value === result.eventData._embedded.venue._embedded.country.code) {
-                            countryOptions[i].selected = true;
-                            break; // Exit the loop once the correct option is selected
-                        }
-                    }
-
-                    // Parse the date string
-                    var parsedDate = new Date(result.eventData.start_date);
-                    // Format the parsed date as a string suitable for the input field
-                    var formattedDate = parsedDate.toISOString().slice(0, 16); // Truncate to minutes
-                    // Set the formatted date as the value for the input field
-                    eventDateInput.value = formattedDate;
-                    eventNameInput.value = result.eventData.name;
-                    document.getElementById('bannerSubtitle').textContent = `Add "${result.eventData.name} (${result.eventData._embedded.venue.city})" to your inventory with a couple of clicks.`;
-                    document.getElementById("overlay").style.display = "none";
-                    nextBtnFunction(1);
-                    nextBtnFunction(1);
-                } else {
-                    document.getElementById("overlay").style.display = "none";
-                }
-            }, function (error) {
-                // Handle any errors that occurred during the data fetching process
-                console.error('Error fetching event data:', error);
-                document.getElementById("overlay").style.display = "none";
-                showToast("Error", 'Error fetching event data: ' + error + `<hr><a class="btn btn-light" href="/${currentLocale}/events/${eventId}">Go back</a>`, true);
-            });
-        }
-
         const addToInventoryModal = document.getElementById("addToInventoryModal");
 
         if (addToInventoryModal) {
@@ -267,8 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 //update item
                 // Perform Ajax POST request
                 $.ajax({
-                    type: "POST",
-                    url: '/?model=inventory&action=updateItem&id=' + itemId,
+                    type: "PUT",
+                    url: '/api/user/inventory/' + itemId,
                     data: $('#form-wizard1').serialize(),
                     success: function (response) {
                         // Hide loading spinner
@@ -309,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Perform Ajax POST request
                 $.ajax({
                     type: "POST",
-                    url: $('#form-wizard1').attr("action"),
+                    url: '/api/user/inventory/add',
                     data: formData,
                     success: function (response) {
                         // Hide loading spinner
@@ -318,9 +239,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         // Handle the response from the server
                         if (response.success === true) {
                             // Refresh the table content
-                            if (action === "addEvent") {
-                                window.location.href = "/?model=inventory&action=show";
-                            }
                             $("#addToInventoryStatus").text("Item added successfully.").attr('class', 'text-center purple-text text-success');
                             $("#inventoryTable").bootstrapTable('refresh');
                         } else {
@@ -336,26 +254,39 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        var sectionSelect = document.querySelector('select[name="section"]');
-        sectionSelect.addEventListener("change", function () {
-            if (sectionSelect.value.toLowerCase() === "floor") {
-                document.querySelector('input[name="row"]').setAttribute('value', "");
-                document.querySelector('input[name="row"]').setAttribute('placeholder', "");
-                document.querySelector('input[name="row"]').disabled = true;
-                document.querySelector('input[name="seatFrom"]').setAttribute('value', "");
-                document.querySelector('input[name="seatFrom"]').setAttribute('placeholder', "");
-                document.querySelector('input[name="seatFrom"]').disabled = true;
-                document.querySelector('input[name="seatTo"]').setAttribute('value', "");
-                document.querySelector('input[name="seatTo"]').setAttribute('placeholder', "");
-                document.querySelector('input[name="seatTo"]').disabled = true;
+        const sectionSelect = document.getElementById("sectionSelect");
+        const customSectionInput = document.getElementById("customSection");
+        const quantityInput = document.querySelector('input[name="inventory_item[quantity]"]');
+        const rowInput = document.querySelector('input[name="inventory_item[row]"]');
+        const seatFromInput = document.querySelector('input[name="inventory_item[seatFrom]"]');
+        const seatToInput = document.querySelector('input[name="inventory_item[seatTo]"]');
+
+        const onFloorSelected = () => {
+            rowInput.value = "";
+            rowInput.setAttribute('placeholder', "");
+            quantityInput.disabled = false;
+            rowInput.disabled = true;
+            seatFromInput.disabled = true;
+            seatToInput.disabled = true;
+        };
+
+        const onSectionSelected = () => {
+            quantityInput.disabled = true;
+            rowInput.disabled = false;
+            seatFromInput.disabled = false;
+            seatToInput.disabled = false;
+        };
+
+        const handleSectionChange = () => {
+            if (sectionSelect.value.toLowerCase() === "floor" || customSectionInput.value.toLowerCase() === "floor") {
+                onFloorSelected();
             } else {
-                document.querySelector('input[name="row"]').disabled = false;
-                document.querySelector('input[name="seatFrom"]').disabled = false;
-                document.querySelector('input[name="seatFrom"]').setAttribute('placeholder', "seat from");
-                document.querySelector('input[name="seatTo"]').disabled = false;
-                document.querySelector('input[name="seatTo"]').setAttribute('placeholder', "seat to");
+                onSectionSelected();
             }
-        });
+        };
+
+        sectionSelect.addEventListener("change", handleSectionChange);
+        customSectionInput.addEventListener("input", handleSectionChange);
 
         // Get references to the input fields and the "Lookup Event" button
         var eventNameInput = document.getElementById("eventName");
@@ -377,16 +308,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 var eventDate = eventDateInput.value;
                 var country = countrySelect.value;
                 var ticketGenre = ticketGenreSelect.value;
+                var sectionSelect = document.getElementById("sectionSelect");
                 lookupEvent(eventName, eventDate, country, ticketGenre).
                     then(function (result) {
                         if (result.id !== null && result.id !== "") {
+                            sectionSelect.style.display = "block";
+                            document.getElementById("customSection").style.display = "none";
+
                             document.getElementById("city").disabled = true;
                             document.getElementById("location").disabled = true;
-                            document.getElementById("eventId").setAttribute('value', result.id);
-                            document.getElementById("city").setAttribute('value', result.city);
-                            document.getElementById("location").setAttribute('value', result.location);
-                            document.getElementById("categoryId").setAttribute('value', result.categoryId);
-                            var sectionSelect = document.getElementById("sectionSelect");
+                            document.getElementById("eventId").value = result.id;
+                            document.getElementById("city").value = result.city;
+                            document.getElementById("location").value = result.location;
+                            document.getElementById("categoryId").value = result.categoryId;
+
                             Object.entries(result.sections.sections).forEach((section) => {
                                 if (sectionSelect.value === section[0]) {
                                     // there's already a selected option for this section  
@@ -411,7 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             eventDateInput.value = formattedDate;
                             eventNameInput.value = result.name;
                         } else {
-                            document.getElementById("sectionSelect").style.display = "none";
+                            sectionSelect.style.display = "none";
                             document.getElementById("customSection").style.display = "block";
                         }
                         nextBtnFunction(1);
@@ -623,15 +558,12 @@ function fetchItemData(itemId) {
     return new Promise(function (resolve, reject) {
         // Perform Ajax POST request
         $.ajax({
-            type: "POST",
-            url: '/?model=inventory&action=getItem',
-            data: {
-                id: itemId
-            },
+            type: "GET",
+            url: `/api/user/inventory/${itemId}`,
             success: function (response) {
                 // Handle the response from the server
                 if (response.success === true) {
-                    resolve(response);
+                    resolve(response.item);
                 } else {
                     reject('Error: ' + response.message); // Reject the Promise with an error message
                 }
@@ -914,11 +846,8 @@ function deleteInventoryItem(itemId) {
 
     // Send an AJAX request to delete the item
     $.ajax({
-        type: 'POST',
-        url: '/?model=inventory&action=delete',
-        data: {
-            id: itemId
-        },
+        type: 'DELETE',
+        url: `/api/user/inventory/${itemId}`,
         success: function (response) {
             if (response.success === true) {
                 $("#inventoryTable").bootstrapTable('refresh');
@@ -940,10 +869,7 @@ function duplicateInventoryItem(itemId) {
     // Perform Ajax POST request
     $.ajax({
         type: "POST",
-        url: '/?model=inventory&action=duplicate',
-        data: {
-            id: itemId
-        },
+        url: `/api/user/inventory/copy/${itemId}`,
         success: function (response) {
             // Handle the response from the server
             if (response.success === true) {
@@ -980,21 +906,20 @@ function editInventoryItem(itemId) {
             // Populate modal fields with the fetched item data
             $("#staticBackdropLabel").html("Edit Inventory Item");
             $("#addToInventoryModal .header-title").hide();
-            document.querySelector('input[name="eventName"]').setAttribute('value', itemData.eventName);
-            document.querySelector('input[name="orderEmail"]').setAttribute('value', itemData.orderEmail);
-            document.querySelector('input[name="orderNumber"]').setAttribute('value', itemData.orderNumber);
-            document.querySelector('input[name="purchaseDate"]').setAttribute('value', itemData.purchaseDate);
-            document.querySelector('input[name="city"]').setAttribute('value', itemData.city);
-            document.querySelector('input[name="location"').setAttribute('value', itemData.location);
-            document.querySelector('input[name="eventDate"').setAttribute('value', itemData.eventDate);
-            document.querySelector('input[name="ticketCost"]').setAttribute('value', itemData.individualTicketCost.amount);
-
-            document.querySelector('input[name="row"]').setAttribute('value', itemData.row);
-            document.querySelector('input[name="seatFrom"]').setAttribute('value', itemData.seatFrom);
-            document.querySelector('input[name="seatTo"]').setAttribute('value', itemData.seatTo);
-            document.querySelector('input[name="quantity"]').setAttribute('value', itemData.quantity);
-            document.querySelector('input[name="quantityRemain"]').setAttribute('value', itemData.quantityRemain);
-            var countrySelect = document.querySelector('select[name="country"]');
+            document.querySelector('input[name="inventory_item[eventName]"]').value = itemData.name;
+            document.querySelector('input[name="inventory_item[orderEmail]"]').value = itemData.orderEmail;
+            document.querySelector('input[name="inventory_item[orderNumber]"]').value = itemData.orderNumber;
+            document.querySelector('input[name="inventory_item[purchaseDate]"]').value = formatDateToDateTimeLocal(itemData.purchaseDate);
+            document.querySelector('input[name="inventory_item[city]"]').value = itemData.city;
+            document.querySelector('input[name="inventory_item[location]"]').value = itemData.location;
+            document.querySelector('input[name="inventory_item[eventDate]"]').value = formatDateToDateTimeLocal(itemData.eventDate);
+            document.querySelector('input[name="inventory_item[ticketCost]"]').value = itemData.individualTicketCostAmount;
+            document.querySelector('input[name="inventory_item[row]"]').value = itemData.row;
+            document.querySelector('input[name="inventory_item[seatFrom]"]').value = itemData.seatFrom;
+            document.querySelector('input[name="inventory_item[seatTo]"]').value = itemData.seatTo;
+            document.querySelector('input[name="inventory_item[quantity]"]').value = itemData.quantity;
+            document.querySelector('input[name="inventory_item[quantityRemain]"]').value = itemData.quantityRemain;
+            var countrySelect = document.querySelector('select[name="inventory_item[country]"]');
             var countryOptions = countrySelect.options;
             for (var i = 0; i < countryOptions.length; i++) {
                 if (countryOptions[i].value === itemData.country) {
@@ -1003,7 +928,7 @@ function editInventoryItem(itemId) {
                 }
             }
 
-            var sectionSelect = document.querySelector('select[name="section"]');
+            var sectionSelect = document.getElementById("sectionSelect");
             var option = document.createElement("option");
             // Set the value and text of the option
             option.value = itemData.section;
@@ -1014,7 +939,7 @@ function editInventoryItem(itemId) {
             // trigger onchange event
             sectionSelect.dispatchEvent(new Event('change'));
 
-            var retailerSelect = document.querySelector('select[name="retailer"]');
+            var retailerSelect = document.querySelector('select[name="inventory_item[retailer]"]');
             var retailerOptions = retailerSelect.options;
             for (var i = 0; i < retailerOptions.length; i++) {
                 if (retailerOptions[i].value === itemData.retailer) {
@@ -1023,7 +948,7 @@ function editInventoryItem(itemId) {
                 }
             }
 
-            var ticketGenreSelect = document.querySelector('select[name="ticketGenre"]');
+            var ticketGenreSelect = document.querySelector('select[name="inventory_item[ticketGenre]"]');
             var ticketGenreOptions = ticketGenreSelect.options;
             for (var i = 0; i < ticketGenreOptions.length; i++) {
                 if (ticketGenreOptions[i].value === itemData.ticketGenre) {
@@ -1032,7 +957,7 @@ function editInventoryItem(itemId) {
                 }
             }
 
-            var ticketTypeSelect = document.querySelector('select[name="ticketType"]');
+            var ticketTypeSelect = document.querySelector('select[name="inventory_item[ticketType]"]');
             var ticketTypeOptions = ticketTypeSelect.options;
             for (var i = 0; i < ticketTypeOptions.length; i++) {
                 if (ticketTypeOptions[i].value === itemData.ticketType) {
@@ -1268,6 +1193,14 @@ function quickEdit(form) {
                         // listing was already created, first of all edit details
                         $('#loadingPreloader .title').text('Listing activation in progress (1/2)');
                         $('#loadingPreloader .subtitle').text('Editing listing details...');
+                        const individualTicketCost = {
+                            "currency": itemData.individualTicketCostCurrency,
+                            "amount": itemData.individualTicketCostAmount,
+                        };
+                        const yourPricePerTicket = {
+                            "currency": itemData.yourPricePerTicketCurrency,
+                            "amount": itemData.yourPricePerTicketAmount,
+                        };
                         editListingDetails(
                             itemData.listingId,
                             itemData.eventId,
@@ -1278,8 +1211,8 @@ function quickEdit(form) {
                             itemData.row,
                             itemData.seatFrom,
                             itemData.seatTo,
-                            itemData.individualTicketCost,
-                            itemData.yourPricePerTicket,
+                            individualTicketCost,
+                            yourPricePerTicket,
                         )
                             .then(function (response) {
                                 updateItemAttributes(itemId, attributesMap);
@@ -1443,6 +1376,10 @@ function quickEdit(form) {
         // fetch latest item data
         fetchItemData(itemId).
             then(function (itemData) {
+                itemData.individualTicketCost = {
+                    "currency": itemData.individualTicketCostCurrency,
+                    "amount": itemData.individualTicketCostAmount,
+                };
                 itemData.quantity = attributesMap["quantity"];
                 itemData.quantityRemain = attributesMap["quantity"];
                 itemData.row = attributesMap["row"];

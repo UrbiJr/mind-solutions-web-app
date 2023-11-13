@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use DateTime;
 use GuzzleHttp\Client;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AJAXController extends AbstractController
 {
@@ -33,19 +34,126 @@ class AJAXController extends AbstractController
     ) {
     }
 
+    #[Route('/api/user/inventory/add', methods: ['POST'], name: 'api_user_inventory_add')]
+    public function add_to_inventory(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /* fetch inventory item */
+
+            /** @var array $dataArray */
+            $dataArray = $request->request->all()['inventory_item'] ?? [];
+            $inventoryItem = InventoryItem::fromDataArray($user, $dataArray);
+
+            /* add inventory item */
+            $ref = $this->firestore->add_item_to_inventory($inventoryItem, $user->getId());
+
+            $response = [
+                "success" => true,
+                "id" => $ref->id(),
+                "message" => "Item added successfully.",
+                "eventName" => $inventoryItem->getName(),
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/user/inventory/copy/{id}', methods: ['POST'], name: 'api_user_inventory_copy')]
+    public function copy_inventory_item(#[CurrentUser] ?User $user, string $id): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /* fetch inventory item */
+            $inventoryItem = $this->firestore->get_inventory_item($id, $user->getId());
+
+            /* copy inventory item */
+            $ref = $this->firestore->add_item_to_inventory($inventoryItem, $user->getId());
+
+            $response = [
+                "success" => true,
+                "id" => $ref->id(),
+                "message" => "Item copied successfully.",
+                "eventName" => $inventoryItem->getName(),
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/user/inventory/{id}', methods: ['DELETE'], name: 'api_user_inventory_delete')]
+    public function delete_inventory_item(#[CurrentUser] ?User $user, string $id): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /* delete inventory item */
+            $this->firestore->delete_inventory_item($id, $user->getId());
+
+            $response = [
+                "success" => true,
+                "message" => "Item deleted successfully.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/user/inventory/{id}', methods: ['GET'], name: 'api_user_inventory_get')]
+    public function get_inventory_item(#[CurrentUser] ?User $user, string $id): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /* fetch inventory item */
+            $inventoryItem = $this->firestore->get_inventory_item($id, $user->getId());
+
+            $response = [
+                "success" => true,
+                "message" => "Item fetched successfully.",
+                "item" => $inventoryItem->toArray(),
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     /**
      * Return inventory as JSON object
      */
-    #[Route('api/user/inventory', methods: ['GET'], name: 'api_user_inventory')]
+    #[Route('/api/user/inventory', methods: ['GET'], name: 'api_user_inventory')]
     public function inventory(#[CurrentUser] ?User $user, Request $request): Response
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             // second parameter is default value
+            $format = $request->query->get('format', 'json');
+
+            if ($format === 'list') {
+                return $this->inventoryList($user, $request);
+            }
+
             $offset = $request->query->get('offset', 0);
             $itemsPerPage = $request->query->get('limit', 10);
             $sort = $request->query->get('sort', null);
@@ -262,21 +370,29 @@ class AJAXController extends AbstractController
                 $categoryId = $item->getViagogoCategoryId(); // Replace with the actual category ID
                 $section = $item->getSection(); // Replace with the actual section name
                 $userCurrency = $user->getCurrency(); // Replace with the actual currency
+                $floorPriceFormatted = "N/A";
 
-                $floorPrice = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
-                $floorPriceFormatted = 'N/A';
-                // floor price not in cache, fetch it later
-                if (!$floorPrice->isHit() || !isset($floorPrice["currency"]) || !isset($floorPrice["floorPrice"])) {
-                    if ($item->getEventDate() >= $today) {
-                        $floorPricesToFetch[] = array("itemId" => $item->getId(), "eventId" => $eventId, "categoryId" => $categoryId, "section" => $section);
-                    }
-                } else {
-                    if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
+                $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
+                $floorPrice = $cacheItem->get();
+
+                if ($cacheItem->isHit()) {
+                    if ($floorPrice === 'N/A') {
+                        $floorPriceFormatted = $floorPrice;
+                    } else if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
                         $floorPriceFormatted = $this->utils->formatAmountAndCurrencyAsSymbol($floorPrice["floorPrice"], $userCurrency);
                     } else {
                         $floorPriceConverted = $this->utils->convertCurrency(floatval($floorPrice["floorPrice"]), $exchangeRates, $floorPrice["currency"]);
                         $floorPriceFormatted = (isset($floorPriceConverted)) ? $this->utils->formatAmountAndCurrencyAsSymbol($floorPriceConverted, $user->getCurrency()) : "N/A";
                     }
+                } else if ($item->getEventDate() >= $today) {
+                    // floor price not in cache, fetch it later
+                    $floorPricesToFetch[] = array("itemId" => $item->getId(), "eventId" => $eventId, "categoryId" => $categoryId, "section" => $section);
+
+                    // set floor price to N/A for now
+                    $cacheItem->set($floorPriceFormatted);
+                    $cacheItem->expiresAfter(600); // 10 minutes
+                    // save the cache item
+                    $this->cache->save($cacheItem);
                 }
 
                 $amount = $item->getYourPricePerTicket()["amount"];
@@ -391,6 +507,8 @@ class AJAXController extends AbstractController
                             $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $floorPrice['section']) . $floorPrice['eventId']);
                             $cacheItem->set($floorPrice);
                             $cacheItem->expiresAfter(600); // 10 minutes
+                            // save the cache item
+                            $this->cache->save($cacheItem);
                         }
                     }
                 } catch (\GuzzleHttp\Exception\RequestException $e) {
@@ -404,29 +522,17 @@ class AJAXController extends AbstractController
                 "rows" => array_values($inventoryData),
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 
-    /**
-     * Return inventory as JSON object
-     */
-    #[Route('/api/user/inventory/list', methods: ['GET'], name: 'api_user_inventory_list')]
     public function inventoryList(#[CurrentUser] ?User $user, Request $request): Response
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             // second parameter is default value
@@ -655,25 +761,34 @@ class AJAXController extends AbstractController
                     $totalCostConverted = $this->utils->convertCurrency(floatval($item->getTotalCost()["amount"]), $exchangeRates, $item->getTotalCost()["currency"]);
                 }
 
-                $floorPrice = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
-                // floor price not in cache, fetch it later
-                if (!$floorPrice->isHit() || !isset($floorPrice["currency"]) || !isset($floorPrice["floorPrice"])) {
-                    if ($item->getEventDate() >= $today) {
-                        $floorPricesToFetch[] = array("itemId" => $item->getId(), "eventId" => $eventId, "categoryId" => $categoryId, "section" => $section);
-                    }
-                } else {
-                    if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
+                $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
+                $floorPrice = $cacheItem->get();
+
+                if ($cacheItem->isHit()) {
+                    if ($floorPrice === 'N/A') {
+                        $floorPriceFormatted = $floorPrice;
+                    } else if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
                         $floorPriceFormatted = $this->utils->formatAmountAndCurrencyAsSymbol($floorPrice["floorPrice"], $userCurrency);
                     } else {
                         $floorPriceConverted = $this->utils->convertCurrency(floatval($floorPrice["floorPrice"]), $exchangeRates, $floorPrice["currency"]);
                         $floorPriceFormatted = (isset($floorPriceConverted)) ? $this->utils->formatAmountAndCurrencyAsSymbol($floorPriceConverted, $user->getCurrency()) : "N/A";
+
+                        // Calculate projected profit
+                        if ($item->getTotalCost()["currency"] === $userCurrency) {
+                            $projectedProfit = $floorPrice["floorPrice"] * $item->getQuantityRemain() - $item->getTotalCost()["amount"];
+                        } else {
+                            $projectedProfit = $floorPrice["floorPrice"] * $item->getQuantityRemain() - $totalCostConverted;
+                        }
                     }
-                    // Calculate projected profit
-                    if ($item->getTotalCost()["currency"] === $userCurrency) {
-                        $projectedProfit = $floorPrice["floorPrice"] * $item->getQuantityRemain() - $item->getTotalCost()["amount"];
-                    } else {
-                        $projectedProfit = $floorPrice["floorPrice"] * $item->getQuantityRemain() - $totalCostConverted;
-                    }
+                } else if ($item->getEventDate() >= $today) {
+                    // floor price not in cache, fetch it later
+                    $floorPricesToFetch[] = array("itemId" => $item->getId(), "eventId" => $eventId, "categoryId" => $categoryId, "section" => $section);
+
+                    // set floor price to N/A for now
+                    $cacheItem->set($floorPriceFormatted);
+                    $cacheItem->expiresAfter(600); // 10 minutes
+                    // save the cache item
+                    $this->cache->save($cacheItem);
                 }
 
                 $amount = $item->getYourPricePerTicket()["amount"];
@@ -756,6 +871,7 @@ class AJAXController extends AbstractController
                             $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $floorPrice['section']) . $floorPrice['eventId']);
                             $cacheItem->set($floorPrice);
                             $cacheItem->expiresAfter(600); // 10 minutes
+                            $this->cache->save($cacheItem);
                         }
                     }
                 } catch (\GuzzleHttp\Exception\RequestException $e) {
@@ -769,17 +885,10 @@ class AJAXController extends AbstractController
                 "rows" => array_values($inventoryData),
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 
     #[Route('/api/user/listings', methods: ['GET'], name: 'api_user_listings')]
@@ -787,8 +896,7 @@ class AJAXController extends AbstractController
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             // second parameter is default value
@@ -997,17 +1105,27 @@ class AJAXController extends AbstractController
                 $userCurrency = $user->getCurrency(); // Replace with the actual currency
                 $floorPriceFormatted = 'N/A';
 
-                $floorPrice = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
-                // floor price not in cache, fetch it later
-                if (!$floorPrice->isHit() || !isset($floorPrice["currency"]) || !isset($floorPrice["floorPrice"]) || $floorPrice["floorPrice"] < 0) {
-                    $floorPricesToFetch[] = array("itemId" => $item->getId(), "eventId" => $eventId, "categoryId" => $categoryId, "section" => $section);
-                } else {
-                    if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
+                $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
+                $floorPrice = $cacheItem->get();
+
+                if ($cacheItem->isHit()) {
+                    if ($floorPrice === 'N/A') {
+                        $floorPriceFormatted = $floorPrice;
+                    } else if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
                         $floorPriceFormatted = $this->utils->formatAmountAndCurrencyAsSymbol($floorPrice["floorPrice"], $userCurrency);
                     } else {
                         $floorPriceConverted = $this->utils->convertCurrency(floatval($floorPrice["floorPrice"]), $exchangeRates, $floorPrice["currency"]);
                         $floorPriceFormatted = (isset($floorPriceConverted)) ? $this->utils->formatAmountAndCurrencyAsSymbol($floorPriceConverted, $user->getCurrency()) : "N/A";
                     }
+                } else {
+                    // floor price not in cache, fetch it later
+                    $floorPricesToFetch[] = array("itemId" => $item->getId(), "eventId" => $eventId, "categoryId" => $categoryId, "section" => $section);
+
+                    // set floor price to N/A for now
+                    $cacheItem->set($floorPriceFormatted);
+                    $cacheItem->expiresAfter(600); // 10 minutes
+                    // save the cache item
+                    $this->cache->save($cacheItem);
                 }
 
                 $amount = $item->getYourPricePerTicket()["amount"];
@@ -1072,6 +1190,7 @@ class AJAXController extends AbstractController
                             $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $floorPrice['section']) . $floorPrice['eventId']);
                             $cacheItem->set($floorPrice);
                             $cacheItem->expiresAfter(600); // 10 minutes
+                            $this->cache->save($cacheItem);
                         }
                     }
                 } catch (\GuzzleHttp\Exception\RequestException $e) {
@@ -1085,17 +1204,10 @@ class AJAXController extends AbstractController
                 "rows" => array_values($listingsData),
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 
     #[Route('/api/releases', methods: ['GET'], name: 'api_releases')]
@@ -1103,8 +1215,7 @@ class AJAXController extends AbstractController
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             // second parameter is default value
@@ -1227,6 +1338,7 @@ class AJAXController extends AbstractController
                     // Store user object in cache for 10 minutes (adjust TTL as needed)
                     $cacheItem->set($author);
                     $cacheItem->expiresAfter(600); // 10 minutes
+                    $this->cache->save($cacheItem);
                 }
 
                 $itemData = '<span data-item-id="' . $release->getId() . '" data-location="' . $release->getLocation() . '" data-city="' . $release->getCity() . '" data-country="' . $release->getCountryCode() . '" data-retailer="' . $release->getRetailer() . '" data-early-link="' . $release->getEarlyLink() . '" data-author="' . $author->getDiscordUsername() . '"  data-comments="' . $release->getComments() . '"></span>';
@@ -1271,17 +1383,10 @@ class AJAXController extends AbstractController
                 "rows" => $releasesData,
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 
     #[Route('/api/user/sales', methods: ['GET'], name: 'api_user_sales')]
@@ -1289,8 +1394,7 @@ class AJAXController extends AbstractController
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             // second parameter is default value
@@ -1475,17 +1579,10 @@ class AJAXController extends AbstractController
                 "rows" => array_values($salesData),
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 
     public function get_calendar_data($userId, $startDate, $endDate, $sort, $order, ReleaseRepository $releaseRepository, string $locale)
@@ -1669,8 +1766,7 @@ class AJAXController extends AbstractController
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             $today = new DateTime();
@@ -1687,17 +1783,10 @@ class AJAXController extends AbstractController
                 "total" => $calendar["total"],
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 
     function charts_get_sales_series(User $user, $startDate, $endDate, $sort, $order)
@@ -1947,8 +2036,7 @@ class AJAXController extends AbstractController
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             $sort = $request->query->get('sort', 'date');
@@ -1963,17 +2051,10 @@ class AJAXController extends AbstractController
                 "currency" => $chartsSeries["currency"],
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 
     #[Route('/api/user/chart/purchases', methods: ['GET'], name: 'api_user_chart_purchases')]
@@ -1981,8 +2062,7 @@ class AJAXController extends AbstractController
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             $sort = $request->query->get('sort', 'date');
@@ -1997,17 +2077,10 @@ class AJAXController extends AbstractController
                 "currency" => $chartsSeries["currency"],
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 
     #[Route('/api/user/chart/inventory', methods: ['GET'], name: 'api_user_chart_inventory')]
@@ -2015,8 +2088,7 @@ class AJAXController extends AbstractController
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
-                header('HTTP/1.0 401 Unauthorized');
-                exit;
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
             $sort = $request->query->get('sort', 'date');
@@ -2031,16 +2103,9 @@ class AJAXController extends AbstractController
                 "currency" => $chartsSeries["currency"],
             );
         } catch (Exception $e) {
-            // Token has expired, handle accordingly
-            header('HTTP/1.0 400 Bad Request');
-            header("Content-Type: application/json");
-            echo json_encode(["success" => false, "error" => $e->getMessage()]);
-            exit;
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        http_response_code(200);
-        header("Content-Type: application/json");
-        echo json_encode($result);
-        exit;
+        return new JsonResponse($result, Response::HTTP_OK);
     }
 }

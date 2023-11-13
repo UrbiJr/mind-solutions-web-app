@@ -16,7 +16,11 @@ class EventsController extends AbstractController
     #[Route('/events/calendar', name: 'events_calendar')]
     public function calendar(#[CurrentUser] ?User $user): Response
     {
-        return $this->render('events/calendar.html.twig',
+        // The second parameter is used to specify on what object the role is tested.
+        $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
+
+        return $this->render(
+            'events/calendar.html.twig',
             [
                 'user' => $user,
                 'bannerTitle' => new TranslatableMessage('calendar_title', ['siteName' => $this->getParameter('site_name')]),
@@ -34,7 +38,8 @@ class EventsController extends AbstractController
 
         $form = $this->createForm(EventFilterType::class);
 
-        return $this->render('events/filter.html.twig',
+        return $this->render(
+            'events/filter.html.twig',
             [
                 'user' => $user,
                 'eventFilterForm' => $form,
@@ -48,8 +53,11 @@ class EventsController extends AbstractController
     #[Route('/events/{id}', name: 'event_show')]
     public function showEvent(#[CurrentUser] ?User $user, string $id): Response
     {
+        // The second parameter is used to specify on what object the role is tested.
+        $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
 
-        return $this->render('events/overview.html.twig',
+        return $this->render(
+            'events/overview.html.twig',
             [
                 'user' => $user,
                 'eventId' => $id,

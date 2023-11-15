@@ -48,7 +48,6 @@ class AJAXController extends AbstractController
             $dataArray = $request->request->all()['inventory_item'] ?? [];
             $inventoryItem = InventoryItem::fromDataArray($user, $dataArray);
 
-            /* add inventory item */
             $ref = $this->firestore->add_item_to_inventory($inventoryItem, $user->getId());
 
             $response = [
@@ -99,12 +98,64 @@ class AJAXController extends AbstractController
                 return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
-            /* delete inventory item */
             $this->firestore->delete_inventory_item($id, $user->getId());
 
             $response = [
                 "success" => true,
                 "message" => "Item deleted successfully.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/user/inventory/{id}', methods: ['PUT'], name: 'api_user_inventory_edit')]
+    public function edit_inventory_item(#[CurrentUser] ?User $user, string $id, Request $request): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /* fetch inventory item */
+
+            /** @var array $dataArray */
+            $dataArray = $request->request->all()['inventory_item'] ?? [];
+            $inventoryItem = InventoryItem::fromDataArray($user, $dataArray);
+
+            $this->firestore->edit_inventory_item($id, $inventoryItem, $user->getId());
+
+            $response = [
+                "success" => true,
+                "message" => "Item edited successfully.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/user/inventory/bulk', methods: ['PUT'], name: 'api_user_inventory_bulk_edit')]
+    public function bulk_edit_inventory_items(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            $ids = $request->request->all()['ids'] ?? [];
+            $attributes = $request->request->all()['attributes'] ?? [];
+
+            $updated = $this->firestore->bulk_edit_inventory_items($ids, $attributes, $user->getId());
+
+            $response = [
+                "success" => true,
+                "count" => count($updated),
+                "updates" => $updated,
+                "message" => "Items edited successfully.",
             ];
 
             return new JsonResponse($response, Response::HTTP_OK);

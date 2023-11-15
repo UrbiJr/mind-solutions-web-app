@@ -147,17 +147,15 @@ class InventoryItem
         $row = $inventoryItem['row'] ?? '';
         $seatFrom = $inventoryItem['seatFrom'] ?? null;
         $seatTo = $inventoryItem['seatTo'] ?? null;
-        if ($inventoryItem['quantity'] === null || $inventoryItem['quantity'] <= 0) {
-            try {
-                $seatFromInt = intval($seatFrom);
-                $seatToInt = intval($seatTo);
-                $quantity = $seatToInt - $seatFromInt + 1;
-            } catch (\Exception $e) {
-                $quantity = 1;
-            }
-        } else {
-            $quantity = $inventoryItem['quantity'];
+        /* calculate quantity from seats */
+        try {
+            $seatFromInt = intval($seatFrom);
+            $seatToInt = intval($seatTo);
+            $quantity = $seatToInt - $seatFromInt + 1;
+        } catch (\Exception $e) {
+            $quantity = $inventoryItem['quantity'] ?? 1;
         }
+
         $quantityRemaining = $quantity;
         $ticketGenre = $inventoryItem['ticketGenre'] ?? '';
         $ticketType = $inventoryItem['ticketType'] ?? '';

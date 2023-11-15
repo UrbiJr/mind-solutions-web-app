@@ -23,6 +23,7 @@ class BulkUpdateInventoryType extends AbstractType
                     'Mobile QR Code' => '13',
                 ],
                 'placeholder' => 'Select a type',
+                'required' => false,
             ])
             ->add('retailer', ChoiceType::class, [
                 'label' => 'Retailer:',
@@ -31,19 +32,23 @@ class BulkUpdateInventoryType extends AbstractType
                     'Ticketone' => 'ticketone',
                 ],
                 'placeholder' => 'Select a retailer',
+                'required' => false,
             ])
             ->add('individualTicketCost', NumberType::class, [
                 'label' => 'Ticket Face Value:',
                 'attr' => ['placeholder' => '0,00'],
                 'scale' => 2,
+                'required' => false,
             ])
             ->add('orderEmail', EmailType::class, [
                 'label' => 'Email:',
                 'attr' => ['placeholder' => 'example@mindsolutions.app'],
+                'required' => false,
             ])
             ->add('purchaseDate', DateType::class, [
                 'label' => 'Purchase Date:',
                 'widget' => 'single_text', // to render as HTML5 date input
+                'required' => false,
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Update Inventory',

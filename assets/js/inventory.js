@@ -411,8 +411,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // $("#addToInventoryStatus").text("Updating Item...");
             // Perform Ajax POST request
             $.ajax({
-                type: "POST",
-                url: '/?model=inventory&action=bulkUpdate',
+                type: "PUT",
+                url: '/api/user/inventory/bulk',
                 data: {
                     ids: ids,
                     attributes: attributesMap,
@@ -1455,8 +1455,8 @@ function quickEdit(form) {
 
 function updateItemAttributes(itemId, attributesMap) {
     $.ajax({
-        type: "POST",
-        url: '/?model=inventory&action=bulkUpdate',
+        type: "PUT",
+        url: '/api/user/inventory/bulk',
         data: {
             ids: [itemId],
             attributes: attributesMap,

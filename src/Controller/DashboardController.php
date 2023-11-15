@@ -36,7 +36,7 @@ class DashboardController extends AbstractController
         try {
             $currency = $user->getCurrency();
             $exchangeRates = $this->utils->cacheExchangeRates($currency);
-            $viagogoAnalytics = $this->firestore->get_viagogo_analytics($_SESSION['userId'], $currency, $exchangeRates);
+            $viagogoAnalytics = $this->firestore->get_viagogo_analytics($user->getId(), $currency, $exchangeRates);
             $htmlNetAmount = $this->viagogoAnalyticsService->getHtmlNetAmount($viagogoAnalytics);
             $htmlTodayNetAmount = $this->viagogoAnalyticsService->getHtmlTodayNetAmount($viagogoAnalytics);
         } catch (Exception $e) {

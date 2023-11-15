@@ -117,7 +117,7 @@ final class Firestore
         }
     }
 
-    function update_inventory_item(InventoryItem $inventoryEvent, $userId)
+    function edit_inventory_item($id, InventoryItem $inventoryItem, $userId)
     {
         // Reference to the root "users" collection
         $usersCollectionRef = $this->con->collection('users');
@@ -125,22 +125,14 @@ final class Firestore
         // Reference to the "inventory" subcollection
         $inventoryCollectionRef = $usersCollectionRef->document((string) $userId)->collection('inventory');
 
-        $inventoryDocumentRef = $inventoryCollectionRef->document($inventoryEvent->getId());
-        $snapshot = $inventoryDocumentRef->snapshot();
-
-        if ($snapshot->exists()) {
-            $data = $snapshot->data();
-        } else {
-            $data = [];
-        }
-
-        // Merge data from Firestore into the InventoryItem object
-        $inventoryEvent->mergeData($data);
+        $inventoryDocumentRef = $inventoryCollectionRef->document($id);
 
         try {
             // Update the Firestore document
-            $inventoryDocumentRef->update($inventoryEvent->toFirestoreArray());
-            return $inventoryEvent;
+            $inventoryDocumentRef->update($inventoryItem->toFirestoreArray());
+            $inventoryItem->setId($id);
+
+            return $inventoryItem;
         } catch (\Exception $e) {
             throw $e;
         }
@@ -155,7 +147,7 @@ final class Firestore
      * @throws \Exception if an error occurs during the update
      * @return array array of updated items as map of updated attributes
      */
-    function bulk_update_inventory_items(array $itemIds, array $attributes, $userId)
+    function bulk_edit_inventory_items(array $itemIds, array $attributes, $userId)
     {
         // Reference to the root "users" collection
         $usersCollectionRef = $this->con->collection('users');

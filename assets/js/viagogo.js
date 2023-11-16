@@ -55,6 +55,32 @@ function getViagogoSessionCookie(username, password, recaptchaToken, successCall
 
 function onSubmitViagogoForm(form) {
 
+    function showError(error) {
+        // Hide the preloader
+        $('#preloader').hide();
+
+        // Re-enable the submit button
+        $('button[type="submit"]').prop('disabled', false);
+
+        // Select the toast element
+        var toast = document.getElementById("bottomToast");
+
+        // Initialize a new Bootstrap Toast instance
+        var bootstrapToast = new bootstrap.Toast(toast);
+
+        // Set the toast content (title and body)
+        var toastTitle = "Error";
+        var toastBody = error;
+        // Add the "bg-danger" class
+        toast.classList.remove("bg-primary");
+        toast.classList.add("bg-danger");
+        toast.querySelector(".toast-header strong").textContent = toastTitle;
+        toast.querySelector(".toast-body").textContent = toastBody;
+
+        // Show the toast
+        bootstrapToast.show();
+    }
+
     event.preventDefault();
 
     // Disable the submit button to prevent multiple submissions
@@ -113,65 +139,31 @@ function onSubmitViagogoForm(form) {
             document.cookie = `viagogoSessionId=${sessionCookieValue1}; expires=${sessionCookieExpires1.toUTCString()}; path=/`;
             document.cookie = `viagogoSessionId2=${sessionCookieValue2}; expires=${sessionCookieExpires1.toUTCString()}; path=/`;
 
-            // Combine the username and password with a colon (username:password)
-            var userData = {
-                username: username,
-                password: password,
-            };
-
-            // Encode the JSON object as a string and then encode it in Base64
-            var encodedUserData = btoa(JSON.stringify(userData));
-            window.location.href = `/?model=viagogo&action=postLogin&userData=${encodedUserData}`;
-
+            // Store Viagogo user on the backend and update status to connected
+            $.ajax({
+                type: "POST",
+                url: '/api/viagogo/user',
+                data: {
+                    username: username,
+                    password: password,
+                },
+                success: function (response) {
+                    // Handle the response from the server
+                    if (response.success === true) {
+                        window.location.href = response['redirectUrl'];
+                    } else {
+                        showError(response.message);
+                    }
+                },
+                error: function (response) {
+                    showError(response.responseText);
+                }
+            });
         }, function (error) {
-            // Hide the preloader
-            $('#preloader').hide();
-
-            // Re-enable the submit button
-            $('button[type="submit"]').prop('disabled', false);
-
-            // Select the toast element
-            var toast = document.getElementById("bottomToast");
-
-            // Initialize a new Bootstrap Toast instance
-            var bootstrapToast = new bootstrap.Toast(toast);
-
-            // Set the toast content (title and body)
-            var toastTitle = "Error";
-            var toastBody = error;
-            // Add the "bg-danger" class
-            toast.classList.remove("bg-primary");
-            toast.classList.add("bg-danger");
-            toast.querySelector(".toast-header strong").textContent = toastTitle;
-            toast.querySelector(".toast-body").textContent = toastBody;
-
-            // Show the toast
-            bootstrapToast.show();
+            showError(error);
         });
     }, function (error) {
-        // Hide the preloader
-        $('#preloader').hide();
-
-        // Re-enable the submit button
-        $('button[type="submit"]').prop('disabled', false);
-
-        // Select the toast element
-        var toast = document.getElementById("bottomToast");
-
-        // Initialize a new Bootstrap Toast instance
-        var bootstrapToast = new bootstrap.Toast(toast);
-
-        // Set the toast content (title and body)
-        var toastTitle = "Error";
-        var toastBody = error;
-        // Add the "bg-danger" class
-        toast.classList.remove("bg-primary");
-        toast.classList.add("bg-danger");
-        toast.querySelector(".toast-header strong").textContent = toastTitle;
-        toast.querySelector(".toast-body").textContent = toastBody;
-
-        // Show the toast
-        bootstrapToast.show();
+        showError(error);
     })
 
     // Prevent the default form submission

@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+	<div class="conatiner-fluid content-inner mt-n5 py-0">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="card">
+					<div class="card-body">
+						{% if user.captchaProvider.name|default('') == '' or user.captchaProviderApiKey|default('') == '' %}
+							<p class="mt-3">
+								You must set a captcha provider first.
+								<a href="{{ path('profile_settings') }}" class="text-underline">Go to Settings.</a>
+							</p>
+						{% else %}
+							<form class="mt-3" method="POST" onsubmit="return onSubmitViagogoForm(this);">
+								<div class="form-group has-validation">
+									<label for="email" class="form-label">Email</label>
+									<input type="email" class="form-control" id="email" aria-describedby="email" name="username" placeholder="viagogo@example.com" required="">
+								</div>
+								<div class="form-group">
+									<label for="password" class="form-label">Password</label>
+									<input type="password" class="form-control" aria-describedby="password" name="viagogoPassword" placeholder="••••••" required="">
+								</div>
+								<input type="hidden" name="captchaApiKey" value="{{ user.captchaProviderApiKey }}"/>
+								<input type="hidden" name="captchaProvider" value="{{ user.captchaProvider.name }}"/>
+								<div class="d-flex justify-content-center">
+									<button type="submit" class="btn btn-primary">Login</button>
+								</div>
+								<p class="mt-3 text-center">
+									Don’t have a Viagogo account?
+									<a href="https://my.viagogo.com/ww/" target="_blank" class="text-underline">Click here to sign up.</a>
+								</p>
+							</form>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="preloader" class="preloader" style="display: none;">
+		<div class="preloader-inner">
+			<div class="card-body">
+				<ul id="top-tab-list" class="p-0 row list-inline" style="margin-bottom: 0;">
+					<li id="captchaStep" class="mb-2 col-lg-6 col-md-6 text-start active">
+						<a href="javascript:void();">
+							<div class="iq-icon me-3">
+								<svg class="svg-icon icon-20" xmlns="http://www.w3.org/2000/svg" width="20" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+									<path d="M16.8397 20.1642V6.54639" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+									<path d="M20.9173 16.0681L16.8395 20.1648L12.7617 16.0681" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+									<path d="M6.91102 3.83276V17.4505" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+									<path d="M2.8335 7.92894L6.91127 3.83228L10.9891 7.92894" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								</svg>
+							</div>
+							<div class="row mt-3">
+								<span class="dark-wizard">Captcha</span>
+							</div>
+						</a>
+					</li>
+					<li id="loginStep" class="mb-2 col-lg-6 col-md-6 text-start">
+						<a href="javascript:void();">
+							<div class="iq-icon me-3">
+								<svg class="svg-icon icon-20" xmlns="http://www.w3.org/2000/svg" width="20" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+									<path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 15.3462C8.11731 15.3462 4.81445 15.931 4.81445 18.2729C4.81445 20.6148 8.09636 21.2205 11.9849 21.2205C15.8525 21.2205 19.1545 20.6348 19.1545 18.2938C19.1545 15.9529 15.8735 15.3462 11.9849 15.3462Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+									<path fill-rule="evenodd" clip-rule="evenodd" d="M11.9849 12.0059C14.523 12.0059 16.5801 9.94779 16.5801 7.40969C16.5801 4.8716 14.523 2.81445 11.9849 2.81445C9.44679 2.81445 7.3887 4.8716 7.3887 7.40969C7.38013 9.93922 9.42394 11.9973 11.9525 12.0059H11.9849Z" stroke="currentColor" stroke-width="1.42857" stroke-linecap="round" stroke-linejoin="round"></path>
+								</svg>
+							</div>
+							<div class="row mt-3">
+								<span class="dark-wizard">Login</span>
+							</div>
+						</a>
+					</li>
+				</ul>
+				<hr>
+				<div class="card-footer" style="border-top: none;">
+					<span class="spinner" style="width: 45px; height: 45px;"></span>
+					<hr>
+					<p class="title"></p>
+					<p class="subtitle"></p>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

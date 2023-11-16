@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\InventoryItem;
 use App\Entity\Release;
 use App\Entity\User;
+use App\Entity\ViagogoUser;
 use App\Repository\ReleaseRepository;
 use App\Repository\UserRepository;
 use App\Service\Firestore;
@@ -32,6 +33,35 @@ class AJAXController extends AbstractController
         private readonly InventoryService $inventoryService,
         private readonly Client $client,
     ) {
+    }
+
+    #[Route('/api/viagogo/user', methods: ['POST'], name: 'api_viagogo_user')]
+    public function set_viagogo_user(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            $username = $request->request->get('username');
+            $password = $request->request->get('password');
+            $viagogoUser = new ViagogoUser($username, $password);
+
+            /* Cache viagogo connection (set it to never expire) */
+            $cacheItem = $this->cache->getItem("viagogoUser_" . $user->getId());
+            $cacheItem->set($viagogoUser);
+            $this->cache->save($cacheItem);
+
+            $response = [
+                "success" => true,
+                "message" => "Viagogo user set successfully.",
+                "redirectUrl" => $this->generateUrl('viagogo_connection_show'),
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
     }
 
     #[Route('/api/user/inventory/add', methods: ['POST'], name: 'api_user_inventory_add')]
@@ -426,7 +456,7 @@ class AJAXController extends AbstractController
                 $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
                 $floorPrice = $cacheItem->get();
 
-                if ($cacheItem->isHit()) {
+                if ($cacheItem->isHit() && !is_bool($floorPrice)) {
                     if ($floorPrice === 'N/A') {
                         $floorPriceFormatted = $floorPrice;
                     } else if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
@@ -815,7 +845,7 @@ class AJAXController extends AbstractController
                 $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
                 $floorPrice = $cacheItem->get();
 
-                if ($cacheItem->isHit()) {
+                if ($cacheItem->isHit() && !is_bool($floorPrice)) {
                     if ($floorPrice === 'N/A') {
                         $floorPriceFormatted = $floorPrice;
                     } else if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
@@ -1159,7 +1189,7 @@ class AJAXController extends AbstractController
                 $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
                 $floorPrice = $cacheItem->get();
 
-                if ($cacheItem->isHit()) {
+                if ($cacheItem->isHit() && !is_bool($floorPrice)) {
                     if ($floorPrice === 'N/A') {
                         $floorPriceFormatted = $floorPrice;
                     } else if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {

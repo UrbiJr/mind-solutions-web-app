@@ -28,4 +28,36 @@ class InventoryService
             return "N/A";
         }
     }
+
+    public function updateWithListing(InventoryItem $inventoryItem, $viagogoListing): InventoryItem
+    {
+        $listingSeats = (isset($viagogoListing["Seats"])) ? explode("-", $viagogoListing["Seats"]) : array();
+        if (sizeof($listingSeats) > 0) {
+            $listingSeatFrom = $listingSeats[0];
+            $listingSeatTo = $listingSeats[sizeof($listingSeats) - 1];
+        } else {
+            $listingSeatFrom = null;
+            $listingSeatTo = null;
+        }
+
+        $itemSeatFrom = $inventoryItem->getSeatFrom();
+        $itemSeatTo = $inventoryItem->getSeatTo();
+        if (
+            $inventoryItem->getSection() === $viagogoListing["Section"] &&
+            $itemSeatFrom === $listingSeatFrom &&
+            $itemSeatTo === $listingSeatTo
+        ) {
+            // update inventory item with viagogoListing data
+            $inventoryItem->setStatus($viagogoListing["Status"]);
+            $inventoryItem->setSaleEndDate($viagogoListing["SaleEndDate"]);
+            $inventoryItem->setYourPricePerTicket(['amount' => $viagogoListing["PricePerTicket"]["Amount"], 'currency' => $viagogoListing["PricePerTicket"]["Currency"]]);
+            $inventoryItem->setQuantity($viagogoListing["Quantity"]);
+            $inventoryItem->setQuantityRemain($viagogoListing["QuantityRemain"]);
+            $inventoryItem->setDateLastModified($viagogoListing["DateLastModified"]);
+            $inventoryItem->setViagogoCategoryId($viagogoListing["CategoryId"]);
+            return $inventoryItem;
+        }
+
+        return $inventoryItem;
+    }
 }

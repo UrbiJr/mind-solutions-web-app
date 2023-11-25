@@ -50,3 +50,71 @@ function setWithExpiry(key, value, ttl) {
     }
     localStorage.setItem(key, JSON.stringify(item))
 }
+
+function setViagogoUser(username, password, cookie1, cookie2) {
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "POST",
+            url: '/api/viagogo/user',
+            data: {
+                username: username,
+                password: password,
+                cookies: JSON.stringify([
+                    cookie1,
+                    cookie2
+                ])
+            },
+            success: function (response) {
+                // Handle the response from the server
+                if (response.success === true) {
+                    resolve(response);
+                } else {
+                    reject(response.message);
+                }
+            },
+            error: function (response) {
+                reject(response.responseText);
+            }
+        });
+    });
+}
+
+function getViagogoUser() {
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "GET",
+            url: '/api/viagogo/user',
+            success: function (response) {
+                // Handle the response from the server
+                if (response.success === true) {
+                    resolve(response);
+                } else {
+                    reject(response.message);
+                }
+            },
+            error: function (response) {
+                reject(response.responseText);
+            }
+        });
+    });
+}
+
+function deleteViagogoUser() {
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "DELETE",
+            url: '/api/viagogo/user',
+            success: function (response) {
+                // Handle the response from the server
+                if (response.success === true) {
+                    resolve(response);
+                } else {
+                    reject(response.message);
+                }
+            },
+            error: function (response) {
+                reject(response.responseText);
+            }
+        });
+    });
+}

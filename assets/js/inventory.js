@@ -369,7 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
         $('#inventoryBulkActions .edit').on('click', function () {
             const selections = $('table[data-multiple-select-row="true"]').bootstrapTable('getSelections');
             if (selections.length <= 0) {
-                showBottomToast("No Items Selected", "You must select one or more rows");
+                toastWithTimeout("No Items Selected", "You must select one or more rows");
             } else {
                 $bulkUpdateModal.modal("show");
             }
@@ -737,7 +737,7 @@ function enableSyncButton() {
 
 function syncViagogoListings() {
     disableSyncButton();
-    const viagogoSessionId = getCookie('viagogoSessionId');
+    const viagogoSessionId = window.viagogoUser.wsu2Cookie;
 
     if (!viagogoSessionId || viagogoSessionId === "") {
         enableSyncButton();
@@ -748,7 +748,10 @@ function syncViagogoListings() {
         getUserListings(viagogoSessionId, (response) => {
             if (response.success) {
                 if (response.cookie) {
-                    updateCookie('viagogoSessionId', response.cookie, 7);
+                    // Store Viagogo user on the backend and update status to connected
+                    setViagogoUser(window.viagogoUser.username, window.viagogoUser.password, response.cookie, window.viagogoUser.rvtCookie).then(function (response) {
+                    }).catch(function (error) {
+                    });
                 }
                 const listings = response.listings.map(item => ({
                     EventId: item.EventId,
@@ -775,7 +778,9 @@ function syncViagogoListings() {
                 getUserSales(viagogoSessionId, (response) => {
                     if (response.success) {
                         if (response.cookie) {
-                            updateCookie('viagogoSessionId', response.cookie, 7);
+                            setViagogoUser(window.viagogoUser.username, window.viagogoUser.password, response.cookie, window.viagogoUser.rvtCookie).then(function (response) {
+                            }).catch(function (error) {
+                            });
                         }
                         const sales = response.sales.map(item => ({
                             SaleId: item.SaleId,
@@ -802,7 +807,7 @@ function syncViagogoListings() {
                                 listings: listings,
                                 sales: sales,
                             },
-                            url: "/?model=inventory&action=syncViagogo",
+                            url: "/api/viagogo/sync",
                             success: (response) => {
                                 if (response.success) {
                                     $('#preloader').hide();
@@ -827,13 +832,27 @@ function syncViagogoListings() {
                     } else {
                         $('#preloader').hide();
                         enableSyncButton();
-                        showToast("Error", response.message === "session expired" ? '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>' : response.message, true);
+                        if (response.message === "session expired") {
+                            deleteViagogoUser()
+                                .then(() => { })
+                                .catch(() => { });
+                            showToast("Error", '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>', true);
+                        } else {
+                            showToast("Error", response.message, true);
+                        }
                     }
                 });
             } else {
                 $('#preloader').hide();
                 enableSyncButton();
-                showToast("Error", response.message === "session expired" ? '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>' : response.message, true);
+                if (response.message === "session expired") {
+                    deleteViagogoUser()
+                        .then(() => { })
+                        .catch(() => { });
+                    showToast("Error", '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>', true);
+                } else {
+                    showToast("Error", response.message, true);
+                }
             }
         });
     }
@@ -842,7 +861,7 @@ function syncViagogoListings() {
 }
 
 function deleteInventoryItem(itemId) {
-    showBottomToast("Deleting", "Deleting item from inventory...");
+    toastWithTimeout("Deleting", "Deleting item from inventory...");
 
     // Send an AJAX request to delete the item
     $.ajax({
@@ -852,11 +871,11 @@ function deleteInventoryItem(itemId) {
             if (response.success === true) {
                 $("#inventoryTable").bootstrapTable('refresh');
             } else {
-                showBottomToast("Error", 'Error deleting item: ' + response.message, "bg-danger", 5000);
+                toastWithTimeout("Error", 'Error deleting item: ' + response.message, "bg-danger", 5000);
             }
         },
         error: function (error) {
-            showBottomToast("Error", 'Error deleting item: ' + error, "bg-danger", 5000);
+            toastWithTimeout("Error", 'Error deleting item: ' + error, "bg-danger", 5000);
         }
     });
 }
@@ -864,7 +883,7 @@ function deleteInventoryItem(itemId) {
 function duplicateInventoryItem(itemId) {
     // Disable submit button to prevent multiple submissions
     $("#addToInventory").prop("disabled", true);
-    showBottomToast("Copying", "Copying item to inventory...");
+    toastWithTimeout("Copying", "Copying item to inventory...");
 
     // Perform Ajax POST request
     $.ajax({
@@ -876,11 +895,11 @@ function duplicateInventoryItem(itemId) {
                 // Refresh the table content
                 $("#inventoryTable").bootstrapTable('refresh');
             } else {
-                showBottomToast("Error", "Copy failed: " + response.message, "bg-danger", 5000);
+                toastWithTimeout("Error", "Copy failed: " + response.message, "bg-danger", 5000);
             }
         },
         error: function (response) {
-            showBottomToast("Error", "Copy failed due to request error", "bg-danger", 5000);
+            toastWithTimeout("Error", "Copy failed due to request error", "bg-danger", 5000);
         }
     });
 }
@@ -976,7 +995,7 @@ function editInventoryItem(itemId) {
             document.getElementById("loadingPreloader").style.display = "none";
             // Handle any errors that occurred during the data fetching process
             console.error('Error fetching item data:', error);
-            showBottomToast("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
+            toastWithTimeout("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
         });
 }
 
@@ -1013,33 +1032,6 @@ function resetForm() {
     if ($("#addToInventoryModal").length) {
         $("#addToInventoryModal .header-title").show();
     }
-}
-
-function showToast(title, body, isError = false, isSuccess = false) {
-    const toast = document.getElementById("bottomToast");
-    toast.querySelector(".toast-header strong").textContent = title;
-    toast.querySelector(".toast-body").innerHTML = body;
-
-    if (body.includes('Viagogo session expired')) {
-        deleteCookie('viagogoSessionId');
-    }
-
-    if (isError) {
-        toast.classList.remove("bg-success");
-        toast.classList.remove("bg-primary");
-        toast.classList.add("bg-danger");
-    } else if (isSuccess) {
-        toast.classList.remove("bg-danger");
-        toast.classList.remove("bg-primary");
-        toast.classList.add("bg-success");
-    } else {
-        toast.classList.remove("bg-danger");
-        toast.classList.remove("bg-success");
-        toast.classList.add("bg-primary");
-    }
-
-    const bootstrapToast = new bootstrap.Toast(toast);
-    bootstrapToast.show();
 }
 
 function getCheckedRestrictions(form) {
@@ -1234,7 +1226,9 @@ function quickEdit(form) {
                                         $('#loadingPreloader .title').text('Loading...');
                                         $("html, body").animate({ scrollTop: "0" }, 500);
                                         if (error.includes('session expired')) {
-                                            deleteCookie('viagogoSessionId');
+                                            deleteViagogoUser()
+                                                .then(() => { })
+                                                .catch(() => { });
                                             showToast("Error", '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>', true);
                                         } else if (error.includes('Invalid listing id')) {
                                             // do not update item status, your price per ticket, platform
@@ -1257,7 +1251,9 @@ function quickEdit(form) {
                                 $('#loadingPreloader .subtitle').text('');
                                 $("html, body").animate({ scrollTop: "0" }, 500);
                                 if (error.includes('session expired')) {
-                                    deleteCookie('viagogoSessionId');
+                                    deleteViagogoUser()
+                                        .then(() => { })
+                                        .catch(() => { });
                                     showToast("Error", '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>', true);
                                 } else {
                                     showToast("Error activating listing", "Please make sure all listing data is valid", true);
@@ -1302,7 +1298,9 @@ function quickEdit(form) {
                                 $('#loadingPreloader .subtitle').text('');
                                 $("html, body").animate({ scrollTop: "0" }, 500);
                                 if (error.includes('session expired')) {
-                                    deleteCookie('viagogoSessionId');
+                                    deleteViagogoUser()
+                                        .then(() => { })
+                                        .catch(() => { });
                                     showToast("Error", '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>', true);
                                 } else {
                                     showToast("Error adding listing", "Please make sure all listing data is valid", true);
@@ -1321,7 +1319,7 @@ function quickEdit(form) {
                 $('#loadingPreloader').hide();
                 // Handle any errors that occurred during the data fetching process
                 console.error('Error fetching item data:', error);
-                showBottomToast("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
+                toastWithTimeout("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
             });
     } else if ((itemStatus === "Inactive" && platform === "Viagogo") || (itemStatus === "Soldout" && platform !== "Viagogo")) {
         // deactivate listing if item is being marked not listed OR sold on another platform
@@ -1344,7 +1342,9 @@ function quickEdit(form) {
                                 $('#loadingPreloader .title').text('Loading...');
                                 $("html, body").animate({ scrollTop: "0" }, 500);
                                 if (error.includes('session expired')) {
-                                    deleteCookie('viagogoSessionId');
+                                    deleteViagogoUser()
+                                        .then(() => { })
+                                        .catch(() => { });
                                     showToast("Error deactivating listing", '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>', true);
                                 } else if (error.includes(`${itemData.listingId} not found`)) {
                                     updateItemAttributes(itemId, attributesMap);
@@ -1369,7 +1369,7 @@ function quickEdit(form) {
                 $('#loadingPreloader').hide();
                 // Handle any errors that occurred during the data fetching process
                 console.error('Error fetching item data:', error);
-                showBottomToast("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
+                toastWithTimeout("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
             });
     } else if (platform == "Viagogo") {
         // Update viagogo listing
@@ -1422,7 +1422,9 @@ function quickEdit(form) {
                             $('#loadingPreloader .subtitle').text('');
                             $("html, body").animate({ scrollTop: "0" }, 500);
                             if (error.includes('session expired')) {
-                                deleteCookie('viagogoSessionId');
+                                deleteViagogoUser()
+                                    .then(() => { })
+                                    .catch(() => { });
                                 showToast("Error", '<p>Viagogo session expired, you may want to login again.</p><br><a class="btn btn-soft-light" href="/?model=viagogo&action=login">Login</a>', true);
                             } else {
                                 showToast("Error updating listing", "Please make sure all listing data is valid", true);
@@ -1440,7 +1442,7 @@ function quickEdit(form) {
                 $('#loadingPreloader').hide();
                 // Handle any errors that occurred during the data fetching process
                 console.error('Error fetching item data:', error);
-                showBottomToast("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
+                toastWithTimeout("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
             });
     } else {
         updateItemAttributes(itemId, attributesMap);
@@ -1468,7 +1470,7 @@ function updateItemAttributes(itemId, attributesMap) {
             if (response.success === true) {
                 $('#loadingPreloader').hide();
                 $("html, body").animate({ scrollTop: "0" }, 500);
-                showBottomToast("Item updated", "Successfully saved changes");
+                toastWithTimeout("Item updated", "Successfully saved changes");
                 if (response.updates && response.updates.hasOwnProperty(itemId)) {
                     const updatedAttributes = response.updates[itemId];
                     let quantity, itemStatus, quantityRemain, yourPricePerTicket, amount, currency, ticketCost = false;

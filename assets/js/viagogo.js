@@ -132,32 +132,13 @@ function onSubmitViagogoForm(form) {
         // and then attempt viagogo login
         getViagogoSessionCookie(username, password, recaptchaToken, function (response) {
             const sessionCookieValue1 = response.sessionCookie1.value;
-            const sessionCookieExpires1 = new Date(response.sessionCookie1.expires * 10000);
             const sessionCookieValue2 = response.sessionCookie2.value;
 
-            // Set the cookie with the extracted values
-            document.cookie = `viagogoSessionId=${sessionCookieValue1}; expires=${sessionCookieExpires1.toUTCString()}; path=/`;
-            document.cookie = `viagogoSessionId2=${sessionCookieValue2}; expires=${sessionCookieExpires1.toUTCString()}; path=/`;
-
             // Store Viagogo user on the backend and update status to connected
-            $.ajax({
-                type: "POST",
-                url: '/api/viagogo/user',
-                data: {
-                    username: username,
-                    password: password,
-                },
-                success: function (response) {
-                    // Handle the response from the server
-                    if (response.success === true) {
-                        window.location.href = response['redirectUrl'];
-                    } else {
-                        showError(response.message);
-                    }
-                },
-                error: function (response) {
-                    showError(response.responseText);
-                }
+            setViagogoUser(username, password, sessionCookieValue1, sessionCookieValue2).then(function (response) {
+                window.location.href = response['redirectUrl'];
+            }).catch(function (error) {
+                showError(error);
             });
         }, function (error) {
             showError(error);

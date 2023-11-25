@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
             $('#releaseBulkActions .delete').on('click', function () {
                 const selections = $('table[data-multiple-select-row="true"]').bootstrapTable('getSelections');
                 if (selections.length <= 0) {
-                    showBottomToast("No Releases Selected", "You must select one or more rows");
+                    toastWithTimeout("No Releases Selected", "You must select one or more rows");
                 } else {
                     selections.forEach(selection => {
                         var $htmlEventData = $(selection.releaseData);
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function deleteRelease(releaseId) {
-    showBottomToast("Deleting", "Deleting release...", "bg-secondary");
+    toastWithTimeout("Deleting", "Deleting release...", "bg-secondary");
 
     // Send an AJAX request to delete the item
     $.ajax({
@@ -91,11 +91,11 @@ function deleteRelease(releaseId) {
             if (response.success === true) {
                 $('#releasesTable').bootstrapTable('refresh');
             } else {
-                showBottomToast("Error", 'Error deleting release: ' + response.message, "bg-danger", 5000);
+                toastWithTimeout("Error", 'Error deleting release: ' + response.message, "bg-danger", 5000);
             }
         },
         error: function (error) {
-            showBottomToast("Error", 'Error deleting release: ' + error, "bg-danger", 5000);
+            toastWithTimeout("Error", 'Error deleting release: ' + error, "bg-danger", 5000);
         }
     });
 }
@@ -103,7 +103,7 @@ function deleteRelease(releaseId) {
 function duplicateRelease(releaseId) {
     // Disable submit button to prevent multiple submissions
     $("#addRelease").prop("disabled", true);
-    showBottomToast("Copying", "Copying release...", "bg-secondary");
+    toastWithTimeout("Copying", "Copying release...", "bg-secondary");
 
     // Perform Ajax POST request
     $.ajax({
@@ -115,11 +115,11 @@ function duplicateRelease(releaseId) {
                 // Refresh the table content
                 $('#releasesTable').bootstrapTable('refresh');
             } else {
-                showBottomToast("Error", "Copy failed: " + response.message, "bg-danger", 5000);
+                toastWithTimeout("Error", "Copy failed: " + response.message, "bg-danger", 5000);
             }
         },
         error: function (response) {
-            showBottomToast("Error", "Copy failed due to request error", "bg-danger", 5000);
+            toastWithTimeout("Error", "Copy failed due to request error", "bg-danger", 5000);
         }
     });
 }
@@ -156,7 +156,7 @@ function editRelease(releaseId) {
             document.getElementById("loadingPreloader").style.display = "none";
             // Handle any errors that occurred during the data fetching process
             console.error('Error fetching release:', error);
-            showBottomToast("Error", 'Error fetching release: ' + error, "bg-danger", 5000);
+            toastWithTimeout("Error", 'Error fetching release: ' + error, "bg-danger", 5000);
         });
 }
 

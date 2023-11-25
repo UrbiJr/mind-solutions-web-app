@@ -37,7 +37,7 @@ security:
                 csrf_token_id: authenticate
                 # The page users are redirect to when there is no previous page stored in the
                 # session (for example when the users access directly to the login page).
-                default_target_path: dashboard
+                default_target_path: login
 
             # This option allows users to choose to stay logged in for longer than
             # the session lasts using a cookie. Reference: https://symfony.com/doc/current/security/remember_me.html
@@ -52,7 +52,7 @@ security:
             # HTTP Basic instead of the login form, so this firewall has
             # multiple authenticators
             # See https://symfony.com/doc/current/security/experimental_authenticators.html#configuring-the-authentication-entry-point
-            entry_point: 'form_login'
+            entry_point: App\Security\AuthenticationEntryPoint
             user_checker: App\Security\UserChecker
 
             # activate different ways to authenticate
@@ -64,8 +64,10 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: '^/(%app_locales%)/auth/login', roles: PUBLIC_ACCESS }
         - { path: '^/(%app_locales%)/dashboard', roles: ROLE_USER }
         - { path: '^/(%app_locales%)/admin', roles: ROLE_ADMIN }
+        - { path: ^/, roles: ROLE_USER }
 
     # The ROLE_ADMIN role inherits from the ROLE_USER role
     role_hierarchy:

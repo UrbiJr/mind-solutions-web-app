@@ -34,8 +34,8 @@ function validateListingData(itemData) {
 
 function createListing(eventId, ticketFormatID, quantity, splitId, sectionText, rowText, seatFrom, seatTo, individualTicketCost, yourPricePerTicket, restrictions, ticketDetails) {
 
-    const viagogoSessionId = getCookie('viagogoSessionId');
-    const viagogoSessionId2 = getCookie('viagogoSessionId2');
+    const viagogoSessionId = window.viagogoUser.wsu2Cookie;
+    const viagogoSessionId2 = window.viagogoUser.rvtCookie;
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({
@@ -101,8 +101,8 @@ function createListing(eventId, ticketFormatID, quantity, splitId, sectionText, 
 
 function editListing(csrfToken, listingId, action) {
 
-    const viagogoSessionId = getCookie('viagogoSessionId');
-    const viagogoSessionId2 = getCookie('viagogoSessionId2');
+    const viagogoSessionId = window.viagogoUser.wsu2Cookie;
+    const viagogoSessionId2 = window.viagogoUser.rvtCookie;
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({
@@ -159,8 +159,8 @@ function editListing(csrfToken, listingId, action) {
 
 function editListingDetails(listingId, eventId, ticketFormatID, quantity, splitId, sectionText, rowText, seatFrom, seatTo, individualTicketCost, yourPricePerTicket) {
 
-    const viagogoSessionId = getCookie('viagogoSessionId');
-    const viagogoSessionId2 = getCookie('viagogoSessionId2');
+    const viagogoSessionId = window.viagogoUser.wsu2Cookie;
+    const viagogoSessionId2 = window.viagogoUser.rvtCookie;
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({

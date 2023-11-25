@@ -45,6 +45,7 @@ class InventoryItemType extends AbstractType
                 'label' => 'Purchase Date:',
                 'widget' => 'single_text',
                 'html5' => true,
+                'data' => new \DateTime('now'),
             ])
             // Ticket(s) Details
             ->add('ticketCost', NumberType::class, ['label' => 'Ticket Face Value:'])

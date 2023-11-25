@@ -78,6 +78,8 @@ final class Firestore
 
             if ($inventoryEvent->getPurchaseDate() !== null) {
                 $inventoryData['purchaseDate'] = new Timestamp($inventoryEvent->getPurchaseDate());
+            } else {
+                $inventoryData['purchaseDate'] = new Timestamp(new DateTime());
             }
 
             if ($inventoryEvent->getSaleEndDate() !== null) {

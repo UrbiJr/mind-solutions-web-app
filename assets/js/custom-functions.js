@@ -45,28 +45,50 @@ function validate(field, regex) {
     }
 }
 
-function showBottomToast(titleContent, bodyContent, background, delay) {
+function showToast(title, body, isError = false, isSuccess = false) {
+    const toast = document.getElementById("bottomToast");
+    toast.querySelector(".toast-header strong").textContent = title;
+    toast.querySelector(".toast-body").innerHTML = body;
 
-    if (delay === undefined) {
-        delay = 1000;
+    toast.querySelector(".toast-body").classList.remove("text-dark");
+    toast.querySelector(".toast-body").classList.add("text-light");
+
+    if (isError) {
+        toast.classList.remove("bg-success");
+        toast.classList.remove("bg-secondary");
+        toast.classList.add("bg-danger");
+    } else if (isSuccess) {
+        toast.classList.remove("bg-danger");
+        toast.classList.remove("bg-secondary");
+        toast.classList.add("bg-success");
+    } else {
+        toast.classList.remove("bg-danger");
+        toast.classList.remove("bg-success");
+        toast.classList.add("bg-secondary");
+    }
+
+    const bootstrapToast = new bootstrap.Toast(toast);
+    bootstrapToast.show();
+}
+
+function toastWithTimeout(titleContent, bodyContent, background, timeout) {
+
+    if (timeout === undefined) {
+        timeout = 2000;
     }
 
     // Get references to the toast elements
     const bottomToast = document.getElementById('bottomToast');
     const bottomToastTitle = bottomToast.querySelector('[name="title"]');
-    const timeElement = bottomToast.querySelector('[name="time"]');
     const bodyElement = bottomToast.querySelector('.toast-body');
 
+    bottomToast.querySelector(".toast-body").classList.add("text-dark");
+    bottomToast.querySelector(".toast-body").classList.remove("text-light");
     bottomToast.classList = "toast hide";
 
     // Set the title, body, and time
     bottomToastTitle.textContent = titleContent; // Replace with your title
     bodyElement.textContent = bodyContent; // Replace with your message
-    const currentTime = new Date();
-
-    // Format the time as HH:mm:ss
-    const formattedTime = `${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}:${currentTime.getSeconds().toString().padStart(2, '0')}`;
-    timeElement.textContent = formattedTime;
 
     if (background !== undefined) {
         bottomToast.classList.add(background);
@@ -74,7 +96,7 @@ function showBottomToast(titleContent, bodyContent, background, delay) {
 
     // Show the toast
     const bsBottomToast = new bootstrap.Toast(bottomToast, {
-        delay: delay,
+        delay: timeout,
     });
     bsBottomToast.show();
 }

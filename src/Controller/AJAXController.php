@@ -45,7 +45,13 @@ class AJAXController extends AbstractController
 
             $username = $request->request->get('username');
             $password = $request->request->get('password');
-            $viagogoUser = new ViagogoUser($username, $password);
+            $cookies = json_decode($request->request->get('cookies'), true);
+            if (!is_array($cookies) || count($cookies) < 2) {
+                throw new Exception("Both cookies must be set.");
+            }
+            $wsu2Cookie = $cookies[0];
+            $rvtCookie = $cookies[1];
+            $viagogoUser = new ViagogoUser($username, $password, $wsu2Cookie, $rvtCookie);
 
             /* Cache viagogo connection (set it to never expire) */
             $cacheItem = $this->cache->getItem("viagogoUser_" . $user->getId());
@@ -56,6 +62,225 @@ class AJAXController extends AbstractController
                 "success" => true,
                 "message" => "Viagogo user set successfully.",
                 "redirectUrl" => $this->generateUrl('viagogo_connection_show'),
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/viagogo/user', methods: ['GET'], name: 'api_viagogo_user_get')]
+    public function get_viagogo_user(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /* Get viagogo connection from cache */
+            $cacheItem = $this->cache->getItem("viagogoUser_" . $user->getId());
+            /** @var ViagogoUser $viagogoUser */
+            $viagogoUser = $cacheItem->get();
+            if (!$viagogoUser) {
+                return new Response("Viagogo user not found.", Response::HTTP_NOT_FOUND);
+            }
+
+            $response = [
+                "success" => true,
+                "message" => "Viagogo user fetched successfully.",
+                "viagogoUser" => array(
+                    "username" => $viagogoUser->getUsername(),
+                    "password" => $viagogoUser->getPassword(),
+                    "wsu2Cookie" => $viagogoUser->getWsu2Cookie(),
+                    "rvtCookie" => $viagogoUser->getRvtCookie(),
+                ),
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/viagogo/user', methods: ['DELETE'], name: 'api_viagogo_user_delete')]
+    public function delete_viagogo_user(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /* Delete Viagogo connection from cache */
+            $this->cache->deleteItem("viagogoUser_" . $user->getId());
+
+            $response = [
+                "success" => true,
+                "message" => "Viagogo user deleted successfully.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/viagogo/sync', methods: ['POST'], name: 'api_viagogo_sync')]
+    public function sync_viagogo(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /** @var array $listings  */
+            $listings = $request->request->all('listings');
+
+            /** @var array $sales  */
+            $sales = $request->request->all('sales');
+
+            $inventory = $this->firestore->get_user_inventory($user->getId());
+            $db_sales = $this->firestore->get_user_sales($user->getId());
+
+            // Create an associative array of inventory items with EventId as the key
+            $inventoryMap = [];
+            foreach ($inventory as $inventoryItem) {
+                $inventoryMap[$inventoryItem->getViagogoEventId()] = $inventoryItem;
+            }
+
+            foreach ($listings as $viagogoListing) {
+                // skip adding sold out items (will do later using sales data)
+                if ($viagogoListing["Status"] === InventoryItem::ITEM_SOLD) {
+                    continue;
+                }
+                $eventId = $viagogoListing['EventId'];
+
+                if (
+                    // If an existing inventory item with the same EventId was found..
+                    isset($inventoryMap[$eventId])
+                ) {
+                    $updated = $this->inventoryService->updateWithListing($inventoryMap[$eventId], $viagogoListing);
+                    // .. and the inventory item was updated
+                    if ($updated !== $inventoryMap[$eventId]) {
+                        // Update the inventory item in the database
+                        $this->firestore->edit_inventory_item($inventoryMap[$eventId]->getId(), $updated, $user->getId());
+                    }
+                } else {
+                    // No matching inventory item found, create a new item
+                    $listingSeats = (isset($viagogoListing["Seats"])) ? explode("-", $viagogoListing["Seats"]) : array();
+                    if (sizeof($listingSeats) > 0) {
+                        $listingSeatFrom = $listingSeats[0];
+                        $listingSeatTo = $listingSeats[sizeof($listingSeats) - 1];
+                    } else {
+                        $listingSeatFrom = null;
+                        $listingSeatTo = null;
+                    }
+                    $isoCode = $this->utils->getIsoCodeFromCountryName($viagogoListing["Country"]);
+                    if (!isset($isoCode)) {
+                        $isoCode = $viagogoListing["Country"];
+                    }
+                    $pricePerTicket = ['amount' => $viagogoListing["PricePerTicket"]["Amount"], 'currency' => $viagogoListing["PricePerTicket"]["Currency"]];
+                    $newItem = new InventoryItem(
+                        null,
+                        (string)$viagogoListing["EventId"],
+                        (string)$viagogoListing["CategoryId"],
+                        $viagogoListing["EventDescription"],
+                        $viagogoListing["EventDate"],
+                        null,
+                        $isoCode,
+                        $viagogoListing["City"],
+                        $viagogoListing["VenueDescription"],
+                        $viagogoListing["Section"],
+                        $viagogoListing["Rows"],
+                        $listingSeatFrom,
+                        $listingSeatTo,
+                        $viagogoListing["TicketType"],
+                        $this->utils->getGenreNameById($viagogoListing["GenreId"]),
+                        null,
+                        null,
+                        null,
+                        null,
+                        $viagogoListing["Status"],
+                        $viagogoListing["SaleEndDate"],
+                        $pricePerTicket,
+                        null,
+                        $viagogoListing["Quantity"],
+                        $viagogoListing["QuantityRemain"],
+                        $viagogoListing["DateLastModified"],
+                        'Viagogo',
+                        null,
+                        null,
+                        $viagogoListing["Id"] ?? null,
+                        null,
+                        null,
+                    );
+                    $ref = $this->firestore->add_item_to_inventory($newItem, $user->getId());
+                }
+            }
+
+            // Create an associative array of sales to avoid duplicates
+            $db_sale_ids = [];
+            foreach ($db_sales as $db_sale) {
+                $db_sale_ids[] = $db_sale->getSaleId();
+            }
+            foreach ($sales as $sale) {
+                // Check if already existent
+                if (isset($sale['SaleId']) && !in_array($sale['SaleId'], $db_sale_ids)) {
+                    $saleSeats = (isset($sale["Seats"]) && preg_match('/\S/', $sale["Seats"])) ? explode(' ', $sale["Seats"]) : array();
+                    if (sizeof($saleSeats) > 0) {
+                        $saleSeatFrom = $saleSeats[0];
+                        $saleSeatTo = $saleSeats[sizeof($saleSeats) - 1];
+                    } else {
+                        $saleSeatFrom = null;
+                        $saleSeatTo = null;
+                    }
+                    $isoCode = $this->utils->getIsoCodeFromCountryName($sale["Country"]);
+                    if (!isset($isoCode)) {
+                        $isoCode = $sale["Country"];
+                    }
+                    $pricePerTicket = ['amount' => $viagogoListing["PricePerTicket"]["Amount"], 'currency' => $viagogoListing["PricePerTicket"]["Currency"]];
+                    $totalPayout = ['amount' => $sale["TotalPayout"]["Amount"], 'currency' => $sale["TotalPayout"]["Currency"]];
+                    $newItem = new InventoryItem(
+                        null,
+                        (string)$sale["EventId"],
+                        null,
+                        $sale["EventDescription"],
+                        $sale["EventDate"],
+                        null,
+                        $isoCode,
+                        $sale["City"],
+                        $sale["VenueDescription"],
+                        $sale["Section"],
+                        $sale["Row"],
+                        $saleSeatFrom,
+                        $saleSeatTo,
+                        $sale["TicketType"],
+                        $this->utils->getGenreNameById($sale["GenreId"]),
+                        null,
+                        null,
+                        null,
+                        null,
+                        InventoryItem::ITEM_SOLD,
+                        null,
+                        $pricePerTicket,
+                        $totalPayout,
+                        $sale["Quantity"],
+                        0,
+                        $sale["DateLastModified"],
+                        'Viagogo',
+                        $sale["SaleDate"],
+                        $sale["SaleId"],
+                        null,
+                        null,
+                        null,
+                    );
+                    $ref = $this->firestore->add_item_to_inventory($newItem, $user->getId());
+                }
+            }
+
+            $response = [
+                "success" => true,
+                "message" => "Viagogo synced successfully.",
             ];
 
             return new JsonResponse($response, Response::HTTP_OK);

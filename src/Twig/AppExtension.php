@@ -11,6 +11,7 @@
 
 namespace App\Twig;
 
+use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 use Symfony\Component\Intl\Locales;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -36,7 +37,7 @@ final class AppExtension extends AbstractExtension
 
     // The $locales argument is injected thanks to the service container.
     // See https://symfony.com/doc/current/service_container.html#binding-arguments-by-name-or-type
-    public function __construct(string $locales)
+    public function __construct(string $locales, private readonly MemcachedAdapter $cache)
     {
         $localeCodes = explode('|', $locales);
         sort($localeCodes);
@@ -47,6 +48,7 @@ final class AppExtension extends AbstractExtension
     {
         return [
             new TwigFunction('locales', $this->getLocales(...)),
+            new TwigFunction('viagogoUser', [$this, 'getViagogoUser']),
         ];
     }
 
@@ -69,5 +71,15 @@ final class AppExtension extends AbstractExtension
         }
 
         return $this->locales;
+    }
+
+    public function getViagogoUser($userId)
+    {
+        $cacheItem = $this->cache->getItem("viagogoUser_" . $userId);
+        if ($cacheItem->isHit()) {
+            return $cacheItem->get();
+        } else {
+            return null;
+        }
     }
 }

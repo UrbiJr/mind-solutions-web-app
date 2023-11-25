@@ -139,7 +139,7 @@
 						</button>
 						<div class="collapse navbar-collapse" id="navbarSupportedContent">
 							<ul class="mb-2 navbar-nav ms-auto align-items-center navbar-list mb-lg-0">
-								{% if cookie.viagogoSessionId is defined %}
+								{% if viagogoUser(app.user.id) is not null %}
 									<li class="nav-item">
 										<svg class="syncViagogoListings" enable-background="new 0 0 32 32" height="28px" id="Layer_1" version="1.1" viewbox="0 0 32 32" width="28px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Sync Viagogo">
 											<g>
@@ -400,7 +400,7 @@
 						<small name="time"></small>
 						<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
 					</div>
-					<div class="toast-body"></div>
+					<div class="toast-body text-light"></div>
 				</div>
 			</div>
 
@@ -473,7 +473,6 @@
 					const currentLocale = document.body.getAttribute('lang');
 				</script>
 
-				<script src="{{ asset('js/api.js') }}"></script>
 				<script src="{{ asset('js/custom-functions.js') }}"></script>
 				<script src="{{ asset('js/bs_tables.js') }}"></script>
 				<script src="{{ asset('js/captcha.js') }}"></script>
@@ -528,6 +527,15 @@
 				<script src="{{ asset('js/plugins/calendar.js') }}"></script>
 
 				<script src="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.js"></script>
+
+				<script src="{{ asset('js/api.js') }}"></script>
+				<script>
+					getViagogoUser().then(function(response) {
+						window.viagogoUser = response.viagogoUser;
+					}).catch(function(error) {
+						console.log(error);
+					})
+				</script>
 
 			{% endblock %}
 		</body>

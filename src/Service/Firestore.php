@@ -181,6 +181,32 @@ final class Firestore
         }
     }
 
+    function bulk_delete_inventory_items(array $itemIds, $userId): int
+    {
+        // Reference to the root "users" collection
+        $usersCollectionRef = $this->con->collection('users');
+
+        // Reference to the "inventory" subcollection
+        $inventoryCollectionRef = $usersCollectionRef->document((string) $userId)->collection('inventory');
+
+        $deleted = 0;
+
+        try {
+            // Iterate over the document IDs and delete each one
+            foreach ($itemIds as $documentId) {
+                $docRef = $inventoryCollectionRef->document($documentId);
+                if ($docRef->snapshot()->exists()) {
+                    $docRef->delete();
+                    $deleted++;
+                }
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return $deleted;
+    }
+
 
     function delete_inventory_item($itemId, $userId)
     {

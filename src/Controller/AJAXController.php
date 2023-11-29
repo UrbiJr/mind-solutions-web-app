@@ -139,32 +139,25 @@ class AJAXController extends AbstractController
             /** @var array $sales  */
             $sales = $request->request->all('sales');
 
-            $inventory = $this->firestore->get_user_inventory($user->getId());
             $db_sales = $this->firestore->get_user_sales($user->getId());
 
-            // Create an associative array of inventory items with EventId as the key
-            $inventoryMap = [];
-            foreach ($inventory as $inventoryItem) {
-                $inventoryMap[$inventoryItem->getViagogoEventId()] = $inventoryItem;
-            }
+            $inventory = $this->firestore->get_user_inventory($user->getId());
+
 
             foreach ($listings as $viagogoListing) {
                 // skip adding sold out items (will do later using sales data)
                 if ($viagogoListing["Status"] === InventoryItem::ITEM_SOLD) {
                     continue;
                 }
-                $eventId = $viagogoListing['EventId'];
-
                 if (
-                    // If an existing inventory item with the same EventId was found..
-                    isset($inventoryMap[$eventId])
+                    // If the listing is already in the inventory
+                    ($itemToSync = $this->inventoryService->isListingOnInventory($inventory, $viagogoListing, $user->getId()))
+                    !== null
                 ) {
-                    $updated = $this->inventoryService->updateWithListing($inventoryMap[$eventId], $viagogoListing);
-                    // .. and the inventory item was updated
-                    if ($updated !== $inventoryMap[$eventId]) {
-                        // Update the inventory item in the database
-                        $this->firestore->edit_inventory_item($inventoryMap[$eventId]->getId(), $updated, $user->getId());
-                    }
+                    // Update the inventory item with the viagogo listing data
+                    $updated = $this->inventoryService->updateWithViagogoListing($itemToSync, $viagogoListing);
+                    // Reflect the changes in the database
+                    $this->firestore->edit_inventory_item($updated->getId(), $updated, $user->getId());
                 } else {
                     // No matching inventory item found, create a new item
                     $listingSeats = (isset($viagogoListing["Seats"])) ? explode("-", $viagogoListing["Seats"]) : array();
@@ -393,7 +386,32 @@ class AJAXController extends AbstractController
         }
     }
 
-    #[Route('/api/user/inventory/bulk', methods: ['PUT'], name: 'api_user_inventory_bulk_edit')]
+    #[Route('/api/user/inventory', methods: ['DELETE'], name: 'api_user_inventory_bulk_delete')]
+    public function bulk_delete_inventory_items(#[CurrentUser] ?User $user, Request $request): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            $allData = $request->request->all();
+            $ids = $allData['ids'] ?? [];
+
+            $count = $this->firestore->bulk_delete_inventory_items($ids, $user->getId());
+
+            $response = [
+                "success" => true,
+                "count" => $count,
+                "message" => "Items deleted successfully.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/user/inventory', methods: ['PUT'], name: 'api_user_inventory_bulk_edit')]
     public function bulk_edit_inventory_items(#[CurrentUser] ?User $user, Request $request): Response
     {
         try {
@@ -401,8 +419,9 @@ class AJAXController extends AbstractController
                 return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
-            $ids = $request->request->all()['ids'] ?? [];
-            $attributes = $request->request->all()['attributes'] ?? [];
+            $allData = $request->request->all();
+            $ids = $allData['ids'] ?? [];
+            $attributes = $allData['attributes'] ?? [];
 
             $updated = $this->firestore->bulk_edit_inventory_items($ids, $attributes, $user->getId());
 

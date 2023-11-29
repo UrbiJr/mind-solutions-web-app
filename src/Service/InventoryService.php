@@ -7,8 +7,11 @@ use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 
 class InventoryService
 {
-    public function __construct(private readonly MemcachedAdapter $cache, private readonly Utils $utils)
-    {
+    public function __construct(
+        private readonly MemcachedAdapter $cache,
+        private readonly Utils $utils,
+        private readonly Firestore $firestore
+    ) {
     }
 
     public function calculateRoi(InventoryItem $item)
@@ -29,8 +32,18 @@ class InventoryService
         }
     }
 
-    public function updateWithListing(InventoryItem $inventoryItem, $viagogoListing): InventoryItem
-    {
+    /**
+     * Compare the inventory item with the viagogo listing
+     * 
+     * @param array $inventoryMap
+     * @param $viagogoListing
+     * @return bool
+     */
+    public function equalsViagogoListing($inventoryItem, $viagogoListing) {
+        if (!isset($inventoryItem) || !isset($viagogoListing)) {
+            return false;
+        }
+
         $listingSeats = (isset($viagogoListing["Seats"])) ? explode("-", $viagogoListing["Seats"]) : array();
         if (sizeof($listingSeats) > 0) {
             $listingSeatFrom = $listingSeats[0];
@@ -42,22 +55,43 @@ class InventoryService
 
         $itemSeatFrom = $inventoryItem->getSeatFrom();
         $itemSeatTo = $inventoryItem->getSeatTo();
-        if (
-            $inventoryItem->getSection() === $viagogoListing["Section"] &&
+
+        // compare item attributes with listing attributes (optional: add other attributes to compare)
+        return $inventoryItem->getSection() === $viagogoListing["Section"] &&
             $itemSeatFrom === $listingSeatFrom &&
-            $itemSeatTo === $listingSeatTo
-        ) {
-            // update inventory item with viagogoListing data
-            $inventoryItem->setStatus($viagogoListing["Status"]);
-            $inventoryItem->setSaleEndDate($viagogoListing["SaleEndDate"]);
-            $inventoryItem->setYourPricePerTicket(['amount' => $viagogoListing["PricePerTicket"]["Amount"], 'currency' => $viagogoListing["PricePerTicket"]["Currency"]]);
-            $inventoryItem->setQuantity($viagogoListing["Quantity"]);
-            $inventoryItem->setQuantityRemain($viagogoListing["QuantityRemain"]);
-            $inventoryItem->setDateLastModified($viagogoListing["DateLastModified"]);
-            $inventoryItem->setViagogoCategoryId($viagogoListing["CategoryId"]);
-            return $inventoryItem;
+            $itemSeatTo === $listingSeatTo;
+    }
+
+    /**
+     * Check if the listing is already in the inventory
+     * 
+     * @param array $inventoryMap
+     * @param $viagogoListing
+     */
+    public function isListingOnInventory($inventory, $viagogoListing, $userId): ?InventoryItem
+    {
+        foreach ($inventory as $inventoryItem) {
+            if ($inventoryItem->getViagogoEventId() === $viagogoListing['EventId']) {
+                $equalsViagogoListing = $this->equalsViagogoListing($inventoryItem, $viagogoListing);
+                if ($equalsViagogoListing) {
+                    return $inventoryItem;
+                }
+            }
         }
 
+        return null;
+    }
+
+    public function updateWithViagogoListing(InventoryItem $inventoryItem, $viagogoListing): InventoryItem
+    {
+        // update inventory item with viagogoListing data
+        $inventoryItem->setStatus($viagogoListing["Status"]);
+        $inventoryItem->setSaleEndDate($viagogoListing["SaleEndDate"]);
+        $inventoryItem->setYourPricePerTicket(['amount' => $viagogoListing["PricePerTicket"]["Amount"], 'currency' => $viagogoListing["PricePerTicket"]["Currency"]]);
+        $inventoryItem->setQuantity($viagogoListing["Quantity"]);
+        $inventoryItem->setQuantityRemain($viagogoListing["QuantityRemain"]);
+        $inventoryItem->setDateLastModified($viagogoListing["DateLastModified"]);
+        $inventoryItem->setViagogoCategoryId($viagogoListing["CategoryId"]);
         return $inventoryItem;
     }
 }

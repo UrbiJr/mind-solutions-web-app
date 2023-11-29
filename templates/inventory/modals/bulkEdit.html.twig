@@ -1,0 +1,38 @@
+{% block bulkEditModal %}
+        
+        <div class="modal fade" id="bulkUpdateModal" tabindex="-1" aria-labelledby="bulkUpdateModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="bulkUpdateModalLabel">Update Items</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					{{ form_start(updateInventoryForm, {'attr': {'class': 'prevent-submission mt-3 text-center'}}) }}
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-6">
+								{{ form_row(updateInventoryForm.ticketType) }}
+							</div>
+							<div class="col-md-6">
+								{{ form_row(updateInventoryForm.retailer) }}
+							</div>
+							<div class="col-md-12">
+								{{ form_row(updateInventoryForm.individualTicketCost) }}
+								{{ form_row(updateInventoryForm.orderEmail) }}
+								{{ form_row(updateInventoryForm.purchaseDate) }}
+							</div>
+						</div>
+
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Cancel</button>
+						{{ form_label(updateInventoryForm.submit) }}
+						{{ form_widget(updateInventoryForm.submit, {'id':'bulkUpdateBtn'}) }}
+					</div>
+					{{ form_end(updateInventoryForm) }}
+				</div>
+			</div>
+		</div>
+
+{% endblock %}

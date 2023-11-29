@@ -375,6 +375,50 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+        $('#inventoryBulkActions .delete').on('click', function () {
+            const selections = $('table[data-multiple-select-row="true"]').bootstrapTable('getSelections');
+            if (selections.length <= 0) {
+                toastWithTimeout("No Items Selected", "You must select one or more rows");
+            } else {
+                $('#confirmBulkDeleteModal .modal-body').text(`Are you sure you want to delete ${selections.length} items?`);
+                $('#confirmBulkDeleteModal').modal('show');
+            }
+        });
+
+        $('#bulkDeleteBtn').on('click', function () {
+            const selections = $("#inventoryTable").bootstrapTable('getSelections');
+            const ids = [];
+            // Using forEach to iterate through the JSON array
+            selections.forEach(function (item) {
+                // Create a jQuery object from the HTML string
+                var $htmlEventData = $(item.eventData);
+                // Get the value of the data-item-id attribute using the data method
+                var itemId = $htmlEventData.data('item-id');
+                ids.push(itemId);
+            });
+
+            $.ajax({
+                type: "DELETE",
+                url: '/api/user/inventory',
+                data: {
+                    ids: ids,
+                },
+                success: function (response) {
+                    // Handle the response from the server
+                    if (response.success === true) {
+                        showToast("Success", "Successfully deleted " + response.count + " items", false, true);
+                        // Refresh the table content
+                        $("#inventoryTable").bootstrapTable('refresh');
+                    } else {
+                        showToast("Error", "Delete failed, please try again", true);
+                    }
+                },
+                error: function (response) {
+                    showToast("Error", "An error occurred while processing the request, please try again", true);
+                }
+            });
+        });
+
         $('#bulkUpdateBtn').on('click', function () {
             const selections = $("#inventoryTable").bootstrapTable('getSelections');
             const ids = [];
@@ -410,9 +454,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // $("#addToInventoryStatus").text("Updating Item...");
             // Perform Ajax POST request
+
             $.ajax({
                 type: "PUT",
-                url: '/api/user/inventory/bulk',
+                url: '/api/user/inventory',
                 data: {
                     ids: ids,
                     attributes: attributesMap,
@@ -1458,7 +1503,7 @@ function quickEdit(form) {
 function updateItemAttributes(itemId, attributesMap) {
     $.ajax({
         type: "PUT",
-        url: '/api/user/inventory/bulk',
+        url: '/api/user/inventory',
         data: {
             ids: [itemId],
             attributes: attributesMap,

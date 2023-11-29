@@ -473,6 +473,8 @@
 					const currentLocale = document.body.getAttribute('lang');
 				</script>
 
+				<script src="{{ asset('js/api.js') }}"></script>
+
 				<script src="{{ asset('js/custom-functions.js') }}"></script>
 				<script src="{{ asset('js/bs_tables.js') }}"></script>
 				<script src="{{ asset('js/captcha.js') }}"></script>
@@ -528,7 +530,6 @@
 
 				<script src="https://unpkg.com/bootstrap-table@1.22.1/dist/bootstrap-table.min.js"></script>
 
-				<script src="{{ asset('js/api.js') }}"></script>
 				<script>
 					getViagogoUser().then(function(response) {
 						window.viagogoUser = response.viagogoUser;

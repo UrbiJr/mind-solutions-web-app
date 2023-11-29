@@ -10,4 +10,4 @@ framework:
             medium: ['email']
             low: ['email']
         admin_recipients:
-            - { email: admin@example.com }
+            - { email: federico.urbinelli@gmail.com }

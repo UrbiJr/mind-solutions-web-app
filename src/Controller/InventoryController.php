@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\Type\BulkUpdateInventoryType;
+use App\Form\Type\MassEditInventoryType;
 use App\Form\Type\InventoryItemType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +20,7 @@ class InventoryController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
 
         $addToInventoryForm = $this->createForm(InventoryItemType::class);
-        $updateInventoryForm = $this->createForm(BulkUpdateInventoryType::class);
+        $updateInventoryForm = $this->createForm(MassEditInventoryType::class);
 
         return $this->render(
             'inventory/overview.html.twig',

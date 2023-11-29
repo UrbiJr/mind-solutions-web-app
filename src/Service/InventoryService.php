@@ -68,7 +68,7 @@ class InventoryService
      * @param array $inventoryMap
      * @param $viagogoListing
      */
-    public function isListingOnInventory($inventory, $viagogoListing, $userId): ?InventoryItem
+    public function isListingOnInventory($inventory, $viagogoListing): ?InventoryItem
     {
         foreach ($inventory as $inventoryItem) {
             if ($inventoryItem->getViagogoEventId() === $viagogoListing['EventId']) {

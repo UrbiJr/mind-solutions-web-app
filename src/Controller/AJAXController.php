@@ -151,7 +151,7 @@ class AJAXController extends AbstractController
                 }
                 if (
                     // If the listing is already in the inventory
-                    ($itemToSync = $this->inventoryService->isListingOnInventory($inventory, $viagogoListing, $user->getId()))
+                    ($itemToSync = $this->inventoryService->isListingOnInventory($inventory, $viagogoListing))
                     !== null
                 ) {
                     // Update the inventory item with the viagogo listing data

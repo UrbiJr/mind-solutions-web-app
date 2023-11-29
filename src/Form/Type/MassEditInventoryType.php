@@ -7,7 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\{ChoiceType, EmailType, NumberType, DateType, SubmitType};
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class BulkUpdateInventoryType extends AbstractType
+class MassEditInventoryType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -61,4 +61,8 @@ class BulkUpdateInventoryType extends AbstractType
             // Define your default options here if necessary
         ]);
     }
+
+    public function getBlockPrefix() {
+        return '';
+    }  
 }

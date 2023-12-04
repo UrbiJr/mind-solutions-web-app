@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Listings
+{% endblock %}
+
+{% block content %}
+
+<div class="conatiner-fluid content-inner mt-n5 py-0">
+	<div class="row">
+		<div class="col-md-12 col-lg-12">
+			<div class="row row-cols-1"></div>
+		</div>
+		<div class="col-md-12 col-lg-12">
+			<div class="row">
+				<div class="col-md-12 col-lg-12">
+					<div class="overflow-hidden card" data-aos="fade-up" data-aos-delay="200">
+						<div class="flex-wrap card-header d-flex justify-content-between">
+							<div class="row header-title">
+								<h4 class="mb-2 card-title">Your Listings</h4>
+							</div>
+							<div class="row">
+								<div class="dropdown">
+									<a href="#" class="text-gray dropdown-toggle" id="dropdownMenuButton22" data-bs-toggle="dropdown" aria-expanded="false">
+										Bulk Actions
+									</a>
+									<ul id="inventoryBulkActions" class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton22">
+										<li data-bs-toggle="modal" class="edit dropdown-item">Quick Edit</li>
+										<li class="export dropdown-item">Export</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="p-20 card-body">
+							<div class="mt-4 table-responsive">
+								<table id="listingsTable" class="table table-striped mb-0" role="grid" data-multiple-select-row="true" data-click-to-select="true" data-toggle="table" data-pagination="true" data-page-size="10" data-page-list="[5, 10, 25]" data-url="/api/user/listings" data-side-pagination="server" data-loading-template="loadingTemplate">
+									<thead>
+										<tr>
+											<th data-field="state" data-checkbox="true"></th>
+											<th data-field="name" data-sortable="true">Name</th>
+											<th data-field="date" data-sortable="true">Event Date</th>
+											<th data-field="tickets" data-sortable="true">
+												<i data-toggle="tooltip" data-placement="top" data-container="body" title="Total/Remaining" class="fa-solid fa-circle-info"></i>
+												Quantity</th>
+											<th data-field="section" data-sortable="true">Section</th>
+											<th data-field="floorPrice">
+												<i data-toggle="tooltip" data-placement="top" data-container="body" title="Section's lowest price on Viagogo" class="fa-solid fa-circle-info"></i>
+												Floor Price</th>
+											<th data-field="yourPrice" data-sortable="true">
+												<i data-toggle="tooltip" data-placement="top" data-container="body" title="Your price per ticket" class="fa-solid fa-circle-info"></i>
+												Your Price</th>
+											<th data-field="roi" data-sortable="true">ROI</th>
+										</tr>
+									</thead>
+								</table>
+								<hr>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    {% include 'modals/bulkEdit.html.twig' %}
+</div>
+
+{% endblock %}

@@ -25,8 +25,6 @@ class DashboardController extends AbstractController
     function showDashboard(#[CurrentUser] ?User $user)
     {
 
-        throw new Exception("test");
-
         if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
             return $this->redirectToRoute('dashboard_no_membership');
         }

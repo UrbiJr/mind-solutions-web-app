@@ -11,6 +11,7 @@
 
 namespace App\Twig;
 
+use App\Service\Utils;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 use Symfony\Component\Intl\Locales;
 use Twig\Extension\AbstractExtension;
@@ -37,8 +38,11 @@ final class AppExtension extends AbstractExtension
 
     // The $locales argument is injected thanks to the service container.
     // See https://symfony.com/doc/current/service_container.html#binding-arguments-by-name-or-type
-    public function __construct(string $locales, private readonly MemcachedAdapter $cache)
-    {
+    public function __construct(
+        string $locales,
+        private readonly MemcachedAdapter $cache,
+        private readonly Utils $utils
+    ) {
         $localeCodes = explode('|', $locales);
         sort($localeCodes);
         $this->localeCodes = $localeCodes;
@@ -49,6 +53,10 @@ final class AppExtension extends AbstractExtension
         return [
             new TwigFunction('locales', $this->getLocales(...)),
             new TwigFunction('viagogoUser', [$this, 'getViagogoUser']),
+            new TwigFunction('currencyStringToSymbol', [$this->utils, 'currencyStringToSymbol']),
+            new TwigFunction('currencySymbolToString', [$this->utils, 'currencySymbolToString']),
+            new TwigFunction('formatAmountArrayAsSymbol', [$this->utils, 'formatAmountArrayAsSymbol']),
+            new TwigFunction('formatAmountAndCurrencyAsSymbol', [$this->utils, 'formatAmountAndCurrencyAsSymbol']),
         ];
     }
 

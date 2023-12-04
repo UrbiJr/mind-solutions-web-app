@@ -1,0 +1,24 @@
+{% block markItemAsNotListed %}
+
+	<div class="modal fade" id="markNotListedModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="markNotListedModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="markNotListedModalLabel">Mark Item as Not Listed</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					{{ form_start(markItemAsNotListedForm, {'attr': {'class' : 'mt-3 text-center prevent-submission', 'onsubmit': 'return quickEdit(this)'}}) }}
+					{{ form_widget(markItemAsNotListedForm.status) }}
+					{{ form_widget(markItemAsNotListedForm.id) }}
+					{{ form_widget(markItemAsNotListedForm.quantity) }}
+					{{ form_widget(markItemAsNotListedForm.platform) }}
+					<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Cancel</button>
+					{{ form_widget(markItemAsNotListedForm.submit) }}
+					{{ form_end(markItemAsNotListedForm) }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

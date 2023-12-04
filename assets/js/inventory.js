@@ -117,8 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if ($("#markListedForm").length) {
         const select = $("#markListedSplitType"); // Get the existing select element by its id
         const selectContainer = $("#splitTypeContainer");
-        const restrictionsContainer = $('#restrictionsContainer');
-        const ticketDetailsContainer = $('#ticketDetailsContainer');
+        const restrictionsContainer = $('#markListedForm .restrictionsContainer');
+        const ticketDetailsContainer = $('#markListedForm .ticketDetailsContainer');
         const markListedBtn = $("#markListedBtn");
 
         $('#markListedForm select[name="platform"]').on('change', function () {
@@ -1133,7 +1133,7 @@ function quickEdit(form) {
         const fieldName = fieldData.name;
         const fieldValue = fieldData.value;
 
-        if (fieldName === "itemId") {
+        if (fieldName === "itemId" || fieldName === "id") {
             itemId = fieldValue;
         }
 

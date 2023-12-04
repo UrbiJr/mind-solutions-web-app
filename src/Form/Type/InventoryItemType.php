@@ -15,13 +15,16 @@ class InventoryItemType extends AbstractType
         $builder
             // Event Details
             ->add('eventName', TextType::class, [
+                'mapped' => false,
                 'label' => 'Name:',
             ])
             ->add('country', CountryType::class, [
+                'mapped' => false,
                 'label' => 'Country:',
                 'placeholder' => 'Select a country'
             ])
             ->add('eventDate', DateTimeType::class, [
+                'mapped' => false,
                 'label' => 'Event Date & Time:',
                 'widget' => 'single_text',
                 'html5' => true,
@@ -48,7 +51,10 @@ class InventoryItemType extends AbstractType
                 'data' => new \DateTime('now'),
             ])
             // Ticket(s) Details
-            ->add('ticketCost', NumberType::class, ['label' => 'Ticket Face Value:'])
+            ->add('ticketCost', NumberType::class, [
+                'label' => 'Ticket Face Value:',
+                'mapped' => false,
+            ])
             ->add('quantity', NumberType::class, ['label' => 'Quantity:'])
             ->add('quantityRemain', HiddenType::class)
             ->add('retailer', ChoiceType::class, [
@@ -68,6 +74,7 @@ class InventoryItemType extends AbstractType
                 'placeholder' => 'Select a section',
             ])
             ->add('customSection', TextType::class, [
+                'mapped' => false,
                 'label' => false,
                 'attr' => [
                     'style' => 'display: none;'
@@ -89,8 +96,12 @@ class InventoryItemType extends AbstractType
                 'placeholder' => 'Select a type',
             ])
             // Hidden fields
-            ->add('eventId', HiddenType::class)
-            ->add('categoryId', HiddenType::class)
+            ->add('eventId', HiddenType::class, [
+                'mapped' => false,
+            ])
+            ->add('categoryId', HiddenType::class, [
+                'mapped' => false,
+            ])
             // Submit button
             ->add('submit', SubmitType::class, [
                 'label' => 'Submit',

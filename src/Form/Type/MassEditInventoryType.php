@@ -64,5 +64,5 @@ class MassEditInventoryType extends AbstractType
 
     public function getBlockPrefix() {
         return '';
-    }  
+    }
 }

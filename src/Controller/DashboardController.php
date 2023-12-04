@@ -77,7 +77,7 @@ class DashboardController extends AbstractController
         $whopRedirectUri = $this->getParameter('whop_redirect_uri');
 
         return $this->render(
-            'dashboard/noMembership.html.twig',
+            'dashboard/no_membership.html.twig',
             [
                 'user' => $user,
                 'bannerTitle' => new TranslatableMessage('join_title', ['siteName' => $this->getParameter('site_name')]),

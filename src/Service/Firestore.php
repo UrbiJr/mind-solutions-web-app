@@ -8,6 +8,7 @@ use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Core\Timestamp;
 use DateTime;
 use DateTimeInterface;
+use Google\Cloud\Core\Exception\NotFoundException;
 
 final class Firestore
 {
@@ -268,7 +269,7 @@ final class Firestore
                 $documentData["ticketDetails"] ?? null,
             );
         } else {
-            throw new \Exception(sprintf('Document %s does not exist!', $snapshot->id()));
+            throw new NotFoundException(sprintf('Document %s does not exist!', $snapshot->id()));
         }
     }
 

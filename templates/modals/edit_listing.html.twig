@@ -1,0 +1,83 @@
+{% block editListingModal %}
+
+	<div class="modal fade" id="editListingModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editListingModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="editListingModalLabel">Edit
+						<span class="platform">{{ item.platform }}</span>
+						Listing</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					{{ form_start(editListingForm, {'attr': {'class' : 'mt-3 text-center prevent-submission', 'onsubmit': 'return quickEdit(this)'}}) }}
+					{{ form_widget(editListingForm.id) }}
+                    {{ form_widget(editListingForm.viagogoEventId) }}
+                    {{ form_widget(editListingForm.viagogoCategoryId) }}
+					<div class="row">
+						<div class="row d-flex">
+							<div class="col-md-6">
+								{{ form_widget(editListingForm.quantity) }}
+								{{ form_widget(editListingForm.section, {'id' : 'editListingSectionSelect'}) }}
+								{{ form_widget(editListingForm.customSection) }}
+							</div>
+							<div class="col-md-6">
+								{{ form_widget(editListingForm.seatFrom) }}
+								{{ form_widget(editListingForm.seatTo) }}
+							</div>
+						</div>
+						<div class="row d-flex">
+							<div class="col-md-6">
+								{{ form_widget(editListingForm.row) }}
+							</div>
+							<div class="col-md-6">
+								{{ form_widget(editListingForm.splitType, {'id' : 'editListingSplitType'}) }}
+							</div>
+						</div>
+						<div class="row d-flex">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="form-label" for="yourPricePerTicket">
+										<i data-bs-toggle="tooltip" data-bs-placement="top" title="Listing Price" class="fa-solid fa-circle-info"></i>
+										Your Price per Ticket:</label>
+									<div class="input-group">
+										{{ form_widget(editListingForm.yourPricePerTicketCurrency) }}
+										{{ form_widget(editListingForm.yourPricePerTicket) }}
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								{{ form_widget(editListingForm.ticketType) }}
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class="row d-flex">
+						<div class="form-group" id="restrictionsContainer">
+							<label class="form-label">
+								<i data-bs-toggle="tooltip" data-bs-placement="top" title="If any of the following conditions apply to your tickets, please select them from the list below." class="fa-solid fa-circle-info"></i>
+								Restrictions on use:</label>
+							{{ form_row(editListingForm.noRestrictions) }}
+							{{ form_row(editListingForm.restrictions) }}
+						</div>
+					</div>
+					<div class="row d-flex">
+						<div class="form-group" id="ticketDetailsContainer">
+							<label class="form-label">
+								<i data-bs-toggle="tooltip" data-bs-placement="top" title="If any of the following conditions apply to your tickets, you must select the corresponding options below." class="fa-solid fa-circle-info"></i>
+								Required ticket details:</label>
+							{{ form_row(editListingForm.ticketDetails) }}
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Cancel</button>
+					{{ form_widget(editListingForm.submit, {'id':'editListingBtn'}) }}
+				</div>
+				{{ form_end(editListingForm) }}
+			</div>
+
+		</div>
+	</div>
+
+{% endblock %}

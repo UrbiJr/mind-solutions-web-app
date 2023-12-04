@@ -1,0 +1,53 @@
+{% block markItemAsSoldModal %}	
+    
+    <div class="modal fade" id="markSoldModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="markSoldModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="markSoldModalLabel">Mark Item as Sold</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+                    {{ form_start(markItemAsSoldForm, {'attr': {'class' : 'mt-3 text-center prevent-submission', 'onsubmit': 'return quickEdit(this)'}}) }}
+						{{ form_widget(markItemAsSoldForm.status) }}
+                        {{ form_widget(markItemAsSoldForm.id) }}
+                        {{ form_widget(markItemAsSoldForm.quantity) }}
+                        {{ form_widget(markItemAsSoldForm.quantityRemain) }}
+						<div class="row">
+							<div class="row d-flex">
+								<div class="col-md-5">
+									<div class="form-group">
+										<label class="form-label">
+											<i data-bs-toggle="tooltip" data-bs-placement="top" title="How did you sell this item?" class="fa-solid fa-circle-info"></i>
+											Platform:</label>
+                                            {{ form_widget(markItemAsSoldForm.platform) }}
+                                            {{ form_widget(markItemAsSoldForm.customPlatform) }}
+									</div>
+								</div>
+								<div class="col-md-7">
+									<div class="form-group">
+										<label class="form-label" for="totalPayout">
+											<i data-bs-toggle="tooltip" data-bs-placement="top" title="How much did you sell all tickets for?" class="fa-solid fa-circle-info"></i>
+											Total Payout (fees included):</label>
+										<div class="input-group">
+											{{ form_widget(markItemAsSoldForm.totalPayoutCurrency) }}
+                                            {{ form_widget(markItemAsSoldForm.totalPayout) }}
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+                                    {{ form_widget(markItemAsSoldForm.saleDate) }}
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Cancel</button>
+							{{ form_widget(markItemAsSoldForm.submit) }}
+						</div>
+					{{ form_end(markItemAsSoldForm) }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

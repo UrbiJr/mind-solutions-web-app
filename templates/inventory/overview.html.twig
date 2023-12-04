@@ -337,13 +337,12 @@
 				</div>
 			</div>
 		</div>
-
-		{% include 'modals/delete.html.twig' %}
-
-		{% include 'modals/bulkEdit.html.twig' %}
-
-		{% include 'modals/bulkDelete.html.twig' %}
-
 	</div>
 
-	{% endblock %}
+	{% include 'modals/delete.html.twig' %}
+
+	{% include 'modals/bulk_edit.html.twig' %}
+
+	{% include 'modals/bulk_delete.html.twig' %}
+
+{% endblock %}

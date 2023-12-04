@@ -1,0 +1,30 @@
+{% block editItemModal %}
+
+	<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="updateModalLabel">Edit Item Details</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					{{ form_start(editInventoryItemForm) }}
+					{{ form_row(editInventoryItemForm.quantity) }}
+					{{ form_row(editInventoryItemForm.retailer) }}
+					{{ form_row(editInventoryItemForm.section) }}
+					{{ form_row(editInventoryItemForm.customSection) }}
+					{{ form_row(editInventoryItemForm.row) }}
+					{{ form_row(editInventoryItemForm.seatFrom) }}
+					{{ form_row(editInventoryItemForm.seatTo) }}
+					{{ form_row(editInventoryItemForm.ticketType) }}
+					{{ form_row(editInventoryItemForm.ticketCost) }}
+					{{ form_row(editInventoryItemForm.orderNumber) }}
+					{{ form_row(editInventoryItemForm.orderEmail) }}
+					{{ form_row(editInventoryItemForm.purchaseDate) }}
+					{{ form_end(editInventoryItemForm) }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

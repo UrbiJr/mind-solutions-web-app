@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\InventoryItem;
 use App\Entity\Release;
+use App\Entity\SectionList;
 use App\Entity\User;
 use App\Entity\ViagogoUser;
 use App\Repository\ReleaseRepository;
@@ -19,6 +20,7 @@ use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -283,7 +285,7 @@ class AJAXController extends AbstractController
     }
 
     #[Route('/api/user/inventory/add', methods: ['POST'], name: 'api_user_inventory_add')]
-    public function add_to_inventory(#[CurrentUser] ?User $user, Request $request): Response
+    public function add_to_inventory(#[CurrentUser] ?User $user, Request $request, EntityManagerInterface $em): Response
     {
         try {
             if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
@@ -295,6 +297,14 @@ class AJAXController extends AbstractController
             /** @var array $dataArray */
             $dataArray = $request->request->all()['inventory_item'] ?? [];
             $inventoryItem = InventoryItem::fromDataArray($user, $dataArray);
+
+            $sectionListArray = $request->request->get('sectionList') ? explode(',', $request->request->get('sectionList')) : [];
+            $sectionList = new SectionList();
+            $sectionList->setSections($sectionListArray);
+            $sectionList->setEventId($inventoryItem->getViagogoEventId());
+            // Save to database
+            $em->persist($sectionList);
+            $em->flush();
 
             $ref = $this->firestore->add_item_to_inventory($inventoryItem, $user->getId());
 
@@ -1694,8 +1704,8 @@ class AJAXController extends AbstractController
                     'releaseData' => $itemData,
                     'description' => $release->getDescription() . " - " . $release->getCity(),
                     'country' => $release->getCountryCode(),
-                    'eventDate' => ($release->getEventDateAsDateTime() !== null) ? $release->getEventDateAsDateTime()->format('F j, Y \a\t h:i A') : '',
-                    'releaseDate' => ($release->getReleaseDateAsDateTime() !== null) ? $release->getReleaseDateAsDateTime()->format('F j, Y \a\t h:i A') : '',
+                    'eventDate' => ($release->getEventDate() !== null) ? $release->getEventDate()->format('F j, Y \a\t h:i A') : '',
+                    'releaseDate' => ($release->getReleaseDate() !== null) ? $release->getReleaseDate()->format('F j, Y \a\t h:i A') : '',
                     'actions' => $actions,
                 );
 
@@ -1919,7 +1929,7 @@ class AJAXController extends AbstractController
 
         $releases = $releaseRepository->getAll();
         $releases = array_values(array_filter($releases, function (Release $release) use ($startDate, $endDate) {
-            return $release->getReleaseDateAsDateTime() !== null && $release->getReleaseDateAsDateTime() >= $startDate && $release->getReleaseDateAsDateTime() <= $endDate;
+            return $release->getReleaseDate() !== null && $release->getReleaseDate() >= $startDate && $release->getReleaseDate() <= $endDate;
         }));
 
         if (isset($sort)) {
@@ -2048,7 +2058,7 @@ class AJAXController extends AbstractController
 
         // add Mind Solutions provided releases to calendar
         foreach ($releases as $item) {
-            $releaseDate = $item->getReleaseDateAsDateTime();
+            $releaseDate = $item->getReleaseDate();
             $today = new DateTime();
             if ($releaseDate->format('Y-m-d') === $today->format('Y-m-d')) {
                 // event is today
@@ -2068,13 +2078,13 @@ class AJAXController extends AbstractController
             }
             $calendarData[] = [
                 "title" => $item->getDescription(),
-                "start" => $item->getReleaseDateAsDateTime()->format('Y-m-d\TH:i:s.000\Z'),
+                "start" => $item->getReleaseDate()->format('Y-m-d\TH:i:s.000\Z'),
                 "backgroundColor" => $backgroundColor,
                 "textColor" => $textColor,
                 "borderColor" => $borderColor,
                 "releaseId" => $item->getId(),
-                "releaseDate" => $item->getReleaseDateAsDateTime()->format('F j, Y \a\t h:i A'),
-                "eventDate" => $item->getEventDateAsDateTime()->format('F j, Y \a\t h:i A'),
+                "releaseDate" => $item->getReleaseDate()->format('F j, Y \a\t h:i A'),
+                "eventDate" => $item->getEventDate()->format('F j, Y \a\t h:i A'),
                 "eventDescription" => $item->getDescription(),
                 "eventLocation" => $item->getCity() . " - " . $item->getLocation(),
                 "comments" => $item->getComments(),

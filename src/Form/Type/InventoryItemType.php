@@ -72,7 +72,7 @@ class InventoryItemType extends AbstractType
                     'class' => 'sectionSelect',
                 ],
                 'choices' => [
-                    // Populate from controller
+                    // Populate from PHP controller or JS
                 ],
                 'placeholder' => 'Select a section',
             ])

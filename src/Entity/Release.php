@@ -196,7 +196,7 @@ class Release
         return $this;
     }
 
-    public function getAuthor(): ?User
+    public function getAuthor(): User
     {
         return $this->author;
     }
@@ -206,21 +206,5 @@ class Release
         $this->author = $author;
 
         return $this;
-    }
-
-    public function getEventDateAsDateTime(): ?DateTime
-    {
-        if ($this->eventDate !== null) {
-            return new DateTime($this->eventDate);
-        }
-        return null;
-    }
-
-    public function getReleaseDateAsDateTime(): ?DateTime
-    {
-        if ($this->releaseDate !== null) {
-            return new DateTime($this->releaseDate);
-        }
-        return null;
     }
 }

@@ -239,6 +239,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     formData.push({ name: $(this).attr('name'), value: $(this).val() });
                 });
 
+                // manually add fetched sections, we will persist them on db to avoid fetching everytime 
+                const sectionList = [];
+                $('.sectionSelect').children().each(function (index, el) {
+                    if (el.value !== "") {
+                        sectionList.push(el.value);
+                    }
+                });
+                formData.push({ name: 'sectionList', value: sectionList});
+
                 // add new item
                 // Perform Ajax POST request
                 $.ajax({

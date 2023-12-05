@@ -110,7 +110,7 @@ class InventoryController extends AbstractController
             'inventory/item_overview.html.twig',
             [
                 'user' => $user,
-                'bannerTitle' => $item->getName() . " - " . $item->getCity(),
+                'bannerTitle' => $item->getName() . " - " . $item->getLocation() . " <h4>" . $item->getCity() . "</h4>",
                 'bannerSubtitle' => '',
                 'displayBanner' => true,
                 'statusHtml' => $statusHtml,

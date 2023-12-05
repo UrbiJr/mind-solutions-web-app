@@ -1,7 +1,7 @@
 {% block editItemModal %}
 
 	<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
+		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="updateModalLabel">Edit Item Details</h5>
@@ -9,22 +9,95 @@
 				</div>
 				<div class="modal-body">
 					{{ form_start(editInventoryItemForm) }}
-					{{ form_row(editInventoryItemForm.quantity) }}
-					{{ form_row(editInventoryItemForm.retailer) }}
-					{{ form_row(editInventoryItemForm.section) }}
-					{{ form_row(editInventoryItemForm.customSection) }}
-					{{ form_row(editInventoryItemForm.row) }}
-					{{ form_row(editInventoryItemForm.seatFrom) }}
-					{{ form_row(editInventoryItemForm.seatTo) }}
-					{{ form_row(editInventoryItemForm.ticketType) }}
-					{{ form_row(editInventoryItemForm.ticketCost) }}
-					{{ form_row(editInventoryItemForm.orderNumber) }}
-					{{ form_row(editInventoryItemForm.orderEmail) }}
+					<div class="row">
+						<div class="row d-flex">
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.quantity) }}
+									{{ form_widget(editInventoryItemForm.quantity) }}
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.retailer) }}
+									{{ form_widget(editInventoryItemForm.retailer) }}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="row d-flex">
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.section ) }}
+									{{ form_widget(editInventoryItemForm.section, {'id' : 'editItemSectionSelect'}) }}
+									{{ form_widget(editInventoryItemForm.customSection) }}
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.row) }}
+									{{ form_widget(editInventoryItemForm.row) }}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="row d-flex">
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.seatFrom) }}
+									{{ form_widget(editInventoryItemForm.seatFrom) }}
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.seatTo) }}
+									{{ form_widget(editInventoryItemForm.seatTo) }}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="row d-flex">
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.ticketType) }}
+									{{ form_widget(editInventoryItemForm.ticketType) }}
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.ticketCost) }}
+									{{ form_widget(editInventoryItemForm.ticketCost) }}
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="row d-flex">
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.orderNumber) }}
+									{{ form_widget(editInventoryItemForm.orderNumber) }}
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.orderEmail) }}
+									{{ form_widget(editInventoryItemForm.orderEmail) }}
+								</div>
+							</div>
+						</div>
+					</div>
 					{{ form_row(editInventoryItemForm.purchaseDate) }}
-					{{ form_end(editInventoryItemForm) }}
+					<div class="modal-footer">
+						<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Cancel</button>
+						{{ form_widget(editInventoryItemForm.submit) }}
+					</div>
+					{{ form_end(editInventoryItemForm, {render_rest: false}) }}
 				</div>
 			</div>
 		</div>
 	</div>
-
 {% endblock %}

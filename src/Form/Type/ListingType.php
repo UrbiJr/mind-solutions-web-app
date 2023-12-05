@@ -16,8 +16,11 @@ class ListingType extends AbstractType
             ->add('quantity', NumberType::class, ['label' => 'Quantity:'])
             ->add('section', ChoiceType::class, [
                 'label' => 'Section:',
+                'attr' => [
+                    'class' => 'sectionSelect',
+                ],
                 'choices' => [
-                    // Populate with sections or leave for dynamic JS population
+                    // leave for dynamic JS population
                 ],
                 'placeholder' => 'Select a section',
             ])
@@ -25,6 +28,7 @@ class ListingType extends AbstractType
                 'label' => false,
                 'mapped' => false,
                 'attr' => [
+                    'class' => 'customSection',
                     'style' => 'display: none;'
                 ],
             ])

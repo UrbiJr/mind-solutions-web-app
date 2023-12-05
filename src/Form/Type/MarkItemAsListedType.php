@@ -13,7 +13,7 @@ class MarkItemAsListedType extends AbstractType
     {
         $builder
             ->add('platform', ChoiceType::class, [
-                'label' => false,
+                'label' => 'Platform:',
                 'attr' => [
                     'class' => 'selectCustomInput',   
                 ],
@@ -36,6 +36,7 @@ class MarkItemAsListedType extends AbstractType
                 ],
             ])
             ->add('splitType', ChoiceType::class, [
+                'label' => 'Choose Split Type:',
                 'mapped' => false,
             ])
             ->add('yourPricePerTicketCurrency', ChoiceType::class, [
@@ -51,7 +52,7 @@ class MarkItemAsListedType extends AbstractType
                 'placeholder' => 'Select a currency',
             ])
             ->add('yourPricePerTicket', NumberType::class, [
-                'label' => false,
+                'label' => 'Your Price per Ticket:',
                 'help' => 'Listing price',
             ])
             ->add('noRestrictions', CheckboxType::class, [

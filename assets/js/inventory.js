@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if ($('#openEditListingModal').length) {
+        // CODE FOR EDIT LISTING MODAL (INVENTORY ITEM VIEW)
+
         $('#openEditListingModal').on('click', function () {
             const eventId = $(this).attr('data-event-id');
             const quantity = $(this).attr('data-quantity');
@@ -44,7 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         // Append the option to the select element
                         sectionSelect.appendChild(option);
                     });
-                    fetchSplitTypes(quantity)
+                    // Manually dispatch change event in order to disable/enable quantity/seats/row fields accordingly to current item values
+                    var event = new Event('change');
+                    sectionSelect.dispatchEvent(event);
+                    fetchSplitTypes(quantity, window.viagogoUser.wsu2Cookie)
                         .then(function (response) {
                             select.empty(); // Remove existing options
                             $.each(response.result.AvailableSplitTypes, function (index, option) {
@@ -76,6 +81,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if ($('#openEditItemModal').length) {
+        // CODE FOR EDIT ITEM MODAL (INVENTORY ITEM VIEW)
+
         $('#openEditItemModal').on('click', function () {
             const eventId = $(this).attr('data-event-id');
             $('#loadingPreloader').show();
@@ -98,6 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         // Append the option to the select element
                         sectionSelect.appendChild(option);
                     });
+                    // Manually dispatch change event in order to disable/enable quantity/seats/row fields accordingly to current item values
+                    var event = new Event('change');
+                    sectionSelect.dispatchEvent(event);
                     $('#loadingPreloader').hide();
                     $('#editItemModal').modal("show");
                 } else {
@@ -115,6 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if ($("#markListedForm").length) {
+        // CODE FOR MARKASLISTEDTYPE FORM (INVENTORY ITEM VIEW)
+
         const select = $("#markListedSplitType"); // Get the existing select element by its id
         const selectContainer = $("#splitTypeContainer");
         const restrictionsContainer = $('#markListedForm .restrictionsContainer');
@@ -125,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (this.value == "Viagogo") {
                 // user selected viagogo platform, show additional form inputs
                 const quantity = $('input[name="quantity"]').val();
-                fetchSplitTypes(quantity)
+                fetchSplitTypes(quantity, window.viagogoUser.wsu2Cookie)
                     .then(function (response) {
                         select.empty(); // Remove existing options
                         $.each(response.result.AvailableSplitTypes, function (index, option) {
@@ -161,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if ($("#form-wizard1").length) {
+        // CODE FOR ADD TO INVENTORY FORM / UPDATE ITEM FORM (INVENTORYOVERVIEW VIEW)
 
         const addToInventoryModal = document.getElementById("addToInventoryModal");
 
@@ -254,40 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        const sectionSelect = document.getElementById("sectionSelect");
-        const customSectionInput = document.getElementById("customSection");
-        const quantityInput = document.querySelector('input[name="inventory_item[quantity]"]');
-        const rowInput = document.querySelector('input[name="inventory_item[row]"]');
-        const seatFromInput = document.querySelector('input[name="inventory_item[seatFrom]"]');
-        const seatToInput = document.querySelector('input[name="inventory_item[seatTo]"]');
-
-        const onFloorSelected = () => {
-            rowInput.value = "";
-            rowInput.setAttribute('placeholder', "");
-            quantityInput.disabled = false;
-            rowInput.disabled = true;
-            seatFromInput.disabled = true;
-            seatToInput.disabled = true;
-        };
-
-        const onSectionSelected = () => {
-            quantityInput.disabled = true;
-            rowInput.disabled = false;
-            seatFromInput.disabled = false;
-            seatToInput.disabled = false;
-        };
-
-        const handleSectionChange = () => {
-            if (sectionSelect.value.toLowerCase() === "floor" || customSectionInput.value.toLowerCase() === "floor") {
-                onFloorSelected();
-            } else {
-                onSectionSelected();
-            }
-        };
-
-        sectionSelect.addEventListener("change", handleSectionChange);
-        customSectionInput.addEventListener("input", handleSectionChange);
-
         // Get references to the input fields and the "Lookup Event" button
         var eventNameInput = document.getElementById("eventName");
         var countrySelect = document.getElementById("country");
@@ -365,7 +344,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    if ($('form[name="inventory_item"]').length) {
+        // CODE FOR ALL INVENTORYITEMTYPE FORMS
+
+        const sectionSelects = document.querySelectorAll(".sectionSelect");
+        const sectionCustomInputs = document.querySelectorAll(".customSection");
+        const quantityInput = document.querySelector('input[name="inventory_item[quantity]"]');
+        const rowInput = document.querySelector('input[name="inventory_item[row]"]');
+        const seatFromInput = document.querySelector('input[name="inventory_item[seatFrom]"]');
+        const seatToInput = document.querySelector('input[name="inventory_item[seatTo]"]');
+
+        const onFloorSelected = () => {
+            rowInput.value = "";
+            rowInput.setAttribute('placeholder', "");
+            quantityInput.disabled = false;
+            rowInput.disabled = true;
+            seatFromInput.disabled = true;
+            seatToInput.disabled = true;
+        };
+
+        const onSectionSelected = () => {
+            quantityInput.disabled = true;
+            rowInput.disabled = false;
+            seatFromInput.disabled = false;
+            seatToInput.disabled = false;
+        };
+
+        const handleSectionChange = (el) => {
+            if (el.target.value.toLowerCase() === "floor") {
+                onFloorSelected();
+            } else {
+                onSectionSelected();
+            }
+        };
+
+        sectionSelects.forEach(el => {
+            el.addEventListener("change", handleSectionChange);
+        });
+        sectionCustomInputs.forEach(el => {
+            el.addEventListener("input", handleSectionChange);
+        });
+    }
+
     if ($('#inventoryBulkActions').length) {
+        // CODE FOR INVENTORY OVERVIEW VIEW
         $('#inventoryBulkActions .edit').on('click', function () {
             const selections = $('table[data-multiple-select-row="true"]').bootstrapTable('getSelections');
             if (selections.length <= 0) {
@@ -480,6 +502,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if ($("#inventoryTable").length) {
+        // CODE FOR INVENTORYOVERVIEW VIEW
 
         $("#inventoryTable").on('load-success.bs.table', function (data, status, xhr) {
             $('#inventoryTable tbody tr').each(function () {
@@ -520,6 +543,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if ($('.syncViagogoListings').length) {
+        // CODE FOR ANY VIEW
+
         $('.syncViagogoListings').on('click', function () {
             syncViagogoListings();
         });
@@ -537,10 +562,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.classList.remove("animated-rotate-faster");
             });
         });
-
     }
 
 });
+
+
+/********************************************* START HELPER & AJAX FUNCTIONS  *********************************************/
 
 // Function to validate the form
 function validateEventFieldset() {
@@ -1662,7 +1689,7 @@ function updateItemAttributes(itemId, attributesMap) {
     });
 }
 
-function fetchSplitTypes(quantity) {
+function fetchSplitTypes(quantity, wsu2Cookie) {
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({
@@ -1676,6 +1703,7 @@ function fetchSplitTypes(quantity) {
             data: JSON.stringify({
                 action: "get_split_types",
                 quantity: quantity,
+                sessionCookie: wsu2Cookie
             }),
             success: function (response) {
                 // Handle the response from the server
@@ -1712,3 +1740,5 @@ function fetchSplitTypes(quantity) {
         }
     });
 }
+
+/********************************************* END HELPER & AJAX FUNCTIONS  *********************************************/

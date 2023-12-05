@@ -68,8 +68,11 @@ class InventoryItemType extends AbstractType
             ])
             ->add('section', ChoiceType::class, [
                 'label' => 'Section:',
+                'attr' => [
+                    'class' => 'sectionSelect',
+                ],
                 'choices' => [
-                    // Populate with sections or leave for dynamic JS population
+                    // Populate from controller
                 ],
                 'placeholder' => 'Select a section',
             ])
@@ -77,6 +80,7 @@ class InventoryItemType extends AbstractType
                 'mapped' => false,
                 'label' => false,
                 'attr' => [
+                    'class' => 'customSection',
                     'style' => 'display: none;'
                 ],
             ])

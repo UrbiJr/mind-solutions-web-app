@@ -12,26 +12,40 @@
 				<div class="modal-body">
 					{{ form_start(editListingForm, {'attr': {'class' : 'mt-3 text-center prevent-submission', 'onsubmit': 'return quickEdit(this)'}}) }}
 					{{ form_widget(editListingForm.id) }}
-                    {{ form_widget(editListingForm.viagogoEventId) }}
-                    {{ form_widget(editListingForm.viagogoCategoryId) }}
+					{{ form_widget(editListingForm.viagogoEventId) }}
+					{{ form_widget(editListingForm.viagogoCategoryId) }}
 					<div class="row">
 						<div class="row d-flex">
 							<div class="col-md-6">
-								{{ form_widget(editListingForm.quantity) }}
-								{{ form_widget(editListingForm.section, {'id' : 'editListingSectionSelect'}) }}
-								{{ form_widget(editListingForm.customSection) }}
+								<div class="form-group">
+									{{ form_label(editListingForm.quantity) }}
+									{{ form_widget(editListingForm.quantity) }}
+									{{ form_label(editListingForm.section) }}
+									{{ form_widget(editListingForm.section, {'id' : 'editListingSectionSelect'}) }}
+									{{ form_widget(editListingForm.customSection) }}
+								</div>
 							</div>
 							<div class="col-md-6">
-								{{ form_widget(editListingForm.seatFrom) }}
-								{{ form_widget(editListingForm.seatTo) }}
+								<div class="form-group">
+									{{ form_label(editListingForm.seatFrom) }}
+									{{ form_widget(editListingForm.seatFrom) }}
+									{{ form_label(editListingForm.seatTo) }}
+									{{ form_widget(editListingForm.seatTo) }}
+								</div>
 							</div>
 						</div>
 						<div class="row d-flex">
 							<div class="col-md-6">
-								{{ form_widget(editListingForm.row) }}
+								<div class="form-group">
+									{{ form_label(editListingForm.row) }}
+									{{ form_widget(editListingForm.row) }}
+								</div>
 							</div>
 							<div class="col-md-6">
-								{{ form_widget(editListingForm.splitType, {'id' : 'editListingSplitType'}) }}
+								<div class="form-group">
+									{{ form_label(editListingForm.splitType) }}
+									{{ form_widget(editListingForm.splitType, {'id' : 'editListingSplitType'}) }}
+								</div>
 							</div>
 						</div>
 						<div class="row d-flex">
@@ -47,7 +61,10 @@
 								</div>
 							</div>
 							<div class="col-md-6">
-								{{ form_widget(editListingForm.ticketType) }}
+								<div class="form-group">
+									{{ form_label(editListingForm.ticketType) }}
+									{{ form_widget(editListingForm.ticketType) }}
+								</div>
 							</div>
 						</div>
 					</div>

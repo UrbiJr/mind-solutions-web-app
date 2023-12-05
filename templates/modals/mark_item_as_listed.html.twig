@@ -17,52 +17,58 @@
 						<div class="row d-flex">
 							<div class="col-md-6">
 								<div class="form-group">
-									<label class="form-label">
-										<i data-bs-toggle="tooltip" data-bs-placement="top" title={{ form_help(markItemAsListedForm.platform) }} class="fa-solid fa-circle-info"></i>
-										Platform:</label>
+									{{ form_label(markItemAsListedForm.platform) }}
 									{{ form_widget(markItemAsListedForm.platform) }}
 									{{ form_widget(markItemAsListedForm.customPlatform) }}
 								</div>
+								{{ form_help(markItemAsListedForm.platform) }}
+							</div>
+							<div class="col-md-6">
 								<div class="hidden form-group" id="splitTypeContainer">
+									{{ form_label(markItemAsListedForm.splitType) }}
 									{{ form_widget(markItemAsListedForm.splitType, {'id' : 'markListedSplitType'}) }}
 								</div>
 							</div>
-							<div class="col-md-6">
+						</div>
+					</div>
+					<div class="row">
+						<div class="row d-flex">
+							<div class="col-md-12">
 								<div class="form-group">
-									<label class="form-label" for="yourPricePerTicket">
-										<i data-bs-toggle="tooltip" data-bs-placement="top" title={{ form_help(markItemAsListedForm.yourPricePerTicket) }} class="fa-solid fa-circle-info"></i>
-										Your Price per Ticket:</label>
+									{{ form_label(markItemAsListedForm.yourPricePerTicket) }}
 									<div class="input-group">
 										{{ form_widget(markItemAsListedForm.yourPricePerTicketCurrency) }}
 										{{ form_widget(markItemAsListedForm.yourPricePerTicket) }}
 									</div>
+									{{ form_help(markItemAsListedForm.yourPricePerTicket) }}
 								</div>
 							</div>
 						</div>
+					</div>
+					<div class="row">
 						<div class="row d-flex">
 							<div class="hidden form-group restrictionsContainer">
-								<label class="form-label">
-									<i data-bs-toggle="tooltip" data-bs-placement="top" title={{ form_help(markItemAsListedForm.restrictions) }} class="fa-solid fa-circle-info"></i>
-									Restrictions on use:</label>
-								{{ form_row(markItemAsListedForm.noRestrictions) }}
-								{{ form_row(markItemAsListedForm.restrictions) }}
+								{{ form_label(markItemAsListedForm.restrictions) }}
+								{{ form_widget(markItemAsListedForm.noRestrictions) }}
+								{{ form_widget(markItemAsListedForm.restrictions) }}
 							</div>
 						</div>
+					</div>
+					<div class="row">
 						<div class="row d-flex">
 							<div class="hidden form-group ticketDetailsContainer">
-								<label class="form-label">
-									<i data-bs-toggle="tooltip" data-bs-placement="top" title={{ form_help(markItemAsListedForm.ticketDetails) }} class="fa-solid fa-circle-info"></i>
-									Required ticket details:</label>
-								{{ form_row(markItemAsListedForm.ticketDetails) }}
+								{{ form_label(markItemAsListedForm.ticketDetails) }}
+								{{ form_widget(markItemAsListedForm.ticketDetails) }}
 							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Cancel</button>
+						{{ form_widget(markItemAsListedForm.submit, {'id':'markListedBtn'}) }}
+					</div>
+					{{ form_end(markItemAsListedForm) }}
 				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">Cancel</button>
-					{{ form_widget(markItemAsListedForm.submit, {'id':'markListedBtn'}) }}
-				</div>
-				{{ form_end(markItemAsListedForm) }}
 			</div>
-
 		</div>
 	</div>
 {% endblock %}

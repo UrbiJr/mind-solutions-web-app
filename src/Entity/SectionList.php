@@ -8,7 +8,7 @@ use App\Repository\SectionListRepository;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * SectionLists
+ * EventSection
  */
 #[ORM\Table(name: 'SectionLists')]
 #[ORM\UniqueConstraint(name: 'unique_event_id', columns: ['event_id'])]
@@ -16,7 +16,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[UniqueEntity(fields: ['event_id'], message: 'There is already an event with this section list')]
 class SectionList
 {
-
     /**
      * @var int
      */
@@ -37,11 +36,11 @@ class SectionList
     #[ORM\Column(name: 'sections', type: 'json', nullable: true)]
     private $sections;
 
-    
+
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -51,7 +50,7 @@ class SectionList
      * Set the value of id
      *
      * @return  self
-     */ 
+     */
     public function setId($id)
     {
         $this->id = $id;
@@ -61,7 +60,7 @@ class SectionList
 
     /**
      * Get the value of sections
-     */ 
+     */
     public function getSections()
     {
         return $this->sections;
@@ -71,7 +70,7 @@ class SectionList
      * Set the value of sections
      *
      * @return  self
-     */ 
+     */
     public function setSections($sections)
     {
         $this->sections = $sections;
@@ -81,7 +80,7 @@ class SectionList
 
     /**
      * Get the value of eventId
-     */ 
+     */
     public function getEventId()
     {
         return $this->eventId;
@@ -91,7 +90,7 @@ class SectionList
      * Set the value of eventId
      *
      * @return  self
-     */ 
+     */
     public function setEventId($eventId)
     {
         $this->eventId = $eventId;

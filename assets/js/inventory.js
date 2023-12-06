@@ -23,60 +23,74 @@ document.addEventListener("DOMContentLoaded", () => {
         // CODE FOR EDIT LISTING MODAL (INVENTORY ITEM VIEW)
 
         $('#openEditListingModal').on('click', function () {
+            $('#loadingPreloader').show();
+
             const eventId = $(this).attr('data-event-id');
             const quantity = $(this).attr('data-quantity');
             const select = $('#editListingSplitType');
-            $('#loadingPreloader').show();
-            getEventOverviewData(eventId, function (result) {
-                if (result.eventData !== null && result.eventData.id) {
-                    var sectionSelect = document.getElementById("editListingSectionSelect");
-                    Object.entries(result.sections.sections).forEach((section) => {
-                        if (sectionSelect.value === section[0]) {
-                            // there's already a selected option for this section  
-                            return;
-                        }
-
-                        // Create a new option element
-                        var option = document.createElement("option");
-
-                        // Set the value and text of the option
-                        option.value = section[0];
-                        option.text = section[0];
-
-                        // Append the option to the select element
-                        sectionSelect.appendChild(option);
-                    });
-                    // Manually dispatch change event in order to disable/enable quantity/seats/row fields accordingly to current item values
-                    var event = new Event('change');
-                    sectionSelect.dispatchEvent(event);
-                    fetchSplitTypes(quantity, window.viagogoUser.wsu2Cookie)
-                        .then(function (response) {
-                            select.empty(); // Remove existing options
-                            $.each(response.result.AvailableSplitTypes, function (index, option) {
-                                select.append($("<option>", {
-                                    value: option.Value,
-                                    text: option.Text
-                                }));
-                            });
-                            $('#loadingPreloader').hide();
-                            $('#editListingModal').modal("show");
-                        })
-                        .catch(function (error) {
-                            $('#loadingPreloader').hide();
-                            console.error('Error getting split types:', error);
-                            showToast("Error", `Unable to fetch split types`, true);
+            const sectionSelect = document.getElementById("editListingSectionSelect");
+            const callback = () => {
+                // Manually dispatch change event in order to disable/enable quantity/seats/row fields accordingly to current item values
+                var event = new Event('change');
+                sectionSelect.dispatchEvent(event);
+                // populate split types
+                fetchSplitTypes(quantity, window.viagogoUser.wsu2Cookie)
+                    .then(function (response) {
+                        select.empty(); // Remove existing options
+                        $.each(response.result.AvailableSplitTypes, function (index, option) {
+                            select.append($("<option>", {
+                                value: option.Value,
+                                text: option.Text
+                            }));
                         });
-                } else {
+                        $('#loadingPreloader').hide();
+                        $('#editListingModal').modal("show");
+                    })
+                    .catch(function (error) {
+                        $('#loadingPreloader').hide();
+                        console.error('Error getting split types:', error);
+                        showToast("Error", `Unable to fetch split types`, true);
+                    });
+            };
+            // filter selection list by removing default option (empty value)
+            const sectionSelectOptions = Array.from(sectionSelect)
+                .filter(option => option.value != "");
+
+            if (sectionSelectOptions.length <= 0) {
+                // Sections select is empty, populate it
+                getEventOverviewData(eventId, function (result) {
+                    if (result.eventData !== null && result.eventData.id) {
+                        Object.entries(result.sections.sections).forEach((section) => {
+                            if (sectionSelect.value === section[0]) {
+                                // there's already a selected option for this section  
+                                return;
+                            }
+
+                            // Create a new option element
+                            var option = document.createElement("option");
+
+                            // Set the value and text of the option
+                            option.value = section[0];
+                            option.text = section[0];
+
+                            // Append the option to the select element
+                            sectionSelect.appendChild(option);
+                        });
+                        callback();
+                    } else {
+                        $('#loadingPreloader').hide();
+                        console.error('Viagogo event not found:', error);
+                        showToast("Event not found", `Could not find an event with id ${eventId}`, true);
+                    }
+                }, function (error) {
                     $('#loadingPreloader').hide();
-                    console.error('Viagogo event not found:', error);
-                    showToast("Event not found", `Could not find an event with id ${eventId}`, true);
-                }
-            }, function (error) {
-                $('#loadingPreloader').hide();
-                // Handle any errors that occurred during the data fetching process
-                console.error('Error fetching event data:', error);
-                showToast("Error", 'Error fetching event data: ' + error, true);
-            });
+                    // Handle any errors that occurred during the data fetching process
+                    console.error('Error fetching event data:', error);
+                    showToast("Error", 'Error fetching event data: ' + error, true);
+                });
+            } else {
+                callback();
+            }
         })
     }
 
@@ -84,43 +98,57 @@ document.addEventListener("DOMContentLoaded", () => {
         // CODE FOR EDIT ITEM MODAL (INVENTORY ITEM VIEW)
 
         $('#openEditItemModal').on('click', function () {
-            const eventId = $(this).attr('data-event-id');
             $('#loadingPreloader').show();
-            getEventOverviewData(eventId, function (result) {
-                if (result.eventData !== null && result.eventData.id) {
-                    var sectionSelect = document.getElementById("editItemSectionSelect");
-                    Object.entries(result.sections.sections).forEach((section) => {
-                        if (sectionSelect.value === section[0]) {
-                            // there's already a selected option for this section  
-                            return;
-                        }
-
-                        // Create a new option element
-                        var option = document.createElement("option");
-
-                        // Set the value and text of the option
-                        option.value = section[0];
-                        option.text = section[0];
-
-                        // Append the option to the select element
-                        sectionSelect.appendChild(option);
-                    });
-                    // Manually dispatch change event in order to disable/enable quantity/seats/row fields accordingly to current item values
-                    var event = new Event('change');
-                    sectionSelect.dispatchEvent(event);
-                    $('#loadingPreloader').hide();
-                    $('#editItemModal').modal("show");
-                } else {
-                    $('#loadingPreloader').hide();
-                    console.error('Viagogo event not found:', error);
-                    showToast("Event not found", `Could not find an event with id ${eventId}`, true);
-                }
-            }, function (error) {
+            const eventId = $(this).attr('data-event-id');
+            const sectionSelect = document.getElementById("editItemSectionSelect");
+            const callback = () => {
+                // Manually dispatch change event in order to disable/enable quantity/seats/row fields accordingly to current item values
+                var event = new Event('change');
+                sectionSelect.dispatchEvent(event);
                 $('#loadingPreloader').hide();
-                // Handle any errors that occurred during the data fetching process
-                console.error('Error fetching event data:', error);
-                showToast("Error", 'Error fetching event data: ' + error, true);
-            });
+                $('#editItemModal').modal("show");
+            }
+
+            // filter selection list by removing default option (empty value)
+            const sectionSelectOptions = Array.from(sectionSelect)
+                .filter(option => option.value != "");
+
+            if (sectionSelectOptions.length <= 0) {
+                // Sections select is empty, populate it
+                getEventOverviewData(eventId, function (result) {
+                    if (result.eventData !== null && result.eventData.id) {
+
+                        Object.entries(result.sections.sections).forEach((section) => {
+                            if (sectionSelect.value === section[0]) {
+                                // there's already a selected option for this section  
+                                return;
+                            }
+
+                            // Create a new option element
+                            var option = document.createElement("option");
+
+                            // Set the value and text of the option
+                            option.value = section[0];
+                            option.text = section[0];
+
+                            // Append the option to the select element
+                            sectionSelect.appendChild(option);
+                        });
+                        callback();
+                    } else {
+                        $('#loadingPreloader').hide();
+                        console.error('Viagogo event not found:', error);
+                        showToast("Event not found", `Could not find an event with id ${eventId}`, true);
+                    }
+                }, function (error) {
+                    $('#loadingPreloader').hide();
+                    // Handle any errors that occurred during the data fetching process
+                    console.error('Error fetching event data:', error);
+                    showToast("Error", 'Error fetching event data: ' + error, true);
+                });
+            } else {
+                callback();
+            }
         })
     }
 
@@ -246,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         sectionList.push(el.value);
                     }
                 });
-                formData.push({ name: 'sectionList', value: sectionList});
+                formData.push({ name: 'sectionList', value: sectionList });
 
                 // add new item
                 // Perform Ajax POST request

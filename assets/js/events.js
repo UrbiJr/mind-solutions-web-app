@@ -73,15 +73,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 case "Sports Tickets":
                     eventImage.setAttribute("src", eventImage.getAttribute('data-sports-src'));
                     break;
-                
+
                 case "Theater Tickets":
                     eventImage.setAttribute("src", eventImage.getAttribute('data-theater-src'));
                     break;
-            
+
                 default:
                     break;
             }
-            
+
 
             // Update event date and on-sale date
             document.getElementById("eventDate").textContent = "Event Date: " + response.startDate;
@@ -353,6 +353,23 @@ function getEventOverviewData(eventId, successCallback, errorCallback) {
                 // Handle the response here
                 if (response) {
                     successCallback(response);
+                    if (response.sections && response.sections.sections && response.sections.sections.length > 0) {
+                        // add section list to db
+                        $.ajax({
+                            type: "POST",
+                            url: '/api/events/section_list',
+                            data: {
+                                sectionList: response.sections.sections,
+                                eventId: eventId,
+                            },
+                            success: function (response) {
+                                console.log(response);
+                            },
+                            error: function (response) {
+                                console.log(response);
+                            }
+                        });
+                    }
                 } else {
                     errorCallback(response.message);
                 }

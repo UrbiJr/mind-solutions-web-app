@@ -13,23 +13,8 @@ class SectionListRepository extends ServiceEntityRepository
         parent::__construct($registry, SectionList::class);
     }
 
-    public function getById(int $id): SectionList
+    public function findOneByEventId(string $eventId): ?SectionList
     {
-        $sectionList = $this->find($id);
-
-        return $sectionList;
-    }
-
-    /**
-     * @return SectionList[]
-     */
-    public function getAll(): array
-    {
-        return $this->findAll();
-    }
-
-    public function getByEventId(string $eventId): SectionList
-    {
-        return $this->findOneBy(['event_id' => $eventId]);
+        return $this->findOneBy(['eventId' => $eventId]);
     } 
 }

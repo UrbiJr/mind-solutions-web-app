@@ -284,6 +284,36 @@ class AJAXController extends AbstractController
         }
     }
 
+    #[Route('/api/events/section_list', methods: ['POST'], name: 'api_events_create_section_list')]
+    public function create_section_list(#[CurrentUser] ?User $user, Request $request, EntityManagerInterface $em): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+            $eventId = $request->request->get('eventId');
+
+            // Store sections for this event, so we don't have to fetch them again
+            $sectionListArray = $request->request->get('sectionList') ? explode(',', $request->request->get('sectionList')) : [];
+            $sectionList = new SectionList();
+            $sectionList->setSections($sectionListArray);
+            $sectionList->setEventId($eventId);
+            // Save to database
+            $em->persist($sectionList);
+            $em->flush();
+
+            $response = [
+                "success" => true,
+                "id" => $sectionList->getId(),
+                "message" => "New section list created.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     #[Route('/api/user/inventory/add', methods: ['POST'], name: 'api_user_inventory_add')]
     public function add_to_inventory(#[CurrentUser] ?User $user, Request $request, EntityManagerInterface $em): Response
     {
@@ -298,6 +328,7 @@ class AJAXController extends AbstractController
             $dataArray = $request->request->all()['inventory_item'] ?? [];
             $inventoryItem = InventoryItem::fromDataArray($user, $dataArray);
 
+            // Store sections for this event, so we don't have to fetch them again
             $sectionListArray = $request->request->get('sectionList') ? explode(',', $request->request->get('sectionList')) : [];
             $sectionList = new SectionList();
             $sectionList->setSections($sectionListArray);

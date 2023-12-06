@@ -12,6 +12,8 @@ class InventoryItemType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $sectionList = $options['sectionList'];
+
         $builder
             // Event Details
             ->add('eventName', TextType::class, [
@@ -71,10 +73,11 @@ class InventoryItemType extends AbstractType
                 'attr' => [
                     'class' => 'sectionSelect',
                 ],
-                'choices' => [
-                    // Populate from PHP controller or JS
-                ],
+                'choices' => $sectionList ?? [],
                 'placeholder' => 'Select a section',
+                'choice_label' => function ($value) {
+                    return $value;
+                },
             ])
             ->add('customSection', TextType::class, [
                 'mapped' => false,
@@ -120,6 +123,7 @@ class InventoryItemType extends AbstractType
     {
         $resolver->setDefaults([
             // Define your default options here
+            'sectionList' => [],
         ]);
     }
 }

@@ -10,6 +10,7 @@ use App\Form\Type\ListingType;
 use App\Form\Type\MarkItemAsListedType;
 use App\Form\Type\MarkItemAsNotListedType;
 use App\Form\Type\MarkItemAsSoldType;
+use App\Repository\SectionListRepository;
 use App\Service\Firestore;
 use App\Service\InventoryService;
 use Google\Cloud\Core\Exception\NotFoundException;
@@ -50,7 +51,7 @@ class InventoryController extends AbstractController
     }
 
     #[Route('/inventory/{id}', name: 'inventory_item_show')]
-    public function item_overview(#[CurrentUser] ?User $user, string $id): Response
+    public function item_overview(#[CurrentUser] ?User $user, string $id, SectionListRepository $sectionListRepository): Response
     {
         // The second parameter is used to specify on what object the role is tested.
         $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
@@ -102,7 +103,13 @@ class InventoryController extends AbstractController
         $editListingForm->get('yourPricePerTicketCurrency')->setData($item->getYourPricePerTicket()['currency']);
         $editListingForm->get('yourPricePerTicket')->setData($item->getYourPricePerTicket()['amount']);
 
-        $editInventoryItemForm = $this->createForm(InventoryItemType::class, $item);
+        $sectionList = $sectionListRepository->findOneByEventId($item->getViagogoEventId());
+        if (isset($sectionList)) {
+            $choices = $sectionList->getSections();
+        } else {
+            $choices = [];
+        }
+        $editInventoryItemForm = $this->createForm(InventoryItemType::class, $item, ['sectionList' => $choices]);
 
         $itemRoi = $this->inventoryService->calculateRoi($item);
 

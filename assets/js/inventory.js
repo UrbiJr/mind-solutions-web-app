@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (sectionSelectOptions.length <= 0) {
                 // Sections select is empty, populate it
                 getEventOverviewData(eventId, function (result) {
-                    if (result.eventData !== null && result.eventData.id) {
+                    if (result.eventData !== null && result.eventData.id && Object.keys(result.sections.sections) > 0) {
                         Object.entries(result.sections.sections).forEach((section) => {
                             if (sectionSelect.value === section[0]) {
                                 // there's already a selected option for this section  
@@ -76,18 +76,20 @@ document.addEventListener("DOMContentLoaded", () => {
                             // Append the option to the select element
                             sectionSelect.appendChild(option);
                         });
+                        sectionSelect.value = selectedSection;
                         callback();
                     } else {
                         $('#loadingPreloader').hide();
-                        console.error('Viagogo event not found:', error);
-                        showToast("Event not found", `Could not find an event with id ${eventId}`, true);
+                        sectionSelect.style.display = 'none';
+                        $('#editListingModal .customSection').removeClass('hidden');
+                        callback();
                     }
                 }, function (error) {
                     $('#loadingPreloader').hide();
                     // Handle any errors that occurred during the data fetching process
                     console.error('Error fetching event data:', error);
                     showToast("Error", 'Error fetching event data: ' + error, true);
-                });
+                }, true);
             } else {
                 callback();
             }
@@ -116,8 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (sectionSelectOptions.length <= 0) {
                 // Sections select is empty, populate it
                 getEventOverviewData(eventId, function (result) {
-                    if (result.eventData !== null && result.eventData.id) {
-
+                    if (result.eventData !== null && result.eventData.id && Object.keys(result.sections.sections) > 0) {
                         Object.entries(result.sections.sections).forEach((section) => {
                             if (sectionSelect.value === section[0]) {
                                 // there's already a selected option for this section  
@@ -134,18 +135,20 @@ document.addEventListener("DOMContentLoaded", () => {
                             // Append the option to the select element
                             sectionSelect.appendChild(option);
                         });
+                        sectionSelect.value = selectedSection;
                         callback();
                     } else {
                         $('#loadingPreloader').hide();
-                        console.error('Viagogo event not found:', error);
-                        showToast("Event not found", `Could not find an event with id ${eventId}`, true);
+                        sectionSelect.style.display = 'none';
+                        $('#editItemModal .customSection').removeClass('hidden');
+                        callback();
                     }
                 }, function (error) {
                     $('#loadingPreloader').hide();
                     // Handle any errors that occurred during the data fetching process
                     console.error('Error fetching event data:', error);
                     showToast("Error", 'Error fetching event data: ' + error, true);
-                });
+                }, true);
             } else {
                 callback();
             }
@@ -490,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ids.push(itemId);
             });
             const attributesMap = {};
-            const currency = getCookie('currency');
+            const currency = document.body.getAttribute('currency');
             const formData = $('#bulkUpdateModal form').serializeArray();
 
             formData.forEach((fieldData) => {
@@ -559,12 +562,6 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#inventoryTable").on('click', 'button[name="copy-inventory-item"]', function () {
             var itemId = $(this).attr('data-item-id');
             duplicateInventoryItem(itemId);
-        });
-
-        $("#inventoryTable").on('click', 'button[name="edit-inventory-item"]', function () {
-            // Get the item ID from the clicked button's data attribute
-            var itemId = $(this).attr('data-item-id');
-            editInventoryItem(itemId);
         });
 
         $("#inventoryTable").on('click', 'button[name="delete-inventory-item"]', function () {
@@ -1023,91 +1020,6 @@ function updateAddToInventoryButton() {
     }
 }
 
-function editInventoryItem(itemId) {
-    const addToInventoryButton = document.getElementById('addToInventory');
-
-    // Use itemId to fetch item data (replace this with your data fetching logic)
-    document.getElementById("loadingPreloader").style.display = "";
-    fetchItemData(itemId).
-        then(function (itemData) {
-            document.getElementById("loadingPreloader").style.display = "none";
-            // Populate modal fields with the fetched item data
-            $("#staticBackdropLabel").html("Edit Inventory Item");
-            $("#addToInventoryModal .header-title").hide();
-            document.querySelector('input[name="inventory_item[eventName]"]').value = itemData.name;
-            document.querySelector('input[name="inventory_item[orderEmail]"]').value = itemData.orderEmail;
-            document.querySelector('input[name="inventory_item[orderNumber]"]').value = itemData.orderNumber;
-            document.querySelector('input[name="inventory_item[purchaseDate]"]').value = formatDateToDateTimeLocal(itemData.purchaseDate);
-            document.querySelector('input[name="inventory_item[city]"]').value = itemData.city;
-            document.querySelector('input[name="inventory_item[location]"]').value = itemData.location;
-            document.querySelector('input[name="inventory_item[eventDate]"]').value = formatDateToDateTimeLocal(itemData.eventDate);
-            document.querySelector('input[name="inventory_item[ticketCost]"]').value = itemData.individualTicketCostAmount;
-            document.querySelector('input[name="inventory_item[row]"]').value = itemData.row;
-            document.querySelector('input[name="inventory_item[seatFrom]"]').value = itemData.seatFrom;
-            document.querySelector('input[name="inventory_item[seatTo]"]').value = itemData.seatTo;
-            document.querySelector('input[name="inventory_item[quantity]"]').value = itemData.quantity;
-            document.querySelector('input[name="inventory_item[quantityRemain]"]').value = itemData.quantityRemain;
-            var countrySelect = document.querySelector('select[name="inventory_item[country]"]');
-            var countryOptions = countrySelect.options;
-            for (var i = 0; i < countryOptions.length; i++) {
-                if (countryOptions[i].value === itemData.country) {
-                    countryOptions[i].selected = true;
-                    break; // Exit the loop once the correct option is selected
-                }
-            }
-
-            var sectionSelect = document.getElementById("sectionSelect");
-            var option = document.createElement("option");
-            // Set the value and text of the option
-            option.value = itemData.section;
-            option.text = itemData.section;
-            // Append the option to the select element
-            sectionSelect.appendChild(option);
-            option.selected = true;
-            // trigger onchange event
-            sectionSelect.dispatchEvent(new Event('change'));
-
-            var retailerSelect = document.querySelector('select[name="inventory_item[retailer]"]');
-            var retailerOptions = retailerSelect.options;
-            for (var i = 0; i < retailerOptions.length; i++) {
-                if (retailerOptions[i].value === itemData.retailer) {
-                    retailerOptions[i].selected = true;
-                    break; // Exit the loop once the correct option is selected
-                }
-            }
-
-            var ticketGenreSelect = document.querySelector('select[name="inventory_item[ticketGenre]"]');
-            var ticketGenreOptions = ticketGenreSelect.options;
-            for (var i = 0; i < ticketGenreOptions.length; i++) {
-                if (ticketGenreOptions[i].value === itemData.ticketGenre) {
-                    ticketGenreOptions[i].selected = true;
-                    break; // Exit the loop once the correct option is selected
-                }
-            }
-
-            var ticketTypeSelect = document.querySelector('select[name="inventory_item[ticketType]"]');
-            var ticketTypeOptions = ticketTypeSelect.options;
-            for (var i = 0; i < ticketTypeOptions.length; i++) {
-                if (ticketTypeOptions[i].value === itemData.ticketType) {
-                    ticketTypeOptions[i].selected = true;
-                    break; // Exit the loop once the correct option is selected
-                }
-            }
-
-            // Show the modal
-            addToInventoryButton.setAttribute("data-item-id", itemId);
-            addToInventoryButton.textContent = "Update";
-            validateEventFieldset();
-            $('#addToInventoryModal').modal('show');
-        })
-        .catch(function (error) {
-            document.getElementById("loadingPreloader").style.display = "none";
-            // Handle any errors that occurred during the data fetching process
-            console.error('Error fetching item data:', error);
-            toastWithTimeout("Error", 'Error fetching item data: ' + error, "bg-danger", 5000);
-        });
-}
-
 function resetForm() {
     const addToInventoryButton = document.getElementById('addToInventory');
 
@@ -1210,6 +1122,10 @@ function quickEdit(form) {
             platform = fieldValue;
         }
 
+        if (fieldName === "customSection" && fieldValue != "") {
+            attributesMap['section'] = fieldValue;
+        }
+
         if (fieldName === "platform") {
             platform = fieldValue;
         }
@@ -1248,11 +1164,11 @@ function quickEdit(form) {
         case 'Inactive':
             attributesMap['yourPricePerTicket'] = {
                 amount: 0,
-                currency: getCookie('currency')
+                currency: document.body.getAttribute('currency')
             };
             attributesMap['totalPayout'] = {
                 amount: 0,
-                currency: getCookie('currency')
+                currency: document.body.getAttribute('currency')
             };
             attributesMap['saleDate'] = null;
             break;
@@ -1282,11 +1198,21 @@ function quickEdit(form) {
             then(function (itemData) {
                 itemData.splitType = splitType;
                 itemData.yourPricePerTicket = attributesMap['yourPricePerTicket'];
+                itemData.individualTicketCost = {
+                    "currency": itemData.individualTicketCostCurrency,
+                    "amount": itemData.individualTicketCostAmount,
+                };
                 try {
                     // check if item is missing any required field
                     validateListingData(itemData);
                     const checkedRestrictions = getCheckedRestrictions(form);
                     const checkedDetails = getCheckedTicketDetails(form);
+                    if (itemData.restrictions === undefined) {
+                        itemData.restrictions = [];
+                    }
+                    if (itemData.ticketDetails === undefined) {
+                        itemData.ticketDetails = [];
+                    }
                     sameRestrictions = haveSameElements(checkedRestrictions, itemData.restrictions);
                     sameTicketDetails = haveSameElements(checkedDetails, itemData.ticketDetails);
 
@@ -1294,17 +1220,13 @@ function quickEdit(form) {
                         // listing was already created, first of all edit details
                         $('#loadingPreloader .title').text('Listing activation in progress (1/2)');
                         $('#loadingPreloader .subtitle').text('Editing listing details...');
-                        const individualTicketCost = {
-                            "currency": itemData.individualTicketCostCurrency,
-                            "amount": itemData.individualTicketCostAmount,
-                        };
                         const yourPricePerTicket = {
                             "currency": itemData.yourPricePerTicketCurrency,
                             "amount": itemData.yourPricePerTicketAmount,
                         };
                         editListingDetails(
                             itemData.listingId,
-                            itemData.eventId,
+                            itemData.viagogoEventId,
                             itemData.ticketType,
                             itemData.quantityRemain,
                             splitType,
@@ -1312,7 +1234,7 @@ function quickEdit(form) {
                             itemData.row,
                             itemData.seatFrom,
                             itemData.seatTo,
-                            individualTicketCost,
+                            itemData.individualTicketCost,
                             yourPricePerTicket,
                         )
                             .then(function (response) {
@@ -1376,7 +1298,7 @@ function quickEdit(form) {
 
                         // create listing on Viagogo
                         createListing(
-                            itemData.eventId,
+                            itemData.viagogoEventId,
                             itemData.ticketType,
                             itemData.quantityRemain,
                             splitType,
@@ -1506,7 +1428,7 @@ function quickEdit(form) {
                     $('#loadingPreloader .subtitle').text('Do not refresh this page');
                     editListingDetails(
                         itemData.listingId,
-                        itemData.eventId,
+                        itemData.viagogoEventId,
                         itemData.ticketType,
                         itemData.quantityRemain,
                         splitType,

@@ -12,6 +12,8 @@
 				<div class="modal-body">
 					{{ form_start(editListingForm, {'attr': {'class' : 'mt-3 text-center prevent-submission', 'onsubmit': 'return quickEdit(this)'}}) }}
 					{{ form_widget(editListingForm.id) }}
+					{{ form_widget(editListingForm.status) }}
+					{{ form_widget(editListingForm.platform) }}
 					{{ form_widget(editListingForm.viagogoEventId) }}
 					{{ form_widget(editListingForm.viagogoCategoryId) }}
 					<div class="row">

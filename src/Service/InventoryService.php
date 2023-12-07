@@ -25,6 +25,9 @@ class InventoryService
                 // convert to use same currency
                 $totalCostConverted = $this->utils->convertCurrency($item->getTotalCost()["amount"], $exchangeRates, $item->getTotalPayout()["currency"]);
                 // now calculate roi
+                if (!isset($totalCostConverted)) {
+                    return "N/A";
+                }
                 return number_format((($item->getTotalPayout()["amount"] - $totalCostConverted) / $totalCostConverted) * 100, 2);
             }
         } else {
@@ -39,7 +42,8 @@ class InventoryService
      * @param $viagogoListing
      * @return bool
      */
-    public function equalsViagogoListing($inventoryItem, $viagogoListing) {
+    public function equalsViagogoListing($inventoryItem, $viagogoListing)
+    {
         if (!isset($inventoryItem) || !isset($viagogoListing)) {
             return false;
         }

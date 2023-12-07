@@ -13,8 +13,11 @@ use App\Form\Type\MarkItemAsSoldType;
 use App\Repository\SectionListRepository;
 use App\Service\Firestore;
 use App\Service\InventoryService;
+use Doctrine\ORM\EntityManagerInterface;
 use Google\Cloud\Core\Exception\NotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -51,7 +54,7 @@ class InventoryController extends AbstractController
     }
 
     #[Route('/inventory/{id}', name: 'inventory_item_show')]
-    public function item_overview(#[CurrentUser] ?User $user, string $id, SectionListRepository $sectionListRepository): Response
+    public function item_overview(#[CurrentUser] ?User $user, string $id, SectionListRepository $sectionListRepository, Firestore $firestore, Request $request): Response
     {
         // The second parameter is used to specify on what object the role is tested.
         $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
@@ -99,9 +102,6 @@ class InventoryController extends AbstractController
             'platform' => $item->getPlatform(),
             'status' => InventoryItem::ITEM_NOT_LISTED,
         ]);
-        $editListingForm = $this->createForm(ListingType::class, $item);
-        $editListingForm->get('yourPricePerTicketCurrency')->setData($item->getYourPricePerTicket()['currency']);
-        $editListingForm->get('yourPricePerTicket')->setData($item->getYourPricePerTicket()['amount']);
 
         $sectionList = $sectionListRepository->findOneByEventId($item->getViagogoEventId());
         if (isset($sectionList)) {
@@ -109,7 +109,11 @@ class InventoryController extends AbstractController
         } else {
             $choices = [];
         }
-        $editInventoryItemForm = $this->createForm(InventoryItemType::class, $item, ['sectionList' => $choices]);
+        $editListingForm = $this->createForm(ListingType::class, $item, ['sectionList' => $choices]);
+        $editListingForm->get('yourPricePerTicketCurrency')->setData($item->getYourPricePerTicket()['currency']);
+        $editListingForm->get('yourPricePerTicket')->setData($item->getYourPricePerTicket()['amount']);
+
+        $editInventoryItemForm = $this->handleEditItemForm($item, $user, $firestore, $request, $choices);
 
         $itemRoi = $this->inventoryService->calculateRoi($item);
 
@@ -131,5 +135,31 @@ class InventoryController extends AbstractController
                 'editInventoryItemForm' => $editInventoryItemForm,
             ]
         );
+    }
+
+    private function handleEditItemForm(InventoryItem $item, User $user, Firestore $firestore, Request $request, array $sections): FormInterface
+    {
+        $form = $this->createForm(InventoryItemType::class, $item, [
+            'sectionList' => $sections,
+            'individualTicketCost' => $item->getIndividualTicketCost(),
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            // CHECK IF CUSTOM SECTION IS SUBMITTED
+            if (key_exists('customSection', $form->all()) && $form->get('customSection')->getData() !== null) {
+                $section = $form->get('customSection')->getData();
+                $item->setSection($section);
+            } // 'section' is already mapped so no need for an 'else' branch here: the attribute $section will get updated automatically
+
+            // manually add non-mapped fields
+            $individualTicketCostAmount = $form->get('individualTicketCost')->getData();
+            $individualTicketCostCurrency = $form->get('individualTicketCostCurrency')->getData();
+            $item->setIndividualTicketCost(['amount' => $individualTicketCostAmount, 'currency' => $individualTicketCostCurrency]);
+
+            $firestore->edit_inventory_item($item->getId(), $item, $user->getId());
+            $this->addFlash('success', '💾 Successfully saved changes.');
+        }
+
+        return $form;
     }
 }

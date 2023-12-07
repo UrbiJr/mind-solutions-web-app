@@ -62,7 +62,7 @@ class MarkItemAsListedType extends AbstractType
                 'mapped' => false,
             ])
             ->add('restrictions', ChoiceType::class, [
-                'label' => false,
+                'label' => 'Restrictions on use:',
                 'choices' => [
                     'Concession ticket - child' => '12',
                     'Wheelchair user only' => '18',
@@ -87,7 +87,7 @@ class MarkItemAsListedType extends AbstractType
 
             // Fifth row
             ->add('ticketDetails', ChoiceType::class, [
-                'label' => false,
+                'label' => 'Required ticket details:',
                 'choices' => [
                     'Limited or restricted view' => '0',
                     'Includes VIP pass' => '11',
@@ -111,6 +111,7 @@ class MarkItemAsListedType extends AbstractType
             // Hidden fields
             ->add('id', HiddenType::class)
             ->add('status', HiddenType::class)
+            ->add('eventId', HiddenType::class)
             ->add('quantity', HiddenType::class)
             ->add('quantityRemain', HiddenType::class)
             // Submit button

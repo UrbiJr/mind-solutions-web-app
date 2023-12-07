@@ -294,7 +294,8 @@ class AJAXController extends AbstractController
             $eventId = $request->request->get('eventId');
 
             // Store sections for this event, so we don't have to fetch them again
-            $sectionListArray = $request->request->get('sectionList') ? explode(',', $request->request->get('sectionList')) : [];
+            $sectionListArray = $request->request->all('sectionList') ?? [];
+
             $sectionList = new SectionList();
             $sectionList->setSections($sectionListArray);
             $sectionList->setEventId($eventId);
@@ -771,6 +772,9 @@ class AJAXController extends AbstractController
                 }
 
                 $itemData = '<span data-status="' . $item->getStatus() . '" data-row="' . $item->getRow() . '" data-seat-from="' . $item->getSeatFrom() . '" data-seat-to="' . $item->getSeatTo() . '" data-section="' . $item->getSection() . '" data-individual-ticket-cost="' . $this->utils->formatAmountArrayAsSymbol($item->getIndividualTicketCost()) . '" data-quantity="' . $item->getQuantity() . '"  data-your-price="' . $yourPrice . '" data-purchase-date="' . $item->getPurchaseDate()->format('F j, Y \a\t h:i A') . '" data-retailer="' . $item->getRetailer() . '" data-item-id="' . $item->getId() . '" data-category-id="' . $categoryId . '" data-event-id="' . $eventId . '" data-section="' . $section . '"></span>';
+                $inventoryItemUrl = $this->generateUrl('inventory_item_show', [
+                    'id' => $item->getId(),
+                ]);
 
                 $actions = '
     <button name="copy-inventory-item" type="button" class="btn btn-soft-primary" data-item-id="' . $item->getId() . '">
@@ -779,13 +783,13 @@ class AJAXController extends AbstractController
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
         </svg>
     </button>
-    <button name="edit-inventory-item" type="button" class="btn btn-soft-primary" data-item-id="' . $item->getId() . '">
+    <a class="btn btn-soft-primary" href="' . $inventoryItemUrl . '">
         <svg class="icon-24" width="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M11.4925 2.78906H7.75349C4.67849 2.78906 2.75049 4.96606 2.75049 8.04806V16.3621C2.75049 19.4441 4.66949 21.6211 7.75349 21.6211H16.5775C19.6625 21.6211 21.5815 19.4441 21.5815 16.3621V12.3341" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M8.82812 10.921L16.3011 3.44799C17.2321 2.51799 18.7411 2.51799 19.6721 3.44799L20.8891 4.66499C21.8201 5.59599 21.8201 7.10599 20.8891 8.03599L13.3801 15.545C12.9731 15.952 12.4211 16.181 11.8451 16.181H8.09912L8.19312 12.401C8.20712 11.845 8.43412 11.315 8.82812 10.921Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             <path d="M15.1655 4.60254L19.7315 9.16854" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
-    </button>
+    </a>
     <button name="delete-inventory-item" data-toggle="modal" data-item-id="' . $item->getId() . '" type="button" class="btn btn-soft-danger">
         <svg class="icon-24" width="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -826,7 +830,7 @@ class AJAXController extends AbstractController
                     'section' => $item->getSection(),
                     'floorPrice' => $floorPriceFormatted,
                     'yourPrice' => $yourPrice,
-                    'roi' => ($itemRoi !== "N/A") ? number_format($itemRoi, 2, '.', '') . "%" : $itemRoi,
+                    'roi' => ($itemRoi !== "N/A") ? $itemRoi . "%" : $itemRoi,
                     'status' => $statusHtml,
                     'actions' => $actions,
                 );
@@ -1188,7 +1192,7 @@ class AJAXController extends AbstractController
                     'totalCost' => $totalCostConverted,
                     'yourPrice' => $yourPrice,
                     'projectedProfit' => $projectedProfit,
-                    'roi' => ($itemRoi !== "N/A") ? number_format($itemRoi, 2, '.', '') . "%" : $itemRoi,
+                    'roi' => ($itemRoi !== "N/A") ? $itemRoi . "%" : $itemRoi,
                 );
 
                 $inventoryData[$item->getId()] = $rowData;
@@ -1511,7 +1515,7 @@ class AJAXController extends AbstractController
                     'section' => $item->getSection(),
                     'floorPrice' => $floorPriceFormatted,
                     'yourPrice' => $yourPrice,
-                    'roi' => ($itemRoi !== "N/A") ? number_format($itemRoi, 2, '.', '') . "%" : $itemRoi,
+                    'roi' => ($itemRoi !== "N/A") ? $itemRoi . "%" : $itemRoi,
                 );
 
                 $listingsData[$item->getId()] = $rowData;
@@ -1576,7 +1580,7 @@ class AJAXController extends AbstractController
         return new JsonResponse($result, Response::HTTP_OK);
     }
 
-    #[Route('/api/releases', methods: ['GET'], name: 'api_releases')]
+    #[Route('/api/admin/releases', methods: ['GET'], name: 'api_releases')]
     public function releases(#[CurrentUser] ?User $user, Request $request, ReleaseRepository $releaseRepository, UserRepository $userRepository): Response
     {
         try {
@@ -1708,6 +1712,9 @@ class AJAXController extends AbstractController
                 }
 
                 $itemData = '<span data-item-id="' . $release->getId() . '" data-location="' . $release->getLocation() . '" data-city="' . $release->getCity() . '" data-country="' . $release->getCountryCode() . '" data-retailer="' . $release->getRetailer() . '" data-early-link="' . $release->getEarlyLink() . '" data-author="' . $author->getDiscordUsername() . '"  data-comments="' . $release->getComments() . '"></span>';
+                $releaseItemUrl = $this->generateUrl('release_item_show', [
+                    'id' => $release->getId(),
+                ]);
 
                 $actions = '
     <button name="copy-release" type="button" class="btn btn-soft-primary" data-item-id="' . $release->getId() . '">
@@ -1716,13 +1723,13 @@ class AJAXController extends AbstractController
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
         </svg>
     </button>
-    <button name="edit-release" type="button" class="btn btn-soft-primary" data-item-id="' . $release->getId() . '">
+    <a class="btn btn-soft-primary" href="' . $releaseItemUrl . '">
         <svg class="icon-24" width="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M11.4925 2.78906H7.75349C4.67849 2.78906 2.75049 4.96606 2.75049 8.04806V16.3621C2.75049 19.4441 4.66949 21.6211 7.75349 21.6211H16.5775C19.6625 21.6211 21.5815 19.4441 21.5815 16.3621V12.3341" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M8.82812 10.921L16.3011 3.44799C17.2321 2.51799 18.7411 2.51799 19.6721 3.44799L20.8891 4.66499C21.8201 5.59599 21.8201 7.10599 20.8891 8.03599L13.3801 15.545C12.9731 15.952 12.4211 16.181 11.8451 16.181H8.09912L8.19312 12.401C8.20712 11.845 8.43412 11.315 8.82812 10.921Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             <path d="M15.1655 4.60254L19.7315 9.16854" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
-    </button>
+    </a>
     <button name="delete-release" data-toggle="modal" data-item-id="' . $release->getId() . '" type="button" class="btn btn-soft-danger">
         <svg class="icon-24" width="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>

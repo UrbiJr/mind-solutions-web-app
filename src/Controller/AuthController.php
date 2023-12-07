@@ -246,8 +246,6 @@ class AuthController extends AbstractController
             // log the user in on the current firewall
             $redirectResponse = $security->login($dbUser, 'form_login');
 
-            setcookie('currency', 'EUR', time() + 12 * 60 * 60, '/');
-
             $this->addFlash(
                 'success',
                 '🍾 Success! You have authenticated and bound your Whop membership to your account.'

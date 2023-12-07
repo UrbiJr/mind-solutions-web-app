@@ -315,7 +315,7 @@ function getFilteredEvents(genreId, countryCode, query, callback) {
     }
 }
 
-function getEventOverviewData(eventId, successCallback, errorCallback) {
+function getEventOverviewData(eventId, successCallback, errorCallback, addSectionListToDb = false) {
 
     // Check if the token is already available in localStorage
     var token = getWithExpiry('jwtToken');
@@ -353,20 +353,20 @@ function getEventOverviewData(eventId, successCallback, errorCallback) {
                 // Handle the response here
                 if (response) {
                     successCallback(response);
-                    if (response.sections && response.sections.sections && response.sections.sections.length > 0) {
+                    if (addSectionListToDb && response.sections && response.sections.sections && Object.keys(response.sections.sections).length > 0) {
                         // add section list to db
                         $.ajax({
                             type: "POST",
                             url: '/api/events/section_list',
                             data: {
-                                sectionList: response.sections.sections,
+                                sectionList: Object.keys(response.sections.sections),
                                 eventId: eventId,
                             },
                             success: function (response) {
-                                console.log(response);
+                                //console.log(response);
                             },
                             error: function (response) {
-                                console.log(response);
+                                //console.log(response);
                             }
                         });
                     }

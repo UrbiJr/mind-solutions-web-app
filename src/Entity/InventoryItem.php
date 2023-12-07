@@ -160,8 +160,8 @@ class InventoryItem
         $ticketGenre = $inventoryItem['ticketGenre'] ?? '';
         $ticketType = $inventoryItem['ticketType'] ?? '';
         $retailer = $inventoryItem['retailer'] ?? '';
-        $currency = $inventoryItem['currency'] ?? $user->getCurrency();
-        $individualTicketCost = isset($inventoryItem['ticketCost']) ? ['amount' => floatval($inventoryItem['ticketCost']), 'currency' => $currency] : null;
+        $currency = $inventoryItem['individualTicketCostCurrency'] ?? $user->getCurrency();
+        $individualTicketCost = isset($inventoryItem['individualTicketCost']) ? ['amount' => floatval($inventoryItem['individualTicketCost']), 'currency' => $currency] : null;
         $orderNumber = $inventoryItem['orderNumber'] ?? '';
         $orderEmail = $inventoryItem['orderEmail'] ?? '';
         $viagogoEventId = $inventoryItem['eventId'] ?? null;
@@ -1134,17 +1134,17 @@ class InventoryItem
      */
     public function setRestrictions($restrictions)
     {
-        // Check if $ticketDetails is set and is an array.
+        // Check if $restrictions is set and is an array.
         if (isset($restrictions) && is_array($restrictions)) {
-            // Set $this->ticketDetails to $ticketDetails.
+            // Set $this->restrictions to $restrictions.
             $this->restrictions = $restrictions;
         } else {
-            // If $ticketDetails is not set or is not an array, check if $this->ticketDetails is set.
+            // If $restrictions is not set or is not an array, check if $this->ticketDetails is set.
             if (isset($this->restrictions)) {
-                // Set $this->ticketDetails to its current value.
+                // Set $this->restrictions to its current value.
                 $this->restrictions = $this->restrictions;
             } else {
-                // Set $this->ticketDetails to an empty array.
+                // Set $this->restrictions to an empty array.
                 $this->restrictions = [];
             }
         }

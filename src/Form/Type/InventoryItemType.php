@@ -12,7 +12,9 @@ class InventoryItemType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $sectionList = $options['sectionList'];
+        $sectionList = $options['sectionList'] ?? [];
+        $individualTicketCostCurrency = $options['individualTicketCost']['currency'];
+        $individualTicketCostAmount = $options['individualTicketCost']['amount'];
 
         $builder
             // Event Details
@@ -33,6 +35,7 @@ class InventoryItemType extends AbstractType
             ])
             ->add('ticketGenre', ChoiceType::class, [
                 'label' => 'Genre:',
+                'mapped' => false,
                 'choices' => [
                     'Concert Tickets' => 'Concert Tickets',
                     'Sports Tickets' => 'Sports Tickets',
@@ -41,11 +44,20 @@ class InventoryItemType extends AbstractType
                 'placeholder' => 'Select a genre',
             ])
             // Venue
-            ->add('city', TextType::class, ['label' => 'City:'])
-            ->add('location', TextType::class, ['label' => 'Location:'])
+            ->add('city', TextType::class, [
+                'mapped' => false,
+                'label' => 'City:'
+            ])
+            ->add('location', TextType::class, [
+                'label' => 'Location:',
+                'mapped' => false,
+            ])
             // Billing Information
             ->add('orderEmail', EmailType::class, ['label' => 'Email:'])
-            ->add('orderNumber', TextType::class, ['label' => 'Order Number:'])
+            ->add('orderNumber', TextType::class, [
+                'label' => 'Order Number:',
+                'required' => false,
+            ])
             ->add('purchaseDate', DateTimeType::class, [
                 'label' => 'Purchase Date:',
                 'widget' => 'single_text',
@@ -53,9 +65,23 @@ class InventoryItemType extends AbstractType
                 'data' => new \DateTime('now'),
             ])
             // Ticket(s) Details
-            ->add('ticketCost', NumberType::class, [
+            ->add('individualTicketCostCurrency', ChoiceType::class, [
+                'mapped' => false,
+                'label' => false,
+                'choices' => [
+                    'EUR (€)' => 'EUR',
+                    'GBP (£)' => 'GBP',
+                    'USD ($)' => 'USD',
+                    'CAD (C$)' => 'CAD',
+                    'CHF (₣)' => 'CHF',
+                ],
+                'placeholder' => 'Select a currency',
+                'data' => $individualTicketCostCurrency,
+            ])
+            ->add('individualTicketCost', NumberType::class, [
                 'label' => 'Ticket Face Value:',
                 'mapped' => false,
+                'data' => $individualTicketCostAmount,
             ])
             ->add('quantity', NumberType::class, ['label' => 'Quantity:'])
             ->add('quantityRemain', HiddenType::class)
@@ -73,18 +99,18 @@ class InventoryItemType extends AbstractType
                 'attr' => [
                     'class' => 'sectionSelect',
                 ],
-                'choices' => $sectionList ?? [],
+                'choices' => $sectionList,
                 'placeholder' => 'Select a section',
-                'choice_label' => function ($value) {
+                'choice_label' => function ($value) {    // use value as label
                     return $value;
                 },
             ])
             ->add('customSection', TextType::class, [
                 'mapped' => false,
                 'label' => false,
+                'required' => false,
                 'attr' => [
-                    'class' => 'customSection',
-                    'style' => 'display: none;'
+                    'class' => 'hidden customSection',
                 ],
             ])
             ->add('row', TextType::class, ['label' => 'Row:'])
@@ -124,6 +150,7 @@ class InventoryItemType extends AbstractType
         $resolver->setDefaults([
             // Define your default options here
             'sectionList' => [],
+            'individualTicketCost' => ['amount' => 0, 'currency' => 'EUR']
         ]);
     }
 }

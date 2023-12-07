@@ -1,7 +1,5 @@
 function getViagogoSessionCookie(username, password, recaptchaToken, successCallback, errorCallback) {
 
-    var userId = getCookie('userId');
-
     // Check if the token is already available in localStorage
     var token = getWithExpiry('jwtToken');
 
@@ -32,7 +30,6 @@ function getViagogoSessionCookie(username, password, recaptchaToken, successCall
             dataType: 'json',
             data: JSON.stringify({
                 action: "process_viagogo_login",
-                userId: userId,
                 username: username,
                 password: password,
                 recaptchaToken: recaptchaToken,

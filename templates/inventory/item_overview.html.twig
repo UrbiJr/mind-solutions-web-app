@@ -1,6 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ item.name }} - {{ item.location }}
+{% block title %}
+	{{ item.name }}
+	-
+	{{ item.location }}
 {% endblock %}
 
 {% block content %}
@@ -301,4 +304,12 @@
 	{% include 'modals/mark_item_as_sold.html.twig' %}
 	{% include 'modals/mark_item_as_listed.html.twig' %}
 	{% include 'modals/mark_item_as_not_listed.html.twig' %}
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		const selectedSection = "{{ item.section }}";
+	</script>
+
+	{{ parent() }}
 {% endblock %}

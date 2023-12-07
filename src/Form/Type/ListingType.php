@@ -11,6 +11,8 @@ class ListingType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $sectionList = $options['sectionList'] ?? [];
+
         $builder
             // first row
             ->add('quantity', NumberType::class, ['label' => 'Quantity:'])
@@ -19,17 +21,18 @@ class ListingType extends AbstractType
                 'attr' => [
                     'class' => 'sectionSelect',
                 ],
-                'choices' => [
-                    // leave for dynamic JS population
-                ],
+                'choices' => $sectionList,
                 'placeholder' => 'Select a section',
+                'choice_label' => function ($value) {    // use value as label
+                    return $value;
+                },
             ])
             ->add('customSection', TextType::class, [
                 'label' => false,
                 'mapped' => false,
+                'required' => false,
                 'attr' => [
-                    'class' => 'customSection',
-                    'style' => 'display: none;'
+                    'class' => 'hidden customSection',
                 ],
             ])
 
@@ -125,6 +128,8 @@ class ListingType extends AbstractType
 
             // Hidden fields
             ->add('id', HiddenType::class)
+            ->add('status', HiddenType::class)
+            ->add('platform', HiddenType::class)
             ->add('viagogoEventId', HiddenType::class)
             ->add('viagogoCategoryId', HiddenType::class)
             // Submit button
@@ -140,6 +145,7 @@ class ListingType extends AbstractType
     {
         $resolver->setDefaults([
             // Define your default options here
+            'sectionList' => [],
         ]);
     }
 

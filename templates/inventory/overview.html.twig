@@ -274,7 +274,14 @@
 														<!-- Render Ticket Details Fields -->
 														<div class="row">
 															<div class="col-md-6">
-																{{ form_row(addToInventoryForm.ticketCost) }}
+																<div class="form-group">
+																	{{ form_label(addToInventoryForm.individualTicketCost) }}
+																	<div class="input-group">
+																		{{ form_widget(addToInventoryForm.individualTicketCostCurrency) }}
+																		{{ form_widget(addToInventoryForm.individualTicketCost) }}
+																	</div>
+																	{{ form_help(addToInventoryForm.individualTicketCost) }}
+																</div>
 															</div>
 															<div class="col-md-6">
 																{{ form_row(addToInventoryForm.quantity, {'attr': {'disabled': 'disabled'}}) }}

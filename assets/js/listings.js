@@ -1,5 +1,5 @@
 function validateListingData(itemData) {
-    if (!itemData.eventId || itemData.eventId.length <= 0) {
+    if (!itemData.viagogoEventId || itemData.viagogoEventId.length <= 0) {
         throw new Error('event ID is required');
     }
     if (!itemData.ticketType || itemData.ticketType.length <= 0) {

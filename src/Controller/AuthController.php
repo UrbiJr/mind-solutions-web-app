@@ -86,7 +86,6 @@ class AuthController extends AbstractController
     #[Route('/auth/register', methods: ['GET', 'POST'], name: 'register')]
     public function register(#[CurrentUser] ?User $user, Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
-
         // If the user is already authenticated, redirect them
         if ($user) {
             return $this->redirectToRoute('dashboard');
@@ -157,7 +156,7 @@ class AuthController extends AbstractController
     /* 
         Validates the signed url on confirmation email after registration
     */
-    #[Route('/verify', name: 'app_verify_email')]
+    #[Route('/auth/verify', name: 'app_verify_email')]
     public function verifyUserEmail(Request $request, UserRepository $userRepository): Response
     {
         $id = $request->query->get('id'); // retrieve the user id from the url

@@ -3,13 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\InventoryItem;
+use App\Entity\InventoryValue;
 use App\Entity\Release;
 use App\Entity\SectionList;
 use App\Entity\User;
 use App\Entity\ViagogoUser;
+use App\Repository\InventoryItemRepository;
+use App\Repository\InventoryValueRepository;
 use App\Repository\ReleaseRepository;
 use App\Repository\UserRepository;
-use App\Service\Firestore;
 use App\Service\InventoryService;
 use App\Service\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +25,7 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AJAXController extends AbstractController
 {
@@ -31,7 +34,8 @@ class AJAXController extends AbstractController
     function __construct(
         private readonly MemcachedAdapter $cache,
         private readonly Utils $utils,
-        private readonly Firestore $firestore,
+        protected readonly InventoryItemRepository $inventoryItemRepo,
+        protected readonly InventoryValueRepository $inventoryValueRepo,
         private readonly InventoryService $inventoryService,
         private readonly Client $client,
     ) {
@@ -141,9 +145,9 @@ class AJAXController extends AbstractController
             /** @var array $sales  */
             $sales = $request->request->all('sales');
 
-            $db_sales = $this->firestore->get_user_sales($user->getId());
+            $db_sales = $this->inventoryItemRepo->getSalesByUserId($user->getId());
 
-            $inventory = $this->firestore->get_user_inventory($user->getId());
+            $inventory = $this->inventoryItemRepo->getAllByUserId($user->getId());
 
 
             foreach ($listings as $viagogoListing) {
@@ -159,7 +163,7 @@ class AJAXController extends AbstractController
                     // Update the inventory item with the viagogo listing data
                     $updated = $this->inventoryService->updateWithViagogoListing($itemToSync, $viagogoListing);
                     // Reflect the changes in the database
-                    $this->firestore->edit_inventory_item($updated->getId(), $updated, $user->getId());
+                    $this->inventoryItemRepo->edit($updated);
                 } else {
                     // No matching inventory item found, create a new item
                     $listingSeats = (isset($viagogoListing["Seats"])) ? explode("-", $viagogoListing["Seats"]) : array();
@@ -209,7 +213,7 @@ class AJAXController extends AbstractController
                         null,
                         null,
                     );
-                    $ref = $this->firestore->add_item_to_inventory($newItem, $user->getId());
+                    $this->inventoryItemRepo->add($newItem, $user);
                 }
             }
 
@@ -269,7 +273,7 @@ class AJAXController extends AbstractController
                         null,
                         null,
                     );
-                    $ref = $this->firestore->add_item_to_inventory($newItem, $user->getId());
+                    $this->inventoryItemRepo->add($newItem, $user);
                 }
             }
 
@@ -327,7 +331,7 @@ class AJAXController extends AbstractController
 
             /** @var array $dataArray */
             $dataArray = $request->request->all()['inventory_item'] ?? [];
-            $inventoryItem = InventoryItem::fromDataArray($user, $dataArray);
+            $inventoryItem = InventoryItem::fromDataArray($dataArray, $user);
 
             // Store sections for this event, so we don't have to fetch them again
             $sectionListArray = $request->request->get('sectionList') ? explode(',', $request->request->get('sectionList')) : [];
@@ -338,11 +342,11 @@ class AJAXController extends AbstractController
             $em->persist($sectionList);
             $em->flush();
 
-            $ref = $this->firestore->add_item_to_inventory($inventoryItem, $user->getId());
+            $this->inventoryItemRepo->add($inventoryItem, $user);
 
             $response = [
                 "success" => true,
-                "id" => $ref->id(),
+                "id" => $inventoryItem->getId(),
                 "message" => "Item added successfully.",
                 "eventName" => $inventoryItem->getName(),
             ];
@@ -362,14 +366,15 @@ class AJAXController extends AbstractController
             }
 
             /* fetch inventory item */
-            $inventoryItem = $this->firestore->get_inventory_item($id, $user->getId());
+            $inventoryItem = $this->inventoryItemRepo->find($id);
 
             /* copy inventory item */
-            $ref = $this->firestore->add_item_to_inventory($inventoryItem, $user->getId());
+            $copy = clone $inventoryItem;
+            $this->inventoryItemRepo->add($copy, $user);
 
             $response = [
                 "success" => true,
-                "id" => $ref->id(),
+                "id" => $copy->getId(),
                 "message" => "Item copied successfully.",
                 "eventName" => $inventoryItem->getName(),
             ];
@@ -388,7 +393,7 @@ class AJAXController extends AbstractController
                 return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
             }
 
-            $this->firestore->delete_inventory_item($id, $user->getId());
+            $this->inventoryItemRepo->delete($id);
 
             $response = [
                 "success" => true,
@@ -413,9 +418,10 @@ class AJAXController extends AbstractController
 
             /** @var array $dataArray */
             $dataArray = $request->request->all()['inventory_item'] ?? [];
-            $inventoryItem = InventoryItem::fromDataArray($user, $dataArray);
+            $inventoryItem = InventoryItem::fromDataArray($dataArray, $user);
+            $inventoryItem->setUser($user);
 
-            $this->firestore->edit_inventory_item($id, $inventoryItem, $user->getId());
+            $this->inventoryItemRepo->edit($inventoryItem);
 
             $response = [
                 "success" => true,
@@ -439,7 +445,7 @@ class AJAXController extends AbstractController
             $allData = $request->request->all();
             $ids = $allData['ids'] ?? [];
 
-            $count = $this->firestore->bulk_delete_inventory_items($ids, $user->getId());
+            $count = $this->inventoryItemRepo->massDelete($ids);
 
             $response = [
                 "success" => true,
@@ -465,7 +471,7 @@ class AJAXController extends AbstractController
             $ids = $allData['ids'] ?? [];
             $attributes = $allData['attributes'] ?? [];
 
-            $updated = $this->firestore->bulk_edit_inventory_items($ids, $attributes, $user->getId());
+            $updated = $this->inventoryItemRepo->massEdit($ids, $attributes, $user);
 
             $response = [
                 "success" => true,
@@ -489,7 +495,11 @@ class AJAXController extends AbstractController
             }
 
             /* fetch inventory item */
-            $inventoryItem = $this->firestore->get_inventory_item($id, $user->getId());
+            $inventoryItem = $this->inventoryItemRepo->find($id);
+
+            if (!$inventoryItem) {
+                return new NotFoundHttpException("Inventory item with id {$id} not found");
+            }
 
             $response = [
                 "success" => true,
@@ -526,7 +536,7 @@ class AJAXController extends AbstractController
             $sort = $request->query->get('sort', null);
             $order = $request->query->get('order', 'desc');
 
-            $inventory = $this->firestore->get_user_inventory($user->getId());
+            $inventory = $this->inventoryItemRepo->getAllByUserId($user->getId());
             $inventory = array_values(array_filter($inventory, function ($item) {
                 return $item->getStatus() === InventoryItem::ITEM_NOT_LISTED;
             }));
@@ -911,7 +921,7 @@ class AJAXController extends AbstractController
             $sort = $request->query->get('sort', null);
             $order = $request->query->get('order', 'desc');
 
-            $inventory = $this->firestore->get_user_inventory($user->getId());
+            $inventory = $this->inventoryItemRepo->getAllByUserId($user->getId());
             $inventory = array_values(array_filter($inventory, function ($item) {
                 return $item->getStatus() === InventoryItem::ITEM_NOT_LISTED || $item->getStatus() === InventoryItem::ITEM_LISTED;
             }));
@@ -1275,7 +1285,7 @@ class AJAXController extends AbstractController
             $sort = $request->query->get('sort', null);
             $order = $request->query->get('order', 'desc');
 
-            $inventory = $this->firestore->get_user_inventory($user->getId());
+            $inventory = $this->inventoryItemRepo->getAllByUserId($user->getId());
             $listings = array_values(array_filter($inventory, function ($item) {
                 return $item->getStatus() === InventoryItem::ITEM_LISTED;
             }));
@@ -1776,7 +1786,7 @@ class AJAXController extends AbstractController
             $sort = $request->query->get('sort', null);
             $order = $request->query->get('order', 'desc');
 
-            $sales = $this->firestore->get_user_sales($user->getId());
+            $sales = $this->inventoryItemRepo->getSalesByUserId($user->getId());
             $userCurrency = $user->getCurrency();
             $exchangeRates = $this->utils->cacheExchangeRates($userCurrency);
 
@@ -1960,7 +1970,7 @@ class AJAXController extends AbstractController
 
     public function get_calendar_data($userId, $startDate, $endDate, $sort, $order, ReleaseRepository $releaseRepository, string $locale)
     {
-        $inventory = $this->firestore->get_user_inventory($userId);
+        $inventory = $this->inventoryItemRepo->getAllByUserId($userId);
         $inventory = array_values(array_filter($inventory, function ($item) use ($startDate, $endDate) {
             return $item->getEventDate() !== null && $item->getEventDate() >= $startDate && $item->getEventDate() <= $endDate;
         }));
@@ -2164,7 +2174,7 @@ class AJAXController extends AbstractController
 
     function charts_get_sales_series(User $user, $startDate, $endDate, $sort, $order)
     {
-        $sales = $this->firestore->get_user_sales($user->getId());
+        $sales = $this->inventoryItemRepo->getSalesByUserId($user->getId());
         $sales = array_values(array_filter($sales, function ($sale) use ($startDate, $endDate) {
             return $sale->getSaleDate() !== null && $sale->getSaleDate() >= $startDate && $sale->getSaleDate() <= $endDate;
         }));
@@ -2245,7 +2255,7 @@ class AJAXController extends AbstractController
 
     function charts_get_purchases_series(User $user, $startDate, $endDate, $sort, $order)
     {
-        $inventory = $this->firestore->get_user_inventory($user->getId());
+        $inventory = $this->inventoryItemRepo->getAllByUserId($user->getId());
         $inventory = array_values(array_filter($inventory, function ($item) use ($startDate, $endDate) {
             return $item->getPurchaseDate() !== null && $item->getPurchaseDate() >= $startDate && $item->getPurchaseDate() <= $endDate;
         }));
@@ -2327,9 +2337,9 @@ class AJAXController extends AbstractController
 
     function charts_get_inventory_value_series(User $user, $startDate, $endDate, $sort, $order)
     {
-        $inventory = $this->firestore->get_inventory_values($user->getId());
-        $inventory = array_values(array_filter($inventory, function ($inventoryValue) use ($startDate, $endDate) {
-            return $inventoryValue[0] >= $startDate && $inventoryValue[0] <= $endDate;
+        $inventoryValues = $this->inventoryValueRepo->getAllByUserId($user->getId());
+        $inventoryValues = array_values(array_filter($inventoryValues, function (InventoryValue $inventoryValue) use ($startDate, $endDate) {
+            return $inventoryValue->getTimestamp() >= $startDate && $inventoryValue->getTimestamp() <= $endDate;
         }));
 
         $userCurrency = $user->getCurrency();
@@ -2339,9 +2349,9 @@ class AJAXController extends AbstractController
             switch ($sort) {
                 case 'date':
                     if ($order === 'asc') {
-                        usort($inventory, function ($a, $b) {
-                            $aDate = $a[0];
-                            $bDate = $b[0];
+                        usort($inventoryValues, function ($a, $b) {
+                            $aDate = $a->getTimestamp();
+                            $bDate = $b->getTimestamp();
 
                             if ($aDate === null && $bDate === null) {
                                 return 0;
@@ -2358,9 +2368,9 @@ class AJAXController extends AbstractController
                             return $aDate <=> $bDate;
                         });
                     } else {
-                        usort($inventory, function ($a, $b) {
-                            $aDate = $a[0];
-                            $bDate = $b[0];
+                        usort($inventoryValues, function ($a, $b) {
+                            $aDate = $a->getTimestamp();
+                            $bDate = $b->getTimestamp();
 
                             if ($aDate === null && $bDate === null) {
                                 return 0;
@@ -2385,10 +2395,11 @@ class AJAXController extends AbstractController
         }
 
         $seriesData = [];
-        foreach ($inventory as $inventoryValue) {
+        foreach ($inventoryValues as $inventoryValue) {
+            /** @var InventoryValue $inventoryValue */
 
-            $amount = $inventoryValue[1];
-            $currency = $inventoryValue[2];
+            $amount = $inventoryValue->getValue();
+            $currency = $inventoryValue->getCurrency();
             if (strtoupper($currency) === strtoupper($user->getCurrency())) {
                 $convertedAmount = $amount;
             } else {

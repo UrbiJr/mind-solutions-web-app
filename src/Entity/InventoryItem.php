@@ -7,64 +7,218 @@ use DateTime;
 use DateTimeInterface;
 use Exception;
 
+use App\Repository\InventoryItemRepository;
+use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
+
+#[ORM\Table(name: 'InventoryItems')]
+#[ORM\Index(name: 'fk_user_id', columns: ['user_id'])]
+#[ORM\Entity(repositoryClass: InventoryItemRepository::class)]
 class InventoryItem
 {
     final public const ITEM_SOLD = 'Soldout';
     final public const ITEM_LISTED = 'Active';
     final public const ITEM_NOT_LISTED = 'Inactive';
 
+    /**
+     * @var int
+     */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
+
+    /**
+     * @var \User
+     */
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: 'User')]
+    private $user;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'viagogo_event_id', type: 'string', length: 256, nullable: true)]
     private $viagogoEventId;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'viagogo_category_id', type: 'string', length: 256, nullable: true)]
     private $viagogoCategoryId;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'name', type: 'string', length: 256, nullable: true)]
     private $name;
+
     /**
      * @var \DateTimeInterface|DateTime|null
      */
+    #[ORM\Column(name: 'event_date', type: 'datetime', nullable: true)]
     private $eventDate;
+
     /**
      * @var \DateTimeInterface|DateTime|null
      */
+    #[ORM\Column(name: 'purchase_date', type: 'datetime', nullable: true)]
     private $purchaseDate;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'country', type: 'string', length: 256, nullable: true)]
     private $country;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'city', type: 'string', length: 256, nullable: true)]
     private $city;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'location', type: 'string', length: 256, nullable: true)]
     private $location;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'section', type: 'string', length: 256, nullable: true)]
     private $section;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'row', type: 'string', length: 256, nullable: true)]
     private $row;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'seatFrom', type: 'string', length: 10, nullable: true)]
     private $seatFrom;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'seatTo', type: 'string', length: 10, nullable: true)]
     private $seatTo;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'ticketType', type: 'string', length: 256, nullable: true)]
     private $ticketType;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'ticketGenre', type: 'string', length: 256, nullable: true)]
     private $ticketGenre;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'retailer', type: 'string', length: 256, nullable: true)]
     private $retailer;
+
+    /**
+     * @var array|null
+     */
+    #[ORM\Column(name: 'individual_ticket_cost', type: 'json', nullable: true)]
     private $individualTicketCost;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'order_number', type: 'string', length: 256, nullable: true)]
     private $orderNumber;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'order_email', type: 'string', length: 256, nullable: true)]
     private $orderEmail;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'status', type: 'string', length: 256, nullable: true)]
     private $status;
+
     /**
      * @var \DateTimeInterface|DateTime|null
      */
+    #[ORM\Column(name: 'sale_end_date', type: 'datetime', nullable: true)]
     private $saleEndDate;
+
+    /**
+     * @var array|null
+     */
+    #[ORM\Column(name: 'your_price_per_ticket', type: 'json', nullable: true)]
     private $yourPricePerTicket;
+
+    /**
+     * @var array|null
+     */
+    #[ORM\Column(name: 'total_payout', type: 'json', nullable: true)]
     private $totalPayout;
+
+    /**
+     * @var int|null
+     */
+    #[ORM\Column(name: 'quantity', type: 'integer', nullable: true)]
     private $quantity;
+
+    /**
+     * @var int|null
+     */
+    #[ORM\Column(name: 'quantity_remain', type: 'integer', nullable: true)]
     private $quantityRemain;
+
     /**
      * @var \DateTimeInterface|DateTime|null
      */
+    #[ORM\Column(name: 'date_last_modified', type: 'datetime', nullable: true)]
     private $dateLastModified;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'platform', type: 'string', length: 256, nullable: true)]
     private $platform;
+
     /**
      * @var \DateTimeInterface|DateTime|null
      */
+    #[ORM\Column(name: 'sale_date', type: 'datetime', nullable: true)]
     private $saleDate;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'sale_id', type: 'string', length: 256, nullable: true)]
     private $saleId;
+
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'listing_id', type: 'string', length: 256, nullable: true)]
     private $listingId;
+
     /**
-     * @var string[]
+     * @var array|null
      */
+    #[ORM\Column(name: 'restrictions', type: 'json', nullable: true)]
     private $restrictions;
+
     /**
-     * @var string[]
+     * @var array|null
      */
+    #[ORM\Column(name: 'ticket_details', type: 'json', nullable: true)]
     private $ticketDetails;
 
     function __construct(
@@ -135,7 +289,7 @@ class InventoryItem
         $this->setTicketDetails($ticketDetails);
     }
 
-    public static function fromDataArray(User $user, array $inventoryItem): InventoryItem
+    public static function fromDataArray(array $inventoryItem, User $user): InventoryItem
     {
         $name = $inventoryItem['eventName'] ?? '';
         $eventDate = isset($inventoryItem['eventDate']) ? new \DateTime($inventoryItem['eventDate']) : '';
@@ -168,6 +322,8 @@ class InventoryItem
         $viagogoCategoryId = $inventoryItem['categoryId'] ?? null;
         $saleDate = isset($inventoryItem['saleDate']) ? new \DateTime($inventoryItem['saleDate']) : '';
         $platform = $inventoryItem['platform'] ?? '';
+        $status = $inventoryItem['status'] ?? InventoryItem::ITEM_NOT_LISTED;
+
 
         return new InventoryItem(
             null,
@@ -189,7 +345,7 @@ class InventoryItem
             $individualTicketCost,
             $orderNumber,
             $orderEmail,
-            InventoryItem::ITEM_NOT_LISTED,
+            $status,
             null,
             null,
             null,
@@ -231,76 +387,6 @@ class InventoryItem
     public function setName($name)
     {
         $this->name = isset($name) ? htmlspecialchars($name, ENT_QUOTES, 'UTF-8') : null;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of eventDate
-     */
-    public function getEventDate()
-    {
-        return $this->eventDate;
-    }
-
-    /**
-     * Set the value of eventDate
-     *
-     * @return  self
-     */
-    public function setEventDate($eventDate)
-    {
-        if (isset($eventDate)) {
-            // Check if $eventDate is an instance of Google\Cloud\Core\Timestamp
-            if ($eventDate instanceof Timestamp) {
-                // Convert Google\Cloud\Core\Timestamp to DateTimeInterface
-                $this->eventDate = $eventDate->get();
-            } elseif (is_string($eventDate)) {
-                // Parse the string to create a DateTime object
-                try {
-                    $this->eventDate = new DateTime($eventDate);
-                } catch (Exception $e) {
-                    return $this;
-                }
-            } elseif ($eventDate instanceof DateTime) {
-                $this->eventDate = $eventDate;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get the value of purchaseDate
-     */
-    public function getPurchaseDate()
-    {
-        return $this->purchaseDate;
-    }
-
-    /**
-     * Set the value of purchaseDate
-     *
-     * @return  self
-     */
-    public function setPurchaseDate($purchaseDate)
-    {
-        if (isset($purchaseDate)) {
-            // Check if $eventDate is an instance of Google\Cloud\Core\Timestamp
-            if ($purchaseDate instanceof Timestamp) {
-                // Convert Google\Cloud\Core\Timestamp to DateTimeInterface
-                $this->purchaseDate = $purchaseDate->get();
-            } elseif (is_string($purchaseDate)) {
-                // Parse the string to create a DateTime object
-                try {
-                    $this->purchaseDate = new DateTime($purchaseDate);
-                } catch (Exception $e) {
-                    return $this;
-                }
-            } elseif ($purchaseDate instanceof DateTime) {
-                $this->purchaseDate = $purchaseDate;
-            }
-        }
 
         return $this;
     }
@@ -571,45 +657,6 @@ class InventoryItem
     }
 
     /**
-     * Get the value of saleEndDate
-     *
-     * @return  \DateTimeInterface|DateTime|null
-     */
-    public function getSaleEndDate()
-    {
-        return $this->saleEndDate;
-    }
-
-    /**
-     * Set the value of saleEndDate
-     *
-     * @param  \DateTimeInterface|DateTime|null  $saleEndDate
-     *
-     * @return  self
-     */
-    public function setSaleEndDate($saleEndDate)
-    {
-        if (isset($saleEndDate)) {
-            // Check if $saleEndDate is an instance of Google\Cloud\Core\Timestamp
-            if ($saleEndDate instanceof Timestamp) {
-                // Convert Google\Cloud\Core\Timestamp to DateTimeInterface
-                $this->saleEndDate = $saleEndDate->get();
-            } elseif (is_string($saleEndDate)) {
-                // Parse the string to create a DateTime object
-                try {
-                    $this->saleEndDate = new DateTime($saleEndDate);
-                } catch (Exception $e) {
-                    return $this;
-                }
-            } elseif ($saleEndDate instanceof DateTime) {
-                $this->saleEndDate = $saleEndDate;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Get the value of yourPricePerTicket
      */
     public function getYourPricePerTicket()
@@ -782,44 +829,6 @@ class InventoryItem
         return ['amount' => $this->getQuantity() * $this->getIndividualTicketCost()["amount"], 'currency' => $this->getIndividualTicketCost()["currency"]];
     }
 
-    /**
-     * Get the value of dateLastModified
-     *
-     * @return  \DateTimeInterface|DateTime|null
-     */
-    public function getDateLastModified()
-    {
-        return $this->dateLastModified;
-    }
-
-    /**
-     * Set the value of dateLastModified
-     *
-     * @param  \DateTimeInterface|DateTime|null  $dateLastModified
-     *
-     * @return  self
-     */
-    public function setDateLastModified($dateLastModified)
-    {
-        if (isset($dateLastModified)) {
-            // Check if $dateLastModified is an instance of Google\Cloud\Core\Timestamp
-            if ($dateLastModified instanceof Timestamp) {
-                // Convert Google\Cloud\Core\Timestamp to DateTimeInterface
-                $this->dateLastModified = $dateLastModified->get();
-            } elseif (is_string($dateLastModified)) {
-                // Parse the string to create a DateTime object
-                try {
-                    $this->dateLastModified = new DateTime($dateLastModified);
-                } catch (Exception $e) {
-                    return $this;
-                }
-            } elseif ($dateLastModified instanceof DateTime) {
-                $this->dateLastModified = $dateLastModified;
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Get the value of viagogoCategoryId
@@ -861,44 +870,6 @@ class InventoryItem
         return $this;
     }
 
-    /**
-     * Get the value of saleDate
-     *
-     * @return  \DateTimeInterface|DateTime|null
-     */
-    public function getSaleDate()
-    {
-        return $this->saleDate;
-    }
-
-    /**
-     * Set the value of saleDate
-     *
-     * @param  \DateTimeInterface|DateTime|null  $saleDate
-     *
-     * @return  self
-     */
-    public function setSaleDate($saleDate)
-    {
-        if (isset($saleDate)) {
-            // Check if $dateLastModified is an instance of Google\Cloud\Core\Timestamp
-            if ($saleDate instanceof Timestamp) {
-                // Convert Google\Cloud\Core\Timestamp to DateTimeInterface
-                $this->saleDate = $saleDate->get();
-            } elseif (is_string($saleDate)) {
-                // Parse the string to create a DateTime object
-                try {
-                    $this->saleDate = new DateTime($saleDate);
-                } catch (Exception $e) {
-                    return $this;
-                }
-            } elseif ($saleDate instanceof DateTime) {
-                $this->saleDate = $saleDate;
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Get the value of saleId
@@ -921,111 +892,7 @@ class InventoryItem
     }
 
     /**
-     * Merges Firestore-like data into the targeted InventoryItem, checking for conflicts and special data types
-     */
-    public function mergeData($data)
-    {
-        // Check if $this has a Viagogo Event ID
-        if ($this->getViagogoEventId() === null && isset($data) && isset($data["viagogoEventId"])) {
-            // Use $data["viagogoEventId"] if it exists in $data
-            $this->setViagogoEventId($data["viagogoEventId"]);
-        }
-
-        if ($this->getViagogoCategoryId() === null && isset($data) && isset($data["viagogoCategoryId"])) {
-            $this->setViagogoCategoryId($data["viagogoCategoryId"]);
-        }
-
-        if ($this->getSaleEndDate() === null && isset($data) && isset($data["saleEndDate"])) {
-            $this->setSaleEndDate($data["saleEndDate"]);
-        }
-
-        if ($this->getYourPricePerTicket()["amount"] == 0 && isset($data) && isset($data["yourPricePerTicket"])) {
-            $this->setYourPricePerTicket($data["yourPricePerTicket"]);
-        }
-
-        if ($this->getTotalPayout()["amount"] == 0 && isset($data) && isset($data["totalPayout"])) {
-            $this->setTotalPayout($data["totalPayout"]);
-        }
-
-        if ($this->getStatus() === null && isset($data) && isset($data["status"])) {
-            $this->setStatus($data["status"]);
-        }
-
-        if ($this->getDateLastModified() === null && isset($data) && isset($data["dateLastModified"])) {
-            $this->setDateLastModified($data["dateLastModified"]);
-        }
-
-        if ($this->getSaleDate() === null && isset($data) && isset($data["saleDate"])) {
-            $this->setSaleDate($data["saleDate"]);
-        }
-
-        // If new quantity is greater than stored quantity
-        if ($data["quantity"] < $this->getQuantity()) {
-            // We have to increase remaining quantity
-            $this->setQuantityRemain($data["quantityRemain"] + $this->getQuantity() - $data["quantity"]);
-        } else if ($data["quantity"] > $this->getQuantity()) {
-            // Otherwise, we have to lower remaining quantity to match new total quantity
-            $this->setQuantityRemain($this->getQuantity());
-        }
-    }
-
-    /**
-     * Returns data ready to be used in Firestore operations
-     */
-    public function toFirestoreArray()
-    {
-        $firestoreData = [
-            ['path' => 'viagogoEventId', 'value' => $this->getViagogoEventId()],
-            ['path' => 'viagogoCategoryId', 'value' => $this->getViagogoCategoryId()],
-            ['path' => 'name', 'value' => $this->getName()],
-            ['path' => 'country', 'value' => $this->getCountry()],
-            ['path' => 'city', 'value' => $this->getCity()],
-            ['path' => 'location', 'value' => $this->getLocation()],
-            ['path' => 'section', 'value' => $this->getSection()],
-            ['path' => 'row', 'value' => $this->getRow()],
-            ['path' => 'seatFrom', 'value' => $this->getSeatFrom()],
-            ['path' => 'seatTo', 'value' => $this->getSeatTo()],
-            ['path' => 'ticketType', 'value' => $this->getTicketType()],
-            ['path' => 'ticketGenre', 'value' => $this->getTicketGenre()],
-            ['path' => 'retailer', 'value' => $this->getRetailer()],
-            ['path' => 'individualTicketCost', 'value' => $this->getIndividualTicketCost()],
-            ['path' => 'orderNumber', 'value' => $this->getOrderNumber()],
-            ['path' => 'orderEmail', 'value' => $this->getOrderEmail()],
-            ['path' => 'status', 'value' => $this->getStatus()],
-            ['path' => 'yourPricePerTicket', 'value' => $this->getYourPricePerTicket()],
-            ['path' => 'totalPayout', 'value' => $this->getTotalPayout()],
-            ['path' => 'quantity', 'value' => $this->getQuantity()],
-            ['path' => 'quantityRemain', 'value' => $this->getQuantityRemain()],
-            ['path' => 'platform', 'value' => $this->getPlatform()],
-            ['path' => 'saleId', 'value' => $this->getSaleId()],
-            ['path' => 'listingId', 'value' => $this->getListingId()],
-        ];
-
-        if ($this->getSaleDate() !== null) {
-            $firestoreData[] = ['path' => 'saleDate', 'value' => new Timestamp($this->getSaleDate())];
-        }
-
-        if ($this->getEventDate() !== null) {
-            $firestoreData[] = ['path' => 'eventDate', 'value' => new Timestamp($this->getEventDate())];
-        }
-
-        if ($this->getPurchaseDate() !== null) {
-            $firestoreData[] = ['path' => 'purchaseDate', 'value' => new Timestamp($this->getPurchaseDate())];
-        }
-
-        if ($this->getSaleEndDate() !== null) {
-            $firestoreData[] = ['path' => 'saleEndDate', 'value' => new Timestamp($this->getSaleEndDate())];
-        }
-
-        if ($this->getDateLastModified() !== null) {
-            $firestoreData[] = ['path' => 'dateLastModified', 'value' => new Timestamp($this->getDateLastModified())];
-        }
-
-        return $firestoreData;
-    }
-
-    /**
-     * Returns data ready to be used in Firestore operations
+     * Returns inventory data as associative array
      */
     public function toArray()
     {
@@ -1060,37 +927,12 @@ class InventoryItem
             'listingId' =>  $this->getListingId(),
             'listingRestrictions' =>  implode(',', $this->getRestrictions()),
             'listingTicketDetails' =>  implode(',', $this->getTicketDetails()),
+            'saleDate' => $this->getSaleDate(),
+            'eventDate' => $this->getEventDate(),
+            'purchaseDate' => $this->getPurchaseDate(),
+            'saleEndDate' => $this->getSaleEndDate(),
+            'dateLastModified' => $this->getDateLastModified()
         ];
-
-        if ($this->getSaleDate() !== null) {
-            $inventoryData['saleDate'] = new Timestamp($this->getSaleDate());
-        } else {
-            $inventoryData['saleDate'] = null;
-        }
-
-        if ($this->getEventDate() !== null) {
-            $inventoryData['eventDate'] = new Timestamp($this->getEventDate());
-        } else {
-            $inventoryData['eventDate'] = null;
-        }
-
-        if ($this->getPurchaseDate() !== null) {
-            $inventoryData['purchaseDate'] = new Timestamp($this->getPurchaseDate());
-        } else {
-            $inventoryData['purchaseDate'] = null;
-        }
-
-        if ($this->getSaleEndDate() !== null) {
-            $inventoryData['saleEndDate'] = new Timestamp($this->getSaleEndDate());
-        } else {
-            $inventoryData['saleEndDate'] = null;
-        }
-
-        if ($this->getDateLastModified() !== null) {
-            $inventoryData['dateLastModified'] = new Timestamp($this->getDateLastModified());
-        } else {
-            $inventoryData['dateLastModified'] = null;
-        }
 
         return $inventoryData;
     }
@@ -1225,6 +1067,130 @@ class InventoryItem
     public function setSeatTo($seatTo)
     {
         $this->seatTo = isset($seatTo) ? htmlspecialchars($seatTo, ENT_QUOTES, 'UTF-8') : null;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of user
+     */ 
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set the value of user
+     *
+     * @return  self
+     */ 
+    public function setUser($user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function __clone() {
+        $this->id = null;
+    }
+
+    /**
+     * Get the value of saleEndDate
+     */ 
+    public function getSaleEndDate()
+    {
+        return $this->saleEndDate;
+    }
+
+    /**
+     * Set the value of saleEndDate
+     *
+     * @return  self
+     */ 
+    public function setSaleEndDate($saleEndDate)
+    {
+        $this->saleEndDate = $saleEndDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of eventDate
+     */ 
+    public function getEventDate()
+    {
+        return $this->eventDate;
+    }
+
+    /**
+     * Set the value of eventDate
+     *
+     * @return  self
+     */ 
+    public function setEventDate($eventDate)
+    {
+        $this->eventDate = $eventDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of purchaseDate
+     */ 
+    public function getPurchaseDate()
+    {
+        return $this->purchaseDate;
+    }
+
+    /**
+     * Set the value of purchaseDate
+     *
+     * @return  self
+     */ 
+    public function setPurchaseDate($purchaseDate)
+    {
+        $this->purchaseDate = $purchaseDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateLastModified
+     */ 
+    public function getDateLastModified()
+    {
+        return $this->dateLastModified;
+    }
+
+    /**
+     * Set the value of dateLastModified
+     *
+     * @return  self
+     */ 
+    public function setDateLastModified($dateLastModified)
+    {
+        $this->dateLastModified = $dateLastModified;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of saleDate
+     */ 
+    public function getSaleDate()
+    {
+        return $this->saleDate;
+    }
+
+    /**
+     * Set the value of saleDate
+     *
+     * @return  self
+     */ 
+    public function setSaleDate($saleDate)
+    {
+        $this->saleDate = $saleDate;
 
         return $this;
     }

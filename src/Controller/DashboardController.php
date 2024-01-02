@@ -4,7 +4,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Service\Firestore;
+use App\Service\InventoryService;
 use App\Service\Utils;
 use App\Service\ViagogoAnalyticsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,14 +17,17 @@ use Exception;
 class DashboardController extends AbstractController
 {
 
-    public function __construct(private readonly MemcachedAdapter $cache, private readonly Utils $utils, private readonly Firestore $firestore, private readonly ViagogoAnalyticsService $viagogoAnalyticsService)
-    {
+    public function __construct(
+        private readonly MemcachedAdapter $cache,
+        private readonly Utils $utils,
+        private readonly InventoryService $inventoryService,
+        private readonly ViagogoAnalyticsService $viagogoAnalyticsService
+    ) {
     }
 
     #[Route('/dashboard', methods: ['GET'], name: 'dashboard')]
     function showDashboard(#[CurrentUser] ?User $user)
     {
-
         if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
             return $this->redirectToRoute('dashboard_no_membership');
         }
@@ -33,19 +36,11 @@ class DashboardController extends AbstractController
         $whopRedirectUri = $this->getParameter('whop_redirect_uri');
 
         /* fetch analytics data */
-        try {
-            $currency = $user->getCurrency();
-            $exchangeRates = $this->utils->cacheExchangeRates($currency);
-            $viagogoAnalytics = $this->firestore->get_viagogo_analytics($user->getId(), $currency, $exchangeRates);
-            $htmlNetAmount = $this->viagogoAnalyticsService->getHtmlNetAmount($viagogoAnalytics);
-            $htmlTodayNetAmount = $this->viagogoAnalyticsService->getHtmlTodayNetAmount($viagogoAnalytics);
-        } catch (Exception $e) {
-            $model = "error";
-            $action = "500";
-            $message = $e->getMessage();
-            $root = (!empty($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/';
-            header("Location: " . $root . "?model=" . $model . "&action=" . $action . "&msg=" . base64_encode($message));
-        }
+        $currency = $user->getCurrency();
+        $exchangeRates = $this->utils->cacheExchangeRates($currency);
+        $viagogoAnalytics = $this->inventoryService->getViagogoAnalytics($user->getId(), $currency, $exchangeRates);
+        $htmlNetAmount = $this->viagogoAnalyticsService->getHtmlNetAmount($viagogoAnalytics);
+        $htmlTodayNetAmount = $this->viagogoAnalyticsService->getHtmlTodayNetAmount($viagogoAnalytics);
 
         return $this->render(
             'dashboard/home.html.twig',

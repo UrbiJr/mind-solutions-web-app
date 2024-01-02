@@ -65,11 +65,6 @@ services:
             $exchangeRateApiKey: '%env(EXCHANGE_RATE_API_KEY)%'
             $jwtKey: '%env(JWT_KEY)%'
 
-    App\Service\Firestore:
-        arguments:
-            $projectId: '%env(FIREBASE_PROJECT_ID)%'
-            $keyFilePath: '%env(FIREBASE_SERVICE_ACCOUNT_KEY)%'
-
     app.memcached:
         class: Memcached
         factory: ['Symfony\Component\Cache\Adapter\MemcachedAdapter', 'createConnection']

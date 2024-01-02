@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use App\Entity\User;
-use App\Service\Firestore;
 use App\Service\Utils;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -12,8 +11,12 @@ use Doctrine\Persistence\ManagerRegistry;
 class UserRepository extends ServiceEntityRepository implements UserLoaderInterface
 {
 
-    public function __construct(ManagerRegistry $registry, private readonly Utils $utils, private readonly Firestore $firestore, private readonly string $projectDir)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly Utils $utils,
+        protected readonly InventoryItemRepository $inventoryItemRepo,
+        private readonly string $projectDir
+    ) {
         parent::__construct($registry, User::class);
     }
 
@@ -73,7 +76,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
 
     public function exportInventoryToCSV(User $user)
     {
-        $inventory = $this->firestore->get_user_inventory($user->getId());
+        $inventory = $this->inventoryItemRepo->getAllByUserId($user->getId());
 
         $fileName = "user_{$user->getId()}_inventory.csv";
         $filePath = $this->utils->pathCombine([$this->projectDir, 'downloads', $fileName]);

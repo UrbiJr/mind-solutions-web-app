@@ -10,7 +10,7 @@
         "doctrine/doctrine-bundle": "^2.10",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.16",
-        "google/cloud-firestore": "^1.37",
+        "google/protobuf": "^3.17",
         "guzzlehttp/guzzle": "^7.8",
         "monolog/monolog": "^3.5",
         "phpdocumentor/reflection-docblock": "^5.3",
@@ -49,7 +49,9 @@
         "symfonycasts/verify-email-bundle": "^1.14",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/intl-extra": "^3.8",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "viagogo/gogokit": "^0.1.1",
+        "2captcha/2captcha": "^1.1"
     },
     "config": {
         "allow-plugins": {

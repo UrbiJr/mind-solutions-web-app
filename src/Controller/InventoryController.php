@@ -10,11 +10,9 @@ use App\Form\Type\ListingType;
 use App\Form\Type\MarkItemAsListedType;
 use App\Form\Type\MarkItemAsNotListedType;
 use App\Form\Type\MarkItemAsSoldType;
+use App\Repository\InventoryItemRepository;
 use App\Repository\SectionListRepository;
-use App\Service\Firestore;
 use App\Service\InventoryService;
-use Doctrine\ORM\EntityManagerInterface;
-use Google\Cloud\Core\Exception\NotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,8 +24,8 @@ use Symfony\Component\Translation\TranslatableMessage;
 class InventoryController extends AbstractController
 {
     public function __construct(
-        private readonly Firestore $firestore,
         private readonly InventoryService $inventoryService,
+        protected readonly InventoryItemRepository $inventoryItemRepo,
     ) {
     }
 
@@ -54,14 +52,13 @@ class InventoryController extends AbstractController
     }
 
     #[Route('/inventory/{id}', name: 'inventory_item_show')]
-    public function item_overview(#[CurrentUser] ?User $user, string $id, SectionListRepository $sectionListRepository, Firestore $firestore, Request $request): Response
+    public function item_overview(#[CurrentUser] ?User $user, string $id, SectionListRepository $sectionListRepository, Request $request): Response
     {
         // The second parameter is used to specify on what object the role is tested.
         $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
 
-        try {
-            $item = $this->firestore->get_inventory_item($id, $user->getId());
-        } catch (NotFoundException) {
+        $item = $this->inventoryItemRepo->find($id);
+        if (!$item) {
             return $this->redirectToRoute('error_404');
         }
 
@@ -113,7 +110,7 @@ class InventoryController extends AbstractController
         $editListingForm->get('yourPricePerTicketCurrency')->setData($item->getYourPricePerTicket()['currency']);
         $editListingForm->get('yourPricePerTicket')->setData($item->getYourPricePerTicket()['amount']);
 
-        $editInventoryItemForm = $this->handleEditItemForm($item, $user, $firestore, $request, $choices);
+        $editInventoryItemForm = $this->handleEditItemForm($item, $user, $request, $choices);
 
         $itemRoi = $this->inventoryService->calculateRoi($item);
 
@@ -137,7 +134,7 @@ class InventoryController extends AbstractController
         );
     }
 
-    private function handleEditItemForm(InventoryItem $item, User $user, Firestore $firestore, Request $request, array $sections): FormInterface
+    private function handleEditItemForm(InventoryItem $item, User $user, Request $request, array $sections): FormInterface
     {
         $form = $this->createForm(InventoryItemType::class, $item, [
             'sectionList' => $sections,
@@ -156,7 +153,7 @@ class InventoryController extends AbstractController
             $individualTicketCostCurrency = $form->get('individualTicketCostCurrency')->getData();
             $item->setIndividualTicketCost(['amount' => $individualTicketCostAmount, 'currency' => $individualTicketCostCurrency]);
 
-            $firestore->edit_inventory_item($item->getId(), $item, $user->getId());
+            $this->inventoryItemRepo->edit($item);
             $this->addFlash('success', '💾 Successfully saved changes.');
         }
 

@@ -52,7 +52,7 @@ security:
             # HTTP Basic instead of the login form, so this firewall has
             # multiple authenticators
             # See https://symfony.com/doc/current/security/experimental_authenticators.html#configuring-the-authentication-entry-point
-            entry_point: App\Security\AuthenticationEntryPoint
+            entry_point: form_login
             user_checker: App\Security\UserChecker
 
             # activate different ways to authenticate
@@ -64,9 +64,13 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: '^/(%app_locales%)/auth/login', roles: PUBLIC_ACCESS }
-        - { path: '^/(%app_locales%)/dashboard', roles: ROLE_USER }
+        # allow auth routes to unauthenticated users
+        - { path: '^/(%app_locales%)/auth/*', roles: PUBLIC_ACCESS }
+
+        # admin panel
         - { path: '^/(%app_locales%)/admin', roles: ROLE_ADMIN }
+
+        # allow access to website only to authenticated users
         - { path: ^/, roles: ROLE_USER }
 
     # The ROLE_ADMIN role inherits from the ROLE_USER role

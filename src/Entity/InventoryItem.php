@@ -92,31 +92,31 @@ class InventoryItem
     /**
      * @var string|null
      */
-    #[ORM\Column(name: 'row', type: 'string', length: 256, nullable: true)]
+    #[ORM\Column(name: '`row`', type: 'string', length: 256, nullable: true)]
     private $row;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(name: 'seatFrom', type: 'string', length: 10, nullable: true)]
+    #[ORM\Column(name: 'seat_from', type: 'string', length: 10, nullable: true)]
     private $seatFrom;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(name: 'seatTo', type: 'string', length: 10, nullable: true)]
+    #[ORM\Column(name: 'seat_to', type: 'string', length: 10, nullable: true)]
     private $seatTo;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(name: 'ticketType', type: 'string', length: 256, nullable: true)]
+    #[ORM\Column(name: 'ticket_type', type: 'string', length: 256, nullable: true)]
     private $ticketType;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(name: 'ticketGenre', type: 'string', length: 256, nullable: true)]
+    #[ORM\Column(name: 'ticket_genre', type: 'string', length: 256, nullable: true)]
     private $ticketGenre;
 
     /**
@@ -1110,6 +1110,15 @@ class InventoryItem
      */ 
     public function setSaleEndDate($saleEndDate)
     {
+        if (is_string($saleEndDate)) {
+            // Parse the string to create a DateTime object
+            try {
+                $saleEndDate = new DateTime($saleEndDate);
+            } catch (Exception $e) {
+                return $this;
+            }
+        }
+        
         $this->saleEndDate = $saleEndDate;
 
         return $this;
@@ -1130,6 +1139,15 @@ class InventoryItem
      */ 
     public function setEventDate($eventDate)
     {
+        if (is_string($eventDate)) {
+            // Parse the string to create a DateTime object
+            try {
+                $eventDate = new DateTime($eventDate);
+            } catch (Exception $e) {
+                return $this;
+            }
+        }
+        
         $this->eventDate = $eventDate;
 
         return $this;
@@ -1150,6 +1168,15 @@ class InventoryItem
      */ 
     public function setPurchaseDate($purchaseDate)
     {
+        if (is_string($purchaseDate)) {
+            // Parse the string to create a DateTime object
+            try {
+                $purchaseDate = new DateTime($purchaseDate);
+            } catch (Exception $e) {
+                return $this;
+            }
+        }
+        
         $this->purchaseDate = $purchaseDate;
 
         return $this;
@@ -1170,6 +1197,15 @@ class InventoryItem
      */ 
     public function setDateLastModified($dateLastModified)
     {
+        if (is_string($dateLastModified)) {
+            // Parse the string to create a DateTime object
+            try {
+                $dateLastModified = new DateTime($dateLastModified);
+            } catch (Exception $e) {
+                return $this;
+            }
+        }
+        
         $this->dateLastModified = $dateLastModified;
 
         return $this;
@@ -1190,6 +1226,15 @@ class InventoryItem
      */ 
     public function setSaleDate($saleDate)
     {
+        if (is_string($saleDate)) {
+            // Parse the string to create a DateTime object
+            try {
+                $saleDate = new DateTime($saleDate);
+            } catch (Exception $e) {
+                return $this;
+            }
+        }
+        
         $this->saleDate = $saleDate;
 
         return $this;

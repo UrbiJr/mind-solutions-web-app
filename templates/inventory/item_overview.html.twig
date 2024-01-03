@@ -160,8 +160,8 @@
 						<p>Section:
 							<span class="section">{{ item.section }}</span>
 						</p>
-						<p>Quantity:
-							<span class="quantity">{{ item.quantity }}</span>
+						<p>Qty. purchased:
+							<span class="quantity">{{ item.purchasedQuantity }}</span>
 						</p>
 						<p>Seats:
 							<span class="seat-from">{{ item.seatFrom }}</span>
@@ -225,7 +225,7 @@
 												</svg>
 											</div>
 											<h6 class="float-left mb-1">Purchased
-												{{ item.quantity }}
+												{{ item.purchasedQuantity }}
 												Tickets
 												<a href="#!" data-bs-toggle="modal" data-bs-target="#editItemModal">
 													<svg class="icon-24" width="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -261,7 +261,7 @@
 												<i class="icon fa-solid fa-sack-dollar"></i>
 											</div>
 											<h6 class="float-left mb-1">Sold all
-												{{ item.quantity }}
+												{{ item.purchasedQuantity }}
 												Tickets</h6>
 											<small class="float-right mt-1">on
 												{{ item.saleDate != null ? item.saleDate|format_date(pattern='full', locale=app.request.locale, timezone=null) : '' }}</small>
@@ -306,7 +306,7 @@
 	{% include 'modals/mark_item_as_not_listed.html.twig' %}
 {% endblock %}
 
-{% block javascript %}
+{% block javascripts %}
 	<script>
 		const selectedSection = "{{ item.section }}";
 	</script>

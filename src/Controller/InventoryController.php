@@ -83,19 +83,19 @@ class InventoryController extends AbstractController
 
         $markItemAsListedForm = $this->createForm(MarkItemAsListedType::class, [
             'id' => $item->getId(),
-            'quantity' => $item->getQuantity(),
+            'quantity' => $item->getPurchasedQuantity(),
             'quantityRemain' => $item->getQuantityRemain(),
             'status' => InventoryItem::ITEM_LISTED,
         ]);
         $markItemAsSoldForm = $this->createForm(MarkItemAsSoldType::class, [
             'id' => $item->getId(),
-            'quantity' => $item->getQuantity(),
+            'quantity' => $item->getPurchasedQuantity(),
             'quantityRemain' => $item->getQuantityRemain(),
             'status' => InventoryItem::ITEM_SOLD,
         ]);
         $markItemAsNotListedForm = $this->createForm(MarkItemAsNotListedType::class, [
             'id' => $item->getId(),
-            'quantity' => $item->getQuantity(),
+            'quantity' => $item->getPurchasedQuantity(),
             'platform' => $item->getPlatform(),
             'status' => InventoryItem::ITEM_NOT_LISTED,
         ]);

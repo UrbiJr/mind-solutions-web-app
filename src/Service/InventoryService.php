@@ -96,7 +96,9 @@ class InventoryService
         $inventoryItem->setStatus($viagogoListing["Status"]);
         $inventoryItem->setSaleEndDate($viagogoListing["SaleEndDate"]);
         $inventoryItem->setYourPricePerTicket(['amount' => $viagogoListing["PricePerTicket"]["Amount"], 'currency' => $viagogoListing["PricePerTicket"]["Currency"]]);
-        $inventoryItem->setQuantity($viagogoListing["Quantity"]);
+        if ($inventoryItem->getSection() !== null && str_contains(strtolower($inventoryItem->getSection()), 'floor')) {
+            $inventoryItem->setFloorSeats($viagogoListing["Quantity"]);
+        }
         $inventoryItem->setQuantityRemain($viagogoListing["QuantityRemain"]);
         $inventoryItem->setDateLastModified($viagogoListing["DateLastModified"]);
         $inventoryItem->setViagogoCategoryId($viagogoListing["CategoryId"]);
@@ -132,7 +134,7 @@ class InventoryService
 
         foreach ($sales as $sale) {
             $totalSpent["amount"] += $this->utils->convertCurrency($sale->getTotalCost()["amount"], $exchangeRates, $sale->getTotalCost()["currency"]);
-            $quantitySold += $sale->getQuantity();
+            $quantitySold += $sale->getPurchasedQuantity();
             $netAmount["amount"] += $this->utils->convertCurrency($sale->getTotalPayout()["amount"], $exchangeRates, $sale->getTotalPayout()["currency"]);
             if ($sale->getSaleDate() instanceof DateTimeInterface) {
                 $date = new DateTime();

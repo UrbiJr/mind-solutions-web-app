@@ -108,6 +108,12 @@ class InventoryItem
     private $seatTo;
 
     /**
+     * @var int|null
+     */
+    #[ORM\Column(name: 'floor_seats', type: 'integer', nullable: true)]
+    private $floorSeats;
+
+    /**
      * @var string|null
      */
     #[ORM\Column(name: 'ticket_type', type: 'string', length: 256, nullable: true)]
@@ -166,12 +172,6 @@ class InventoryItem
      */
     #[ORM\Column(name: 'total_payout', type: 'json', nullable: true)]
     private $totalPayout;
-
-    /**
-     * @var int|null
-     */
-    #[ORM\Column(name: 'quantity', type: 'integer', nullable: true)]
-    private $quantity;
 
     /**
      * @var int|null
@@ -235,6 +235,7 @@ class InventoryItem
         $row,
         $seatFrom,
         $seatTo,
+        $floorSeats,
         $ticketType,
         $ticketGenre,
         $retailer,
@@ -245,7 +246,6 @@ class InventoryItem
         $saleEndDate,
         $yourPricePerTicket,
         $totalPayout,
-        $quantity,
         $quantityRemain,
         $dateLastModified,
         $platform,
@@ -271,6 +271,7 @@ class InventoryItem
         $this->setRow($row);
         $this->setSeatFrom($seatFrom);
         $this->setSeatTo($seatTo);
+        $this->setFloorSeats($floorSeats);
         $this->setTicketType($ticketType);
         $this->setTicketGenre($ticketGenre);
         $this->setRetailer($retailer);
@@ -280,7 +281,6 @@ class InventoryItem
         $this->setStatus($status);
         $this->setYourPricePerTicket($yourPricePerTicket);
         $this->setTotalPayout($totalPayout);
-        $this->setQuantity($quantity);
         $this->setQuantityRemain($quantityRemain);
         $this->setPlatform($platform);
         $this->setSaleId($saleId);
@@ -301,16 +301,8 @@ class InventoryItem
         $row = $inventoryItem['row'] ?? '';
         $seatFrom = $inventoryItem['seatFrom'] ?? null;
         $seatTo = $inventoryItem['seatTo'] ?? null;
-        /* calculate quantity from seats */
-        try {
-            $seatFromInt = intval($seatFrom);
-            $seatToInt = intval($seatTo);
-            $quantity = $seatToInt - $seatFromInt + 1;
-        } catch (\Exception $e) {
-            $quantity = $inventoryItem['quantity'] ?? 1;
-        }
+        $floorSeats = $inventoryItem['floorSeats'] ?? 0;
 
-        $quantityRemaining = $quantity;
         $ticketGenre = $inventoryItem['ticketGenre'] ?? '';
         $ticketType = $inventoryItem['ticketType'] ?? '';
         $retailer = $inventoryItem['retailer'] ?? '';
@@ -324,8 +316,7 @@ class InventoryItem
         $platform = $inventoryItem['platform'] ?? '';
         $status = $inventoryItem['status'] ?? InventoryItem::ITEM_NOT_LISTED;
 
-
-        return new InventoryItem(
+        $i = new InventoryItem(
             null,
             $viagogoEventId,
             $viagogoCategoryId,
@@ -339,6 +330,7 @@ class InventoryItem
             $row,
             $seatFrom,
             $seatTo,
+            $floorSeats,
             $ticketType,
             $ticketGenre,
             $retailer,
@@ -349,8 +341,7 @@ class InventoryItem
             null,
             null,
             null,
-            $quantity,
-            $quantityRemaining,
+            0,
             null,
             $platform,
             $saleDate,
@@ -359,6 +350,10 @@ class InventoryItem
             null,
             null,
         );
+
+        $i->setQuantityRemain($i->getPurchasedQuantity());
+
+        return $i;
     }
 
     public function setId($id)
@@ -700,12 +695,12 @@ class InventoryItem
                 case 'Viagogo':
                     // - 10% viagogo fees
                     $payoutPerTicket = $this->getYourPricePerTicket()['amount'] - ($this->getYourPricePerTicket()['amount'] * 0.1);
-                    $expectedTotalPayout = $payoutPerTicket * $this->getQuantity();
+                    $expectedTotalPayout = $payoutPerTicket * $this->getPurchasedQuantity();
                     return ["amount" => $expectedTotalPayout, "currency" => $this->getYourPricePerTicket()['currency']];
 
                 default:
                     $payoutPerTicket = $this->getYourPricePerTicket()['amount'];
-                    $expectedTotalPayout = $payoutPerTicket * $this->getQuantity();
+                    $expectedTotalPayout = $payoutPerTicket * $this->getPurchasedQuantity();
                     return ["amount" => $expectedTotalPayout, "currency" => $this->getYourPricePerTicket()['currency']];
             }
         }
@@ -738,23 +733,23 @@ class InventoryItem
     }
 
     /**
-     * Get the value of quantity
+     * Get number of purchased tickets
      */
-    public function getQuantity()
+    public function getPurchasedQuantity()
     {
-        return $this->quantity;
-    }
+        try {
+            if (str_contains(strtolower($this->getSection()), 'floor')) {
+                return $this->getFloorSeats();
+            }
 
-    /**
-     * Set the value of quantity
-     *
-     * @return  self
-     */
-    public function setQuantity($quantity)
-    {
-        $this->quantity = isset($quantity) ? htmlspecialchars($quantity, ENT_QUOTES, 'UTF-8') : $this->quantity;
-
-        return $this->quantity;
+            /* calculate quantity from seats */
+            $seatFromInt = intval($this->getSeatFrom());
+            $seatToInt = intval($this->getSeatTo());
+            $quantity = $seatToInt - $seatFromInt + 1;
+            return $quantity;
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 
     /**
@@ -772,7 +767,7 @@ class InventoryItem
      */
     public function setQuantityRemain($quantityRemain)
     {
-        $this->quantityRemain = isset($quantityRemain) ? htmlspecialchars($quantityRemain, ENT_QUOTES, 'UTF-8') : $this->quantity;
+        $this->quantityRemain = isset($quantityRemain) ? htmlspecialchars($quantityRemain, ENT_QUOTES, 'UTF-8') : $this->getPurchasedQuantity();
 
         return $this;
     }
@@ -820,13 +815,13 @@ class InventoryItem
 
     public function getQuantitySold()
     {
-        return $this->getQuantity() - $this->getQuantityRemain();
+        return $this->getPurchasedQuantity() - $this->getQuantityRemain();
     }
 
 
     public function getTotalCost()
     {
-        return ['amount' => $this->getQuantity() * $this->getIndividualTicketCost()["amount"], 'currency' => $this->getIndividualTicketCost()["currency"]];
+        return ['amount' => $this->getPurchasedQuantity() * $this->getIndividualTicketCost()["amount"], 'currency' => $this->getIndividualTicketCost()["currency"]];
     }
 
 
@@ -920,7 +915,7 @@ class InventoryItem
             'yourPricePerTicketCurrency' =>  $this->getYourPricePerTicket()['currency'],
             'totalPayoutAmount' =>  $this->getTotalPayout()['amount'],
             'totalPayoutCurrency' =>  $this->getTotalPayout()['currency'],
-            'quantity' =>  $this->getQuantity(),
+            'quantity' =>  $this->getPurchasedQuantity(),
             'quantityRemain' =>  $this->getQuantityRemain(),
             'platform' =>  $this->getPlatform(),
             'saleId' =>  $this->getSaleId(),
@@ -1073,7 +1068,7 @@ class InventoryItem
 
     /**
      * Get the value of user
-     */ 
+     */
     public function getUser()
     {
         return $this->user;
@@ -1083,7 +1078,7 @@ class InventoryItem
      * Set the value of user
      *
      * @return  self
-     */ 
+     */
     public function setUser($user)
     {
         $this->user = $user;
@@ -1091,13 +1086,14 @@ class InventoryItem
         return $this;
     }
 
-    public function __clone() {
+    public function __clone()
+    {
         $this->id = null;
     }
 
     /**
      * Get the value of saleEndDate
-     */ 
+     */
     public function getSaleEndDate()
     {
         return $this->saleEndDate;
@@ -1107,7 +1103,7 @@ class InventoryItem
      * Set the value of saleEndDate
      *
      * @return  self
-     */ 
+     */
     public function setSaleEndDate($saleEndDate)
     {
         if (is_string($saleEndDate)) {
@@ -1118,7 +1114,7 @@ class InventoryItem
                 return $this;
             }
         }
-        
+
         $this->saleEndDate = $saleEndDate;
 
         return $this;
@@ -1126,7 +1122,7 @@ class InventoryItem
 
     /**
      * Get the value of eventDate
-     */ 
+     */
     public function getEventDate()
     {
         return $this->eventDate;
@@ -1136,7 +1132,7 @@ class InventoryItem
      * Set the value of eventDate
      *
      * @return  self
-     */ 
+     */
     public function setEventDate($eventDate)
     {
         if (is_string($eventDate)) {
@@ -1147,7 +1143,7 @@ class InventoryItem
                 return $this;
             }
         }
-        
+
         $this->eventDate = $eventDate;
 
         return $this;
@@ -1155,7 +1151,7 @@ class InventoryItem
 
     /**
      * Get the value of purchaseDate
-     */ 
+     */
     public function getPurchaseDate()
     {
         return $this->purchaseDate;
@@ -1165,7 +1161,7 @@ class InventoryItem
      * Set the value of purchaseDate
      *
      * @return  self
-     */ 
+     */
     public function setPurchaseDate($purchaseDate)
     {
         if (is_string($purchaseDate)) {
@@ -1176,7 +1172,7 @@ class InventoryItem
                 return $this;
             }
         }
-        
+
         $this->purchaseDate = $purchaseDate;
 
         return $this;
@@ -1184,7 +1180,7 @@ class InventoryItem
 
     /**
      * Get the value of dateLastModified
-     */ 
+     */
     public function getDateLastModified()
     {
         return $this->dateLastModified;
@@ -1194,7 +1190,7 @@ class InventoryItem
      * Set the value of dateLastModified
      *
      * @return  self
-     */ 
+     */
     public function setDateLastModified($dateLastModified)
     {
         if (is_string($dateLastModified)) {
@@ -1205,7 +1201,7 @@ class InventoryItem
                 return $this;
             }
         }
-        
+
         $this->dateLastModified = $dateLastModified;
 
         return $this;
@@ -1213,7 +1209,7 @@ class InventoryItem
 
     /**
      * Get the value of saleDate
-     */ 
+     */
     public function getSaleDate()
     {
         return $this->saleDate;
@@ -1223,7 +1219,7 @@ class InventoryItem
      * Set the value of saleDate
      *
      * @return  self
-     */ 
+     */
     public function setSaleDate($saleDate)
     {
         if (is_string($saleDate)) {
@@ -1234,8 +1230,28 @@ class InventoryItem
                 return $this;
             }
         }
-        
+
         $this->saleDate = $saleDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of floorSeats
+     */ 
+    public function getFloorSeats()
+    {
+        return $this->floorSeats;
+    }
+
+    /**
+     * Set the value of floorSeats
+     *
+     * @return  self
+     */ 
+    public function setFloorSeats($floorSeats)
+    {
+        $this->floorSeats = $floorSeats;
 
         return $this;
     }

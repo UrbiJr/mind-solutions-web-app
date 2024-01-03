@@ -15,7 +15,7 @@ class ListingType extends AbstractType
 
         $builder
             // first row
-            ->add('quantity', NumberType::class, ['label' => 'Quantity:'])
+            ->add('quantityRemain', NumberType::class, ['label' => 'Quantity:'])
             ->add('section', ChoiceType::class, [
                 'label' => 'Section:',
                 'attr' => [

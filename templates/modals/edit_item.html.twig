@@ -1,3 +1,7 @@
+{% block javascripts %}
+	<script src="{{ asset('js/edit_item.js') }}"></script>
+{% endblock %}
+
 {% block editItemModal %}
 
 	<div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
@@ -11,12 +15,6 @@
 					{{ form_start(editInventoryItemForm) }}
 					<div class="row">
 						<div class="row d-flex">
-							<div class="col-md-6">
-								<div class="form-group">
-									{{ form_label(editInventoryItemForm.quantity) }}
-									{{ form_widget(editInventoryItemForm.quantity) }}
-								</div>
-							</div>
 							<div class="col-md-6">
 								<div class="form-group">
 									{{ form_label(editInventoryItemForm.retailer) }}
@@ -34,7 +32,7 @@
 									{{ form_widget(editInventoryItemForm.customSection) }}
 								</div>
 							</div>
-							<div class="col-md-6">
+							<div class="col-md-6 rowContainer">
 								<div class="form-group">
 									{{ form_label(editInventoryItemForm.row) }}
 									{{ form_widget(editInventoryItemForm.row) }}
@@ -44,16 +42,24 @@
 					</div>
 					<div class="row">
 						<div class="row d-flex">
-							<div class="col-md-6">
+							<div class="col-md-6 seatsContainer">
 								<div class="form-group">
 									{{ form_label(editInventoryItemForm.seatFrom) }}
 									{{ form_widget(editInventoryItemForm.seatFrom) }}
 								</div>
 							</div>
-							<div class="col-md-6">
+							<div class="col-md-6 seatsContainer">
 								<div class="form-group">
 									{{ form_label(editInventoryItemForm.seatTo) }}
 									{{ form_widget(editInventoryItemForm.seatTo) }}
+								</div>
+							</div>
+						</div>
+						<div class="row d-flex">
+							<div class="col-md-6 floorSeatsContainer">
+								<div class="form-group">
+									{{ form_label(editInventoryItemForm.floorSeats) }}
+									{{ form_widget(editInventoryItemForm.floorSeats) }}
 								</div>
 							</div>
 						</div>

@@ -110,7 +110,7 @@ class InventoryItemRepository extends ServiceEntityRepository
         $inventoryItem = $this->find($itemId);
         if ($inventoryItem) {
             $this->getEntityManager()->remove($inventoryItem);
-            $this->flush();
+            $this->getEntityManager()->flush();
         }
     }
 

@@ -284,22 +284,21 @@
 																</div>
 															</div>
 															<div class="col-md-6">
-																{{ form_row(addToInventoryForm.quantity, {'attr': {'disabled': 'disabled'}}) }}
-																{{ form_row(addToInventoryForm.quantityRemain) }}
-															</div>
-															<div class="col-md-6">
 																{{ form_row(addToInventoryForm.retailer) }}
 															</div>
 															<div class="col-md-6">
 																{{ form_row(addToInventoryForm.section, {'id' : 'sectionSelect'}) }}
 																{{ form_row(addToInventoryForm.customSection, {'id' : 'customSection'}) }}
 															</div>
-															<div class="col-md-6">
+															<div class="col-md-6 rowContainer">
 																{{ form_row(addToInventoryForm.row) }}
 															</div>
-															<div class="col-md-6">
+															<div class="col-md-6 seatsContainer">
 																{{ form_row(addToInventoryForm.seatFrom) }}
 																{{ form_row(addToInventoryForm.seatTo) }}
+															</div>
+															<div class="col-md-6 floorSeatsContainer">
+																{{ form_row(addToInventoryForm.floorSeats) }}
 															</div>
 															<div class="col-md-6">
 																{{ form_row(addToInventoryForm.ticketType) }}
@@ -352,4 +351,10 @@
 
 	{% include 'modals/bulk_delete.html.twig' %}
 
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+
+	<script src="{{ asset('js/edit_item.js') }}"></script>
 {% endblock %}

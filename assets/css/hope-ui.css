@@ -23642,6 +23642,7 @@ body {
 }
 
 .icon-20 {
+    margin: 0 auto;
     height: 1.25rem;
     width: 1.25rem
 }
@@ -28985,4 +28986,11 @@ pre[class*=language-] {
     background: transparent;
     border-color: #fff;
     color:#fff
+}
+
+/* Fix svg not vertically aligning */
+
+.iq-icon {
+    display: inline-flex !important;
+    align-items: center;
 }

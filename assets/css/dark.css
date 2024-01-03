@@ -949,6 +949,7 @@ hr {
 .dark .form-select {
   color: #8A92A6;
   background-color: #222738;
+  border-color: #30384f;
 }
 .dark .form-select.is-invalid {
   border-color: #c03221;

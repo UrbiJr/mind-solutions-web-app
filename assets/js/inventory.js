@@ -384,48 +384,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    if ($('form[name="inventory_item"]').length) {
-        // CODE FOR ALL INVENTORYITEMTYPE FORMS
-
-        const sectionSelects = document.querySelectorAll(".sectionSelect");
-        const sectionCustomInputs = document.querySelectorAll(".customSection");
-        const quantityInput = document.querySelector('input[name="inventory_item[quantity]"]');
-        const rowInput = document.querySelector('input[name="inventory_item[row]"]');
-        const seatFromInput = document.querySelector('input[name="inventory_item[seatFrom]"]');
-        const seatToInput = document.querySelector('input[name="inventory_item[seatTo]"]');
-
-        const onFloorSelected = () => {
-            rowInput.value = "";
-            rowInput.setAttribute('placeholder', "");
-            quantityInput.disabled = false;
-            rowInput.disabled = true;
-            seatFromInput.disabled = true;
-            seatToInput.disabled = true;
-        };
-
-        const onSectionSelected = () => {
-            quantityInput.disabled = true;
-            rowInput.disabled = false;
-            seatFromInput.disabled = false;
-            seatToInput.disabled = false;
-        };
-
-        const handleSectionChange = (el) => {
-            if (el.target.value.toLowerCase() === "floor") {
-                onFloorSelected();
-            } else {
-                onSectionSelected();
-            }
-        };
-
-        sectionSelects.forEach(el => {
-            el.addEventListener("change", handleSectionChange);
-        });
-        sectionCustomInputs.forEach(el => {
-            el.addEventListener("input", handleSectionChange);
-        });
-    }
-
     if ($('#inventoryBulkActions').length) {
         // CODE FOR INVENTORY OVERVIEW VIEW
         $('#inventoryBulkActions .edit').on('click', function () {

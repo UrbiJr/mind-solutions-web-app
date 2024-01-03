@@ -6,6 +6,8 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\{TextType, ChoiceType, DateTimeType, DateType, EmailType, NumberType, SubmitType, HiddenType};
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class InventoryItemType extends AbstractType
@@ -83,8 +85,6 @@ class InventoryItemType extends AbstractType
                 'mapped' => false,
                 'data' => $individualTicketCostAmount,
             ])
-            ->add('quantity', NumberType::class, ['label' => 'Quantity:'])
-            ->add('quantityRemain', HiddenType::class)
             ->add('retailer', ChoiceType::class, [
                 'label' => 'Retailer:',
                 'choices' => [
@@ -113,9 +113,23 @@ class InventoryItemType extends AbstractType
                     'class' => 'hidden customSection',
                 ],
             ])
-            ->add('row', TextType::class, ['label' => 'Row:'])
-            ->add('seatFrom', TextType::class, ['label' => 'Seat From:'])
-            ->add('seatTo', TextType::class, ['label' => 'Seat To:'])
+            ->add('row', TextType::class, [
+                'label' => 'Row:',
+                'required' => false,
+            ])
+            ->add('seatFrom', TextType::class, [
+                'label' => 'Seat From:',
+                'required' => false,
+            ])
+            ->add('seatTo', TextType::class, [
+                'label' => 'Seat To:',
+                'required' => false,
+            ])
+            ->add('floorSeats', NumberType::class, [
+                'required' => false,
+                'label' => 'Floor Seats:',
+                'help' => 'Only insert a value if you selected Floor section',
+            ])
             ->add('ticketType', ChoiceType::class, [
                 'label' => 'Ticket Type:',
                 'choices' => [

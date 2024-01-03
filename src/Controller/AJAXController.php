@@ -193,6 +193,7 @@ class AJAXController extends AbstractController
                         $viagogoListing["Rows"],
                         $listingSeatFrom,
                         $listingSeatTo,
+                        $viagogoListing["Quantity"],
                         $viagogoListing["TicketType"],
                         $this->utils->getGenreNameById($viagogoListing["GenreId"]),
                         null,
@@ -203,7 +204,6 @@ class AJAXController extends AbstractController
                         $viagogoListing["SaleEndDate"],
                         $pricePerTicket,
                         null,
-                        $viagogoListing["Quantity"],
                         $viagogoListing["QuantityRemain"],
                         $viagogoListing["DateLastModified"],
                         'Viagogo',
@@ -253,6 +253,7 @@ class AJAXController extends AbstractController
                         $sale["Row"],
                         $saleSeatFrom,
                         $saleSeatTo,
+                        $sale["Quantity"] ?? 0,
                         $sale["TicketType"],
                         $this->utils->getGenreNameById($sale["GenreId"]),
                         null,
@@ -263,7 +264,6 @@ class AJAXController extends AbstractController
                         null,
                         $pricePerTicket,
                         $totalPayout,
-                        $sale["Quantity"],
                         0,
                         $sale["DateLastModified"],
                         'Viagogo',
@@ -333,14 +333,18 @@ class AJAXController extends AbstractController
             $dataArray = $request->request->all()['inventory_item'] ?? [];
             $inventoryItem = InventoryItem::fromDataArray($dataArray, $user);
 
-            // Store sections for this event, so we don't have to fetch them again
-            $sectionListArray = $request->request->get('sectionList') ? explode(',', $request->request->get('sectionList')) : [];
-            $sectionList = new SectionList();
-            $sectionList->setSections($sectionListArray);
-            $sectionList->setEventId($inventoryItem->getViagogoEventId());
-            // Save to database
-            $em->persist($sectionList);
-            $em->flush();
+            $sectionListRepo = $em->getRepository(SectionList::class);
+            $sectionList = $sectionListRepo->findOneByEventId($inventoryItem->getViagogoEventId());
+            if (!$sectionList) {
+                // Store sections for this event, so we don't have to fetch them again
+                $sectionListArray = $request->request->get('sectionList') ? explode(',', $request->request->get('sectionList')) : [];
+                $sectionList = new SectionList();
+                $sectionList->setSections($sectionListArray);
+                $sectionList->setEventId($inventoryItem->getViagogoEventId());
+                // Save to database
+                $em->persist($sectionList);
+                $em->flush();
+            }
 
             $this->inventoryItemRepo->add($inventoryItem, $user);
 
@@ -781,7 +785,8 @@ class AJAXController extends AbstractController
                     $yourPrice = (isset($converted)) ? $this->utils->formatAmountAndCurrencyAsSymbol($converted, $user->getCurrency()) : "N/A";
                 }
 
-                $itemData = '<span data-status="' . $item->getStatus() . '" data-row="' . $item->getRow() . '" data-seat-from="' . $item->getSeatFrom() . '" data-seat-to="' . $item->getSeatTo() . '" data-section="' . $item->getSection() . '" data-individual-ticket-cost="' . $this->utils->formatAmountArrayAsSymbol($item->getIndividualTicketCost()) . '" data-quantity="' . $item->getQuantity() . '"  data-your-price="' . $yourPrice . '" data-purchase-date="' . $item->getPurchaseDate()->format('F j, Y \a\t h:i A') . '" data-retailer="' . $item->getRetailer() . '" data-item-id="' . $item->getId() . '" data-category-id="' . $categoryId . '" data-event-id="' . $eventId . '" data-section="' . $section . '"></span>';
+                $purchaseDate = $item->getPurchaseDate() !== null ? $item->getPurchaseDate()->format('F j, Y \a\t h:i A') : '';
+                $itemData = '<span data-status="' . $item->getStatus() . '" data-row="' . $item->getRow() . '" data-seat-from="' . $item->getSeatFrom() . '" data-seat-to="' . $item->getSeatTo() . '" data-section="' . $item->getSection() . '" data-individual-ticket-cost="' . $this->utils->formatAmountArrayAsSymbol($item->getIndividualTicketCost()) . '" data-quantity="' . $item->getPurchasedQuantity() . '"  data-your-price="' . $yourPrice . '" data-purchase-date="' . $purchaseDate . '" data-retailer="' . $item->getRetailer() . '" data-item-id="' . $item->getId() . '" data-category-id="' . $categoryId . '" data-event-id="' . $eventId . '" data-section="' . $section . '"></span>';
                 $inventoryItemUrl = $this->generateUrl('inventory_item_show', [
                     'id' => $item->getId(),
                 ]);
@@ -836,7 +841,7 @@ class AJAXController extends AbstractController
                     'eventData' => $itemData,
                     'name' => ($item->getId() !== null) ? "<a href='/{$request->getLocale()}/inventory/{$item->getId()}'>{$item->getName()} - {$item->getCity()}</a>" : "{$item->getName()} - {$item->getCity()}",
                     'date' => ($item->getEventDate() !== null) ? $item->getEventDate()->format('F j, Y \a\t h:i A') : '',
-                    'tickets' => ($item->getQuantity() !== null) ? $item->getQuantity() . "/" . $item->getQuantityRemain() : '',
+                    'tickets' => ($item->getPurchasedQuantity() !== null) ? $item->getPurchasedQuantity() . "/" . $item->getQuantityRemain() : '',
                     'section' => $item->getSection(),
                     'floorPrice' => $floorPriceFormatted,
                     'yourPrice' => $yourPrice,
@@ -1521,7 +1526,7 @@ class AJAXController extends AbstractController
                 $rowData = array(
                     'name' => ($item->getId() !== null) ? "<a href='/{$request->getLocale()}/inventory/{$item->getId()}'>{$item->getName()} - {$item->getCity()}</a>" : "{$item->getName()} - {$item->getCity()}",
                     'date' => ($item->getEventDate() !== null) ? $item->getEventDate()->format('F j, Y \a\t h:i A') : '',
-                    'tickets' => ($item->getQuantity() !== null) ? $item->getQuantity() . "/" . $item->getQuantityRemain() : '',
+                    'tickets' => ($item->getPurchasedQuantity() !== null) ? $item->getPurchasedQuantity() . "/" . $item->getQuantityRemain() : '',
                     'section' => $item->getSection(),
                     'floorPrice' => $floorPriceFormatted,
                     'yourPrice' => $yourPrice,
@@ -1807,8 +1812,8 @@ class AJAXController extends AbstractController
                     case 'quantity':
                         if ($order === 'asc') {
                             usort($sales, function ($a, $b) {
-                                $aTickets = $a->getQuantity();
-                                $bTickets = $b->getQuantity();
+                                $aTickets = $a->getPurchasedQuantity();
+                                $bTickets = $b->getPurchasedQuantity();
 
                                 if ($aTickets === null && $bTickets === null) {
                                     return 0;
@@ -1827,8 +1832,8 @@ class AJAXController extends AbstractController
                             });
                         } else {
                             usort($sales, function ($a, $b) {
-                                $aTickets = $a->getQuantity();
-                                $bTickets = $b->getQuantity();
+                                $aTickets = $a->getPurchasedQuantity();
+                                $bTickets = $b->getPurchasedQuantity();
 
                                 if ($aTickets === null && $bTickets === null) {
                                     return 0;
@@ -1947,7 +1952,7 @@ class AJAXController extends AbstractController
                     'saleData' => $saleData,
                     'eventName' => ($item->getId() !== null) ? "<a href='/{$request->getLocale()}/inventory/{$item->getId()}'>{$item->getName()} - {$item->getCity()}</a>" : "{$item->getName()} - {$item->getCity()}",
                     'platform' => $item->getPlatform(),
-                    'quantity' => $item->getQuantity(),
+                    'quantity' => $item->getPurchasedQuantity(),
                     'ticketType' => $item->getTicketType(),
                     'totalPayout' => $totalPayout,
                     'saleDate' => ($item->getSaleDate() !== null) ? $item->getSaleDate()->format('F j, Y \a\t h:i A') : '',

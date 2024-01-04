@@ -1718,8 +1718,8 @@ class AJAXController extends AbstractController
                     case 'releaseDate':
                         if ($order === 'asc') {
                             usort($releases, function ($a, $b) {
-                                $aDate = $a->getReleaseDateAsDateTime();
-                                $bDate = $b->getReleaseDateAsDateTime();
+                                $aDate = $a->getReleaseDate();
+                                $bDate = $b->getReleaseDate();
 
                                 if ($aDate === null && $bDate === null) {
                                     return 0;
@@ -1737,8 +1737,8 @@ class AJAXController extends AbstractController
                             });
                         } else {
                             usort($releases, function ($a, $b) {
-                                $aDate = $a->getReleaseDateAsDateTime();
-                                $bDate = $b->getReleaseDateAsDateTime();
+                                $aDate = $a->getReleaseDate();
+                                $bDate = $b->getReleaseDate();
 
                                 if ($aDate === null && $bDate === null) {
                                     return 0;
@@ -1767,6 +1767,7 @@ class AJAXController extends AbstractController
                 $release = $releases[$offset + $i];
                 $author = $userRepository->findOneBy(['id' => $release->getAuthor()->getId()]);
                 $itemData = '<span data-item-id="' . $release->getId() . '" data-location="' . $release->getLocation() . '" data-city="' . $release->getCity() . '" data-country="' . $release->getCountryCode() . '" data-retailer="' . $release->getRetailer() . '" data-early-link="' . $release->getEarlyLink() . '" data-author="' . $author->getDiscordUsername() . '"  data-comments="' . $release->getComments() . '"></span>';
+                
                 $releaseItemUrl = $this->generateUrl('release_item_show', [
                     'id' => $release->getId(),
                 ]);
@@ -2049,8 +2050,8 @@ class AJAXController extends AbstractController
                         });
 
                         usort($releases, function ($a, $b) {
-                            $aDate = $a->getReleaseDateAsDateTime();
-                            $bDate = $b->getReleaseDateAsDateTime();
+                            $aDate = $a->getReleaseDate();
+                            $bDate = $b->getReleaseDate();
 
                             if ($aDate === null && $bDate === null) {
                                 return 0;
@@ -2087,8 +2088,8 @@ class AJAXController extends AbstractController
                         });
 
                         usort($releases, function ($a, $b) {
-                            $aDate = $a->getReleaseDateAsDateTime();
-                            $bDate = $b->getReleaseDateAsDateTime();
+                            $aDate = $a->getReleaseDate();
+                            $bDate = $b->getReleaseDate();
 
                             if ($aDate === null && $bDate === null) {
                                 return 0;

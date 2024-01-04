@@ -18,7 +18,7 @@ use Symfony\Component\Translation\TranslatableMessage;
 class ReleasesController extends AbstractController
 {
     #[Route('/admin/releases', name: 'releases_show')]
-    public function index(#[CurrentUser] ?User $user, Request $request, EntityManagerInterface $em): Response
+    public function index(#[CurrentUser] ?User $user, Request $request, EntityManagerInterface $em, ReleaseRepository $releaseRepository): Response
     {
         // The second parameter is used to specify on what object the role is tested.
         $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
@@ -58,22 +58,28 @@ class ReleasesController extends AbstractController
         /** @var Release $release */
         $release = $releaseRepository->find($id);
 
+        $editReleaseForm = $this->handleEditRelease( $request, $release, $releaseRepository);
+
         return $this->render(
             'releases/release_overview.html.twig',
             [
                 'user' => $user,
-                'bannerSubtitle' => $release->getDescription(),
+                'release' => $release,
+                'bannerTitle' => new TranslatableMessage('Add, Update or Delete Releases'),
+                'bannerSubtitle' => new TranslatableMessage('Let your members know about the latest release.'),
                 'displayBanner' => true,
+                'editReleaseForm' => $editReleaseForm,
             ]
         );
     }
 
-    private function handleEditRelease(Release $release, User $user, Request $request, array $sections): FormInterface
+    private function handleEditRelease(Request $request, Release $release, ReleaseRepository $releaseRepository): FormInterface
     {
         $form = $this->createForm(ReleaseType::class, $release);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
+            $release = $form->getData();
+            $releaseRepository->edit($release);
             $this->addFlash('success', '💾 Successfully saved changes.');
         }
 

@@ -60,7 +60,7 @@ class ReleaseType extends AbstractType
             ])
             // Submit button
             ->add('submit', SubmitType::class, [
-                'label' => 'Create Release',
+                'label' => 'Save',
             ]);
     }
 

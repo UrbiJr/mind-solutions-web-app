@@ -28990,7 +28990,7 @@ pre[class*=language-] {
 
 /* Fix svg not vertically aligning */
 
-.iq-icon {
+.iq-icon.me-3{
     display: inline-flex !important;
     align-items: center;
 }

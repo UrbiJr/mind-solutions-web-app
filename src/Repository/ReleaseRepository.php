@@ -28,10 +28,24 @@ class ReleaseRepository extends ServiceEntityRepository
         return $this->findAll();
     }
 
-    public function update(Release $release): void
+    function delete($releaseId)
     {
-        $em = $this->getEntityManager();
-        $em->persist($release);
-        $em->flush();
+        $release = $this->find($releaseId);
+        if ($release) {
+            $this->getEntityManager()->remove($release);
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    function add(Release $release)
+    {
+        $this->getEntityManager()->persist($release);
+        $this->getEntityManager()->flush();
+    }
+
+    function edit(Release $release)
+    {
+        $this->getEntityManager()->persist($release);
+        $this->getEntityManager()->flush();
     }
 }

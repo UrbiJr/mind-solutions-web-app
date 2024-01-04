@@ -6,7 +6,7 @@ use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\{TextType, ChoiceType, DateTimeType, DateType, EmailType, NumberType, SubmitType, HiddenType, TextareaType};
+use Symfony\Component\Form\Extension\Core\Type\{TextType, ChoiceType, DateTimeType, DateType, EmailType, NumberType, SubmitType, HiddenType, TextareaType, UrlType};
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -46,6 +46,9 @@ class ReleaseType extends AbstractType
                     // Add more retailers as needed
                 ],
                 'placeholder' => 'Select a retailer',
+            ])
+            ->add('earlyLink', UrlType::class, [
+                'label' => 'Early link:'
             ])
             ->add('comments', TextareaType::class, [
                 'label' => 'Comments:',

@@ -6,6 +6,7 @@ use App\Entity\Release;
 use App\Entity\User;
 use App\Form\Type\ReleaseType;
 use App\Repository\ReleaseRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +18,7 @@ use Symfony\Component\Translation\TranslatableMessage;
 class ReleasesController extends AbstractController
 {
     #[Route('/admin/releases', name: 'releases_show')]
-    public function index(#[CurrentUser] ?User $user): Response
+    public function index(#[CurrentUser] ?User $user, Request $request, EntityManagerInterface $em): Response
     {
         // The second parameter is used to specify on what object the role is tested.
         $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
@@ -25,6 +26,16 @@ class ReleasesController extends AbstractController
         $release = new Release();
         $release->setAuthor($user);
         $addReleaseForm = $this->createForm(ReleaseType::class, $release);
+
+        $addReleaseForm->handleRequest($request);
+        if ($addReleaseForm->isSubmitted() && $addReleaseForm->isValid()) {
+            // $form->getData() holds the submitted values
+            // but, the original `$task` variable has also been updated
+            $release = $addReleaseForm->getData();
+
+            $em->persist($release);
+            $em->flush();
+        }
 
         return $this->render(
             'releases/overview.html.twig',
@@ -62,7 +73,7 @@ class ReleasesController extends AbstractController
         $form = $this->createForm(ReleaseType::class, $release);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             $this->addFlash('success', '💾 Successfully saved changes.');
         }
 

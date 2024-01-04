@@ -1086,11 +1086,6 @@ class InventoryItem
         return $this;
     }
 
-    public function __clone()
-    {
-        $this->id = null;
-    }
-
     /**
      * Get the value of saleEndDate
      */
@@ -1254,5 +1249,10 @@ class InventoryItem
         $this->floorSeats = $floorSeats;
 
         return $this;
+    }
+
+    public function __clone()
+    {
+        $this->id = null;
     }
 }

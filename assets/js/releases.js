@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function deleteRelease(releaseId) {
-    toastWithTimeout("Deleting", "Deleting release...", "bg-secondary");
+    toastWithTimeout("Deleting", "Deleting release...");
 
     // Send an AJAX request to delete the item
     $.ajax({
@@ -57,7 +57,7 @@ function deleteRelease(releaseId) {
 function duplicateRelease(releaseId) {
     // Disable submit button to prevent multiple submissions
     $("#addRelease").prop("disabled", true);
-    toastWithTimeout("Copying", "Copying release...", "bg-secondary");
+    toastWithTimeout("Copying", "Copying item to inventory...");
 
     // Perform Ajax POST request
     $.ajax({

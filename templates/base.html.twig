@@ -176,10 +176,10 @@
 											{% set username = (user.getDiscordUsername() is not null and user.getDiscordUsername() != "") ? user.getDiscordUsername() : "Anonymous" %}
 											<h6 class="mb-0 caption-title">{{ username }}</h6>
 											<p class="mb-0 caption-sub-title">
-												{% if is_granted('ROLE_MEMBER') %}
-													Member
-												{% elseif is_granted('ROLE_ADMIN') %}
+												{% if is_granted('ROLE_ADMIN') %}
 													Admin
+												{% elseif is_granted('ROLE_MEMBER') %}
+													Member
 												{% else %}
 													Guest
 												{% endif %}

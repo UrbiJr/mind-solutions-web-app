@@ -35,6 +35,7 @@ class AJAXController extends AbstractController
         private readonly MemcachedAdapter $cache,
         private readonly Utils $utils,
         protected readonly InventoryItemRepository $inventoryItemRepo,
+        protected readonly ReleaseRepository $releaseRepo,
         protected readonly InventoryValueRepository $inventoryValueRepo,
         private readonly InventoryService $inventoryService,
         private readonly Client $client,
@@ -1595,6 +1596,54 @@ class AJAXController extends AbstractController
         return new JsonResponse($result, Response::HTTP_OK);
     }
 
+    #[Route('/api/admin/releases/copy/{id}', methods: ['POST'], name: 'api_admin_releases_copy')]
+    public function copy_release(#[CurrentUser] ?User $user, string $id): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            /* fetch inventory item */
+            $release = $this->releaseRepo->find($id);
+
+            /* copy inventory item */
+            $copy = clone $release;
+            $this->releaseRepo->add($copy, $user);
+
+            $response = [
+                "success" => true,
+                "id" => $copy->getId(),
+                "message" => "Release copied successfully.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/admin/releases/{id}', methods: ['DELETE'], name: 'api_admin_releases_delete')]
+    public function delete_release(#[CurrentUser] ?User $user, string $id): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            $this->releaseRepo->delete($id);
+
+            $response = [
+                "success" => true,
+                "message" => "Release deleted successfully.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     #[Route('/api/admin/releases', methods: ['GET'], name: 'api_releases')]
     public function releases(#[CurrentUser] ?User $user, Request $request, ReleaseRepository $releaseRepository, UserRepository $userRepository): Response
     {
@@ -1716,16 +1765,7 @@ class AJAXController extends AbstractController
             $releasesData = array();
             for ($i = 0; $i < $itemsPerPage && $offset + $i < count($releases); $i++) {
                 $release = $releases[$offset + $i];
-                $cacheItem = $this->cache->getItem('user_' . $release->getAuthor());
-                if (!$cacheItem->isHit()) {
-                    // User object is not in cache, fetch from the database
-                    $author = $userRepository->findOneBy(['id' => $release->getAuthor()->getId()]);
-                    // Store user object in cache for 10 minutes (adjust TTL as needed)
-                    $cacheItem->set($author);
-                    $cacheItem->expiresAfter(600); // 10 minutes
-                    $this->cache->save($cacheItem);
-                }
-
+                $author = $userRepository->findOneBy(['id' => $release->getAuthor()->getId()]);
                 $itemData = '<span data-item-id="' . $release->getId() . '" data-location="' . $release->getLocation() . '" data-city="' . $release->getCity() . '" data-country="' . $release->getCountryCode() . '" data-retailer="' . $release->getRetailer() . '" data-early-link="' . $release->getEarlyLink() . '" data-author="' . $author->getDiscordUsername() . '"  data-comments="' . $release->getComments() . '"></span>';
                 $releaseItemUrl = $this->generateUrl('release_item_show', [
                     'id' => $release->getId(),

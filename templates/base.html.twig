@@ -240,7 +240,7 @@
 						</div>
 					{% endfor %}
 					{% for message in app.flashes('error') %}
-						<div class="toast show align-items-center text-white border-0 bg-error" role="alert" aria-live="assertive" aria-atomic="true">
+						<div class="toast show align-items-center text-white border-0 bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
 							<div class="toast-header">
 								<strong class="me-auto">Error</strong>
 								<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -251,7 +251,7 @@
 						</div>
 					{% endfor %}
 					{% for message in app.flashes('warning') %}
-						<div class="toast show align-items-center text-white border-0 bg-error" role="alert" aria-live="assertive" aria-atomic="true">
+						<div class="toast show align-items-center text-white border-0 bg-warning" role="alert" aria-live="assertive" aria-atomic="true">
 							<div class="toast-header">
 								<strong class="me-auto">Warning</strong>
 								<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -485,9 +485,7 @@
 				<script src="{{ asset('js/auth.js') }}"></script>
 				<script src="{{ asset('js/dashboard.js') }}"></script>
 				<script src="{{ asset('js/events.js') }}"></script>
-				<script src="{{ asset('js/inventory.js') }}"></script>
-				<script src="{{ asset('js/releases.js') }}"></script>
-				<script src="{{ asset('js/settings.js') }}"></script>
+				
 				<script src="{{ asset('js/viagogo.js') }}"></script>
 				<script src="{{ asset('js/listings.js') }}"></script>
 				<script src="https://kit.fontawesome.com/f4362b7dfa.js" crossorigin="anonymous"></script>

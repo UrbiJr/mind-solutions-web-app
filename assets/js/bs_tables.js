@@ -118,20 +118,14 @@ function releaseDetailFormatter(index, row) {
     $.each(row, function (key, value) {
         switch (key) {
             case 'releaseData':
-                var itemId = $(value).attr('data-item-id');
-                var retailer = $(value).attr('data-retailer');
                 var earlyLink = $(value).attr('data-early-link');
                 var comments = $(value).attr('data-comments');
                 var author = $(value).attr('data-author');
 
                 html.push('<div class="col-md-4">');
-                html.push('<p><small>Retailer: ' + retailer + '</p></small>');
-                html.push('<p><small>Early Link: ' + earlyLink + '</p></small>');
+                html.push('<p><small>Early Link: <a target="_blank" href="' + earlyLink + '">Click me</a></p></small>');
                 html.push('<p><small>Comments: ' + comments + '</p></small>');
                 html.push('<p><small>Release Author: <b>' + author + '</b></p></small>');
-                html.push(`<a class="btn btn-soft-info" style="margin-bottom: 20px" href="http://localhost:8080/?model=events&action=releaseOverview&releaseId=${itemId}">
-                <i class="fa-solid fa-eye"></i> View Release
-            </button>`);
                 html.push('</div>');
                 break;
 

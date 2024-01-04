@@ -2,6 +2,7 @@
 // src/Controller/ProfileController.php
 namespace App\Controller;
 
+use App\Entity\Backup;
 use App\Entity\User;
 use App\Form\Type\UserAboutType;
 use App\Form\Type\UserConnectionsType;
@@ -9,12 +10,16 @@ use App\Form\Type\UserPasswordType;
 use App\Form\Type\UserSettingsType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -87,33 +92,36 @@ class ProfileController extends AbstractController
         $connectionsForm = $this->handleConnectionsForm($user, $entityManager, $request);
         $aboutForm = $this->handleAboutForm($user, $entityManager, $request);
         $exportForm = $this->createFormBuilder()
-            ->setAction($this->generateUrl('profile_export'))
+            ->setAction($this->generateUrl('backup'))
             ->setMethod('POST')
             ->add('export', ChoiceType::class, [
                 'choices' => [
-                    'Inventory' => 'inventoryExport',
+                    'Inventory' => BackupController::INVENTORY_DATA,
+                    'Settings' => BackupController::SETTINGS_DATA,
                 ],
                 'expanded' => true,
                 'multiple' => false,
                 'label' => false,
-                'data' => 'inventoryExport',
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Backup',
             ])
             ->getForm();
 
-        $importForm = $this->createFormBuilder()
-            ->setAction($this->generateUrl('profile_import'))
+        $importInventoryForm = $this->createFormBuilder()
+            ->setAction($this->generateUrl('restore'))
             ->setMethod('POST')
+            ->add('import', HiddenType::class, [
+                'data' => BackupController::INVENTORY_DATA,
+            ])
             ->add('inventoryCsvFile', FileType::class, [
-                'label' => 'Inventory backup',
+                'label' => 'Backup file (.csv)',
                 'attr' => [
                     'accept' => '.csv',
                 ],
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Restore',
+                'label' => 'Restore Inventory',
                 'attr' => [
                     'data-bs-toggle' => 'modal',
                     'data-bs-target' => '#confirmRestoreModal',
@@ -121,45 +129,41 @@ class ProfileController extends AbstractController
             ])
             ->getForm();
 
+        $importSettingsForm = $this->createFormBuilder()
+            ->setAction($this->generateUrl('restore'))
+            ->setMethod('POST')
+            ->add('import', HiddenType::class, [
+                'data' => BackupController::SETTINGS_DATA,
+            ])
+            ->add('backup', EntityType::class, [
+                'class' => Backup::class,
+                'query_builder' => function (EntityRepository $er) use($user): QueryBuilder {
+                    return $er->createQueryBuilder('b')
+                        ->where('b.user = :user')
+                        ->setParameter('user', $user)
+                        ->orderBy('b.timestamp', 'DESC');
+                },
+                'choice_label' => function (Backup $backup): string {
+                    return $backup->getTimestamp()->format('F j, Y \a\t h:i A');
+                },
+                'label' => 'Select a backup',
+            ])
+            ->add('submit', SubmitType::class, [
+                'label' => 'Restore Settings',
+            ])
+            ->getForm();
+
         return $this->render('profile/settings.html.twig', [
             'user' => $user,
             'displayBanner' => false,
             'exportForm' => $exportForm,
-            'importForm' => $importForm,
+            'importInventoryForm' => $importInventoryForm,
+            'importSettingsForm' => $importSettingsForm,
             'settingsForm' => $settingsForm,
             'passwordForm' => $passwordForm,
             'connectionsForm' => $connectionsForm,
             'aboutForm' => $aboutForm,
         ]);
-    }
-
-    #[Route('/profile/export', name: 'profile_export', methods: ['POST'])]
-    public function profileExport(#[CurrentUser] ?User $user, EntityManagerInterface $entityManager, UserRepository $userRepository): Response
-    {
-        // The second parameter is used to specify on what object the role is tested.
-        $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
-
-        [$fileName, $filePath] = $userRepository->exportInventoryToCSV($user);
-
-        $response = new BinaryFileResponse($filePath);
-
-        // Set the Content-Disposition header to attachment to force download
-        $response->setContentDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-
-        // Automatically delete the file after sending it to the client
-        $response->deleteFileAfterSend(true);
-
-        return $response;
-    }
-
-    #[Route('/profile/import', name: 'profile_import', methods: ['POST'])]
-    public function profileImport(#[CurrentUser] ?User $user, EntityManagerInterface $entityManager, UserRepository $userRepository): Response
-    {
-        // The second parameter is used to specify on what object the role is tested.
-        $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
     }
 
     private function handleSettingsForm(User $user, EntityManagerInterface $entityManager, Request $request): FormInterface

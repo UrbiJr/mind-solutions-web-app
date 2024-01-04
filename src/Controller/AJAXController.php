@@ -8,6 +8,7 @@ use App\Entity\Release;
 use App\Entity\SectionList;
 use App\Entity\User;
 use App\Entity\ViagogoUser;
+use App\Repository\BackupRepository;
 use App\Repository\InventoryItemRepository;
 use App\Repository\InventoryValueRepository;
 use App\Repository\ReleaseRepository;
@@ -1672,6 +1673,17 @@ class AJAXController extends AbstractController
                             });
                         }
                         break;
+                    case 'retailer':
+                        if ($order === 'asc') {
+                            usort($releases, function ($a, $b) {
+                                return strcmp($a->getRetailer(), $b->getRetailer());
+                            });
+                        } else {
+                            usort($releases, function ($a, $b) {
+                                return strcmp($b->getRetailer(), $a->getRetailer());
+                            });
+                        }
+                        break;
 
                     case 'eventDate':
                         if ($order === 'asc') {
@@ -1766,8 +1778,8 @@ class AJAXController extends AbstractController
             for ($i = 0; $i < $itemsPerPage && $offset + $i < count($releases); $i++) {
                 $release = $releases[$offset + $i];
                 $author = $userRepository->findOneBy(['id' => $release->getAuthor()->getId()]);
-                $itemData = '<span data-item-id="' . $release->getId() . '" data-location="' . $release->getLocation() . '" data-city="' . $release->getCity() . '" data-country="' . $release->getCountryCode() . '" data-retailer="' . $release->getRetailer() . '" data-early-link="' . $release->getEarlyLink() . '" data-author="' . $author->getDiscordUsername() . '"  data-comments="' . $release->getComments() . '"></span>';
-                
+                $itemData = '<span data-item-id="' . $release->getId() . '" data-location="' . $release->getLocation() . '" data-city="' . $release->getCity() . '" data-country="' . $release->getCountryCode() . '" data-early-link="' . $release->getEarlyLink() . '" data-author="' . $author->getDiscordUsername() . '"  data-comments="' . $release->getComments() . '"></span>';
+
                 $releaseItemUrl = $this->generateUrl('release_item_show', [
                     'id' => $release->getId(),
                 ]);
@@ -1797,6 +1809,7 @@ class AJAXController extends AbstractController
                 $rowData = array(
                     'releaseData' => $itemData,
                     'description' => $release->getDescription() . " - " . $release->getCity(),
+                    'retailer' => $release->getRetailer(),
                     'country' => $release->getCountryCode(),
                     'eventDate' => ($release->getEventDate() !== null) ? $release->getEventDate()->format('F j, Y \a\t h:i A') : '',
                     'releaseDate' => ($release->getReleaseDate() !== null) ? $release->getReleaseDate()->format('F j, Y \a\t h:i A') : '',
@@ -1810,6 +1823,124 @@ class AJAXController extends AbstractController
                 "total" => count($releases),
                 "totalNotFiltered" => count($releases),
                 "rows" => $releasesData,
+            );
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse($result, Response::HTTP_OK);
+    }
+
+    #[Route('/api/user/backups/{id}', methods: ['DELETE'], name: 'api_admin_backups_delete')]
+    public function delete_backup(#[CurrentUser] ?User $user, string $id, BackupRepository $backupRepository): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            $backupRepository->delete($id);
+
+            $response = [
+                "success" => true,
+                "message" => "Backup deleted successfully.",
+            ];
+
+            return new JsonResponse($response, Response::HTTP_OK);
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/api/user/backups', methods: ['GET'], name: 'api_backups')]
+    public function backups(#[CurrentUser] ?User $user, Request $request, BackupRepository $backupRepository): Response
+    {
+        try {
+            if (!$user || !in_array('ROLE_MEMBER', $user->getRoles())) {
+                return new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
+            }
+
+            // second parameter is default value
+            $offset = $request->query->get('offset', 0);
+            $itemsPerPage = $request->query->get('limit', 10);
+            $sort = $request->query->get('sort', null);
+            $order = $request->query->get('order', 'desc');
+
+            $backups = $backupRepository->findBy(['user' => $user]);
+            if (isset($sort)) {
+                switch ($sort) {
+                    case 'timestamp':
+                        if ($order === 'asc') {
+                            usort($backups, function ($a, $b) {
+                                $aDate = $a->getTimestamp();
+                                $bDate = $b->getTimestamp();
+
+                                if ($aDate === null && $bDate === null) {
+                                    return 0;
+                                }
+
+                                if ($aDate === null) {
+                                    return 1;
+                                }
+
+                                if ($bDate === null) {
+                                    return -1;
+                                }
+
+                                return $aDate <=> $bDate;
+                            });
+                        } else {
+                            usort($backups, function ($a, $b) {
+                                $aDate = $a->getTimestamp();
+                                $bDate = $b->getTimestamp();
+
+                                if ($aDate === null && $bDate === null) {
+                                    return 0;
+                                }
+
+                                if ($aDate === null) {
+                                    return -1;
+                                }
+
+                                if ($bDate === null) {
+                                    return 1;
+                                }
+
+                                return $bDate <=> $aDate;
+                            });
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            $backupsData = array();
+            for ($i = 0; $i < $itemsPerPage && $offset + $i < count($backups); $i++) {
+                $backup = $backups[$offset + $i];
+
+                $actions = '
+    <button name="delete-backup" data-toggle="modal" data-item-id="' . $backup->getId() . '" type="button" class="btn btn-soft-danger">
+        <svg class="icon-24" width="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M20.708 6.23975H3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M17.4406 6.23973C16.6556 6.23973 15.9796 5.68473 15.8256 4.91573L15.5826 3.69973C15.4326 3.13873 14.9246 2.75073 14.3456 2.75073H10.1126C9.53358 2.75073 9.02558 3.13873 8.87558 3.69973L8.63258 4.91573C8.47858 5.68473 7.80258 6.23973 7.01758 6.23973" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+    </button>
+    ';
+                $rowData = array(
+                    'timestamp' => ($backup->getTimestamp() !== null) ? $backup->getTimestamp()->format('F j, Y \a\t h:i A') : '',
+                    'actions' => $actions,
+                );
+
+                $backupsData[] = $rowData;
+            }
+
+            $result = array(
+                "total" => count($backups),
+                "totalNotFiltered" => count($backups),
+                "rows" => $backupsData,
             );
         } catch (Exception $e) {
             return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);

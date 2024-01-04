@@ -58,7 +58,14 @@ class ReleasesController extends AbstractController
         /** @var Release $release */
         $release = $releaseRepository->find($id);
 
-        $editReleaseForm = $this->handleEditRelease( $request, $release, $releaseRepository);
+        $editReleaseForm = $this->createForm(ReleaseType::class, $release);
+        $editReleaseForm->handleRequest($request);
+        if ($editReleaseForm->isSubmitted() && $editReleaseForm->isValid()) {
+            $release = $editReleaseForm->getData();
+            $releaseRepository->edit($release);
+            $this->addFlash('success', '💾 Successfully saved changes.');
+            return $this->redirectToRoute('releases_show');
+        }
 
         return $this->render(
             'releases/release_overview.html.twig',
@@ -71,18 +78,5 @@ class ReleasesController extends AbstractController
                 'editReleaseForm' => $editReleaseForm,
             ]
         );
-    }
-
-    private function handleEditRelease(Request $request, Release $release, ReleaseRepository $releaseRepository): FormInterface
-    {
-        $form = $this->createForm(ReleaseType::class, $release);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $release = $form->getData();
-            $releaseRepository->edit($release);
-            $this->addFlash('success', '💾 Successfully saved changes.');
-        }
-
-        return $form;
     }
 }

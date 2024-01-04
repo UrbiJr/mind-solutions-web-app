@@ -165,7 +165,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): static
+    public function setLastName(?string $lastName): static
     {
         $this->lastName = $lastName;
 
@@ -177,7 +177,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
         return $this->username;
     }
 
-    public function setUsername(string $username): static
+    public function setUsername(?string $username): static
     {
         $this->username = $username;
 
@@ -189,7 +189,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(?string $password): static
     {
         $this->password = $password;
 
@@ -305,7 +305,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
         return $this->currency;
     }
 
-    public function setCurrency(string $currency): static
+    public function setCurrency(?string $currency): static
     {
         $this->currency = $currency;
 

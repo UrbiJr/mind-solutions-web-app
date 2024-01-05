@@ -93,7 +93,9 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             'Location',
             'Section',
             'Row',
-            'Seats',
+            'SeatFrom',
+            'SeatTo',
+            'FloorSeats',
             'TicketType',
             'TicketGenre',
             'Retailer',
@@ -106,7 +108,6 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
             'YourPricePerTicketCurrency',
             'TotalPayoutAmount',
             'TotalPayoutCurrency',
-            'Quantity',
             'QuantityRemain',
             'Platform',
             'SaleId',
@@ -124,7 +125,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
 
         // Loop through inventory items for the user
         foreach ($inventory as $inventoryItem) {
-            $csvRow = array_values($inventoryItem->toArray()); // Convert InventoryItem object to an array
+            $csvRow = array_values($inventoryItem->toArray(true)); // Convert InventoryItem object to an array
             fputcsv($csvFile, $csvRow, ";");
         }
 

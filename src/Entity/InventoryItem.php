@@ -10,6 +10,7 @@ use Exception;
 use App\Repository\InventoryItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
+use App\Service\Utils;
 
 #[ORM\Table(name: 'InventoryItems')]
 #[ORM\Index(name: 'fk_user_id', columns: ['user_id'])]
@@ -289,7 +290,7 @@ class InventoryItem
         $this->setTicketDetails($ticketDetails);
     }
 
-    public static function fromDataArray(array $inventoryItem, User $user): InventoryItem
+    public static function fromAssociativeArray(array $inventoryItem, User $user): InventoryItem
     {
         $name = $inventoryItem['eventName'] ?? '';
         $eventDate = isset($inventoryItem['eventDate']) ? new \DateTime($inventoryItem['eventDate']) : '';
@@ -356,9 +357,87 @@ class InventoryItem
         return $i;
     }
 
+    public static function fromArray(array $data, User $user): InventoryItem
+    {
+        $itemId = $data[0];
+        $viagogoEventId = $data[1];
+        $viagogoCategoryId = $data[2];
+        $name = $data[3];
+        $country = $data[4];
+        $city = $data[5];
+        $location = $data[6];
+        $section = $data[7];
+        $row = $data[8];
+        $seatFrom = $data[9];
+        $seatTo = $data[10];
+        $floorSeats = $data[11];
+        $ticketType = $data[12];
+        $ticketGenre = $data[13];
+        $retailer = $data[14];
+        $individualTicketCostAmount = $data[15];
+        $individualTicketCostCurrency = $data[16];
+        $orderNumber = $data[17];
+        $orderEmail = $data[18];
+        $status = $data[19];
+        $yourPricePerTicketAmount = $data[20];
+        $yourPricePerTicketCurrency = $data[21];
+        $totalPayoutAmount = $data[22];
+        $totalPayoutCurrency = $data[23];
+        $quantityRemain = $data[24];
+        $platform = $data[25];
+        $saleId = $data[26];
+        $listingId = $data[27];
+        $listingRestrictions = $data[28] != "" ? explode(',', $data[28]) : null;
+        $listingTicketDetails = $data[29] != "" ? explode(',', $data[29]) : null;
+        $saleDate = $data[30] && $data[30] != "" ? Utils::unixTimestampToDateTime((int) $data[30]) : null;
+        $eventDate = $data[31] && $data[31] != "" ? Utils::unixTimestampToDateTime((int) $data[31]) : null;
+        $purchaseDate = $data[32] && $data[32] != "" ? Utils::unixTimestampToDateTime((int) $data[32]) : null;
+        $saleEndDate = $data[33] && $data[33] != "" ? Utils::unixTimestampToDateTime((int) $data[33]) : null;
+        $dateLastModified = $data[34] && $data[34] != "" ? Utils::unixTimestampToDateTime((int) $data[34]) : null;
+
+        $i = new InventoryItem(
+            $itemId,
+            $viagogoEventId,
+            $viagogoCategoryId,
+            $name,
+            $eventDate,
+            $purchaseDate,
+            $country,
+            $city,
+            $location,
+            $section,
+            $row,
+            $seatFrom,
+            $seatTo,
+            $floorSeats,
+            $ticketType,
+            $ticketGenre,
+            $retailer,
+            $individualTicketCostAmount != "" && $individualTicketCostCurrency != "" ? ['amount' => $individualTicketCostAmount, 'currency' => $individualTicketCostCurrency] : null,
+            $orderNumber,
+            $orderEmail,
+            $status,
+            $saleEndDate,
+            $yourPricePerTicketAmount != "" && $yourPricePerTicketCurrency != "" ? ['amount' => $yourPricePerTicketAmount, 'currency' => $yourPricePerTicketCurrency] : null,
+            $totalPayoutAmount != "" && $totalPayoutCurrency != "" ? ['amount' => $totalPayoutAmount, 'currency' => $totalPayoutCurrency] : null,
+            $quantityRemain,
+            $dateLastModified,
+            $platform,
+            $saleDate,
+            $saleId,
+            $listingId,
+            $listingRestrictions,
+            $listingTicketDetails,
+        );
+
+        $i->setUser($user);
+
+        return $i;
+    }
+
     public function setId($id)
     {
-        $this->id = isset($id) ? htmlspecialchars($id, ENT_QUOTES, 'UTF-8') : null;
+        $this->id = isset($id) ? htmlspecialchars($id, ENT_NOQUOTES, 'UTF-8') : null;
     }
 
     public function getId()
@@ -381,7 +460,7 @@ class InventoryItem
      */
     public function setName($name)
     {
-        $this->name = isset($name) ? htmlspecialchars($name, ENT_QUOTES, 'UTF-8') : null;
+        $this->name = isset($name) ? htmlspecialchars($name, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -401,7 +480,7 @@ class InventoryItem
      */
     public function setLocation($location)
     {
-        $this->location = isset($location) ? htmlspecialchars($location, ENT_QUOTES, 'UTF-8') : null;
+        $this->location = isset($location) ? htmlspecialchars($location, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -421,7 +500,7 @@ class InventoryItem
      */
     public function setSection($section)
     {
-        $this->section = isset($section) ? htmlspecialchars($section, ENT_QUOTES, 'UTF-8') : null;
+        $this->section = isset($section) ? htmlspecialchars($section, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -441,7 +520,7 @@ class InventoryItem
      */
     public function setRow($row)
     {
-        $this->row = isset($row) ? htmlspecialchars($row, ENT_QUOTES, 'UTF-8') : null;
+        $this->row = isset($row) ? htmlspecialchars($row, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -486,7 +565,7 @@ class InventoryItem
      */
     public function setTicketType($ticketType)
     {
-        $this->ticketType = isset($ticketType) ? htmlspecialchars($ticketType, ENT_QUOTES, 'UTF-8') : null;
+        $this->ticketType = isset($ticketType) ? htmlspecialchars($ticketType, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -506,7 +585,7 @@ class InventoryItem
      */
     public function setRetailer($retailer)
     {
-        $this->retailer = isset($retailer) ? htmlspecialchars($retailer, ENT_QUOTES, 'UTF-8') : null;
+        $this->retailer = isset($retailer) ? htmlspecialchars($retailer, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -526,7 +605,7 @@ class InventoryItem
      */
     public function setOrderNumber($orderNumber)
     {
-        $this->orderNumber = isset($orderNumber) ? htmlspecialchars($orderNumber, ENT_QUOTES, 'UTF-8') : null;
+        $this->orderNumber = isset($orderNumber) ? htmlspecialchars($orderNumber, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -546,7 +625,7 @@ class InventoryItem
      */
     public function setOrderEmail($orderEmail)
     {
-        $this->orderEmail = isset($orderEmail) ? htmlspecialchars($orderEmail, ENT_QUOTES, 'UTF-8') : null;
+        $this->orderEmail = isset($orderEmail) ? htmlspecialchars($orderEmail, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -566,7 +645,7 @@ class InventoryItem
      */
     public function setStatus($status)
     {
-        $this->status = isset($status) ? htmlspecialchars($status, ENT_QUOTES, 'UTF-8') : null;
+        $this->status = isset($status) ? htmlspecialchars($status, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -586,7 +665,7 @@ class InventoryItem
      */
     public function setTicketGenre($ticketGenre)
     {
-        $this->ticketGenre = isset($ticketGenre) ? htmlspecialchars($ticketGenre, ENT_QUOTES, 'UTF-8') : null;
+        $this->ticketGenre = isset($ticketGenre) ? htmlspecialchars($ticketGenre, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -606,7 +685,7 @@ class InventoryItem
      */
     public function setCountry($country)
     {
-        $this->country = isset($country) ? htmlspecialchars($country, ENT_QUOTES, 'UTF-8') : null;
+        $this->country = isset($country) ? htmlspecialchars($country, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -626,7 +705,7 @@ class InventoryItem
      */
     public function setCity($city)
     {
-        $this->city = isset($city) ? htmlspecialchars($city, ENT_QUOTES, 'UTF-8') : null;
+        $this->city = isset($city) ? htmlspecialchars($city, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -646,7 +725,7 @@ class InventoryItem
      */
     public function setViagogoEventId($viagogoEventId)
     {
-        $this->viagogoEventId = isset($viagogoEventId) ? htmlspecialchars($viagogoEventId, ENT_QUOTES, 'UTF-8') : null;
+        $this->viagogoEventId = isset($viagogoEventId) ? htmlspecialchars($viagogoEventId, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -767,7 +846,7 @@ class InventoryItem
      */
     public function setQuantityRemain($quantityRemain)
     {
-        $this->quantityRemain = isset($quantityRemain) ? htmlspecialchars($quantityRemain, ENT_QUOTES, 'UTF-8') : $this->getPurchasedQuantity();
+        $this->quantityRemain = isset($quantityRemain) ? htmlspecialchars($quantityRemain, ENT_NOQUOTES, 'UTF-8') : $this->getPurchasedQuantity();
 
         return $this;
     }
@@ -840,7 +919,7 @@ class InventoryItem
      */
     public function setViagogoCategoryId($viagogoCategoryId)
     {
-        $this->viagogoCategoryId = isset($viagogoCategoryId) ? htmlspecialchars($viagogoCategoryId, ENT_QUOTES, 'UTF-8') : null;
+        $this->viagogoCategoryId = isset($viagogoCategoryId) ? htmlspecialchars($viagogoCategoryId, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -860,7 +939,7 @@ class InventoryItem
      */
     public function setPlatform($platform)
     {
-        $this->platform = isset($platform) ? htmlspecialchars($platform, ENT_QUOTES, 'UTF-8') : null;
+        $this->platform = isset($platform) ? htmlspecialchars($platform, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -881,7 +960,7 @@ class InventoryItem
      */
     public function setSaleId($saleId)
     {
-        $this->saleId = isset($saleId) ? htmlspecialchars($saleId, ENT_QUOTES, 'UTF-8') : $this->saleId;
+        $this->saleId = isset($saleId) ? htmlspecialchars($saleId, ENT_NOQUOTES, 'UTF-8') : $this->saleId;
 
         return $this;
     }
@@ -889,7 +968,7 @@ class InventoryItem
     /**
      * Returns inventory data as associative array
      */
-    public function toArray()
+    public function toArray($sanitizeAsString = false)
     {
         $inventoryData = [
             'id' =>  $this->getId(),
@@ -903,6 +982,7 @@ class InventoryItem
             'row' =>  $this->getRow(),
             'seatFrom' =>  $this->getSeatFrom(),
             'seatTo' =>  $this->getSeatTo(),
+            'floorSeats' =>  $this->getFloorSeats(),
             'ticketType' =>  $this->getTicketType(),
             'ticketGenre' =>  $this->getTicketGenre(),
             'retailer' =>  $this->getRetailer(),
@@ -915,18 +995,17 @@ class InventoryItem
             'yourPricePerTicketCurrency' =>  $this->getYourPricePerTicket()['currency'],
             'totalPayoutAmount' =>  $this->getTotalPayout()['amount'],
             'totalPayoutCurrency' =>  $this->getTotalPayout()['currency'],
-            'quantity' =>  $this->getPurchasedQuantity(),
             'quantityRemain' =>  $this->getQuantityRemain(),
             'platform' =>  $this->getPlatform(),
             'saleId' =>  $this->getSaleId(),
             'listingId' =>  $this->getListingId(),
             'listingRestrictions' =>  implode(',', $this->getRestrictions()),
             'listingTicketDetails' =>  implode(',', $this->getTicketDetails()),
-            'saleDate' => $this->getSaleDate(),
-            'eventDate' => $this->getEventDate(),
-            'purchaseDate' => $this->getPurchaseDate(),
-            'saleEndDate' => $this->getSaleEndDate(),
-            'dateLastModified' => $this->getDateLastModified()
+            'saleDate' => $sanitizeAsString && $this->getSaleDate() !== null ? $this->getSaleDate()->getTimestamp() : $this->getSaleDate(),
+            'eventDate' => $sanitizeAsString && $this->getEventDate() !== null ? $this->getEventDate()->getTimestamp() : $this->getEventDate(),
+            'purchaseDate' => $sanitizeAsString && $this->getPurchaseDate() !== null ? $this->getPurchaseDate()->getTimestamp() : $this->getPurchaseDate(),
+            'saleEndDate' => $sanitizeAsString && $this->getSaleEndDate() !== null ? $this->getSaleEndDate()->getTimestamp() : $this->getSaleEndDate(),
+            'dateLastModified' => $sanitizeAsString && $this->getDateLastModified() !== null ? $this->getDateLastModified()->getTimestamp() : $this->getDateLastModified()
         ];
 
         return $inventoryData;
@@ -947,7 +1026,7 @@ class InventoryItem
      */
     public function setListingId($listingId)
     {
-        $this->listingId = isset($listingId) ? htmlspecialchars($listingId, ENT_QUOTES, 'UTF-8') : null;
+        $this->listingId = isset($listingId) ? htmlspecialchars($listingId, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -1041,7 +1120,7 @@ class InventoryItem
      */
     public function setSeatFrom($seatFrom)
     {
-        $this->seatFrom = isset($seatFrom) ? htmlspecialchars($seatFrom, ENT_QUOTES, 'UTF-8') : null;
+        $this->seatFrom = isset($seatFrom) ? htmlspecialchars($seatFrom, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -1061,7 +1140,7 @@ class InventoryItem
      */
     public function setSeatTo($seatTo)
     {
-        $this->seatTo = isset($seatTo) ? htmlspecialchars($seatTo, ENT_QUOTES, 'UTF-8') : null;
+        $this->seatTo = isset($seatTo) ? htmlspecialchars($seatTo, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -1233,7 +1312,7 @@ class InventoryItem
 
     /**
      * Get the value of floorSeats
-     */ 
+     */
     public function getFloorSeats()
     {
         return $this->floorSeats;
@@ -1243,7 +1322,7 @@ class InventoryItem
      * Set the value of floorSeats
      *
      * @return  self
-     */ 
+     */
     public function setFloorSeats($floorSeats)
     {
         $this->floorSeats = $floorSeats;

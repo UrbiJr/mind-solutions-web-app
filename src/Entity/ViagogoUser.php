@@ -32,7 +32,7 @@ class ViagogoUser
      */
     public function setUsername($username)
     {
-        $this->username = isset($username) ? htmlspecialchars($username, ENT_QUOTES, 'UTF-8') : null;
+        $this->username = isset($username) ? htmlspecialchars($username, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -52,7 +52,7 @@ class ViagogoUser
      */
     public function setPassword($password)
     {
-        $this->password = isset($password) ? htmlspecialchars($password, ENT_QUOTES, 'UTF-8') : null;
+        $this->password = isset($password) ? htmlspecialchars($password, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -72,7 +72,7 @@ class ViagogoUser
      */
     public function setWsu2Cookie($wsu2Cookie)
     {
-        $this->wsu2Cookie = isset($wsu2Cookie) ? htmlspecialchars($wsu2Cookie, ENT_QUOTES, 'UTF-8') : null;
+        $this->wsu2Cookie = isset($wsu2Cookie) ? htmlspecialchars($wsu2Cookie, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }
@@ -92,7 +92,7 @@ class ViagogoUser
      */
     public function setRvtCookie($rvtCookie)
     {
-        $this->rvtCookie = isset($rvtCookie) ? htmlspecialchars($rvtCookie, ENT_QUOTES, 'UTF-8') : null;
+        $this->rvtCookie = isset($rvtCookie) ? htmlspecialchars($rvtCookie, ENT_NOQUOTES, 'UTF-8') : null;
 
         return $this;
     }

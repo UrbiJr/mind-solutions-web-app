@@ -23,6 +23,11 @@ class BackupController extends AbstractController
     final public const INVENTORY_DATA = 'inventory';
     final public const SETTINGS_DATA = 'settings';
 
+    function __construct(
+        private readonly EntityManagerInterface $em,
+    ) {
+    }
+
     #[Route('/backup', name: 'backup')]
     public function backup(#[CurrentUser] ?User $user, Request $request, KernelInterface $kernel)
     {
@@ -34,8 +39,8 @@ class BackupController extends AbstractController
 
         switch ($what) {
             case BackupController::INVENTORY_DATA:
-                # code...
-                break;
+                $response = $this->exportInventory($user);
+                return $response;
 
             case BackupController::SETTINGS_DATA:
                 $application = new Application($kernel);
@@ -45,6 +50,7 @@ class BackupController extends AbstractController
                     'command' => 'backup_data',
                     // (optional) define the value of command arguments
                     'user' => $user->getId(),
+                    '--data' => BackupController::SETTINGS_DATA,
                 ]);
 
                 // You can use NullOutput() if you don't need the output
@@ -66,10 +72,13 @@ class BackupController extends AbstractController
         return $this->redirectToRoute("profile_settings");
     }
 
-    public function exportInventory(#[CurrentUser] ?User $user, EntityManagerInterface $entityManager, UserRepository $userRepository): Response
+    private function exportInventory(#[CurrentUser] ?User $user): Response
     {
         // The second parameter is used to specify on what object the role is tested.
         $this->denyAccessUnlessGranted('ROLE_MEMBER', null, 'Unable to access this page!');
+
+        /** @var UserRepository $userRepository */
+        $userRepository = $this->em->getRepository(User::class);
 
         [$fileName, $filePath] = $userRepository->exportInventoryToCSV($user);
 
@@ -83,6 +92,8 @@ class BackupController extends AbstractController
 
         // Automatically delete the file after sending it to the client
         $response->deleteFileAfterSend(true);
+
+        //$this->addFlash("success", "⬇️ Inventory downloaded successfully!");
 
         return $response;
     }

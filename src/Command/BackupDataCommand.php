@@ -2,11 +2,13 @@
 
 namespace App\Command;
 
+use App\Controller\BackupController;
 use App\Entity\Backup;
 use App\Entity\User;
 use App\Repository\BackupRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,8 +33,7 @@ class BackupDataCommand extends Command
     {
         $this
             ->addArgument('user', InputArgument::OPTIONAL, "User ID")
-            //->addOption('settings-only', null, InputOption::VALUE_NONE, 'Save only settings')
-        ;
+            ->addOption('data', null, InputOption::VALUE_REQUIRED, 'Specify data type to backup');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,20 +47,44 @@ class BackupDataCommand extends Command
         }
         */
 
-        /*
-        if ($input->getOption('option1')) {
-            // ...
+        $dataType = $input->getOption('data');
+        if (!$dataType) {
+            $output->write("Error: you must specify a data type to backup.");
+            return Command::FAILURE;
         }
-        */
 
+        switch ($dataType) {
+            case BackupController::INVENTORY_DATA:
+                break;
+
+            case BackupController::SETTINGS_DATA:
+                try {
+                    $this->settingsBackup($userId);
+                } catch (Exception $e) {
+                    $output->write($e->getMessage());
+                    return Command::FAILURE;
+                }
+                break;
+
+            default:
+                $output->write("Error: unrecognized data type.");
+                return Command::FAILURE;
+        }
+
+        $output->write("success");
+
+        return Command::SUCCESS;
+    }
+
+    private function settingsBackup($userId)
+    {
         $userRepository = $this->em->getRepository(User::class);
         $backupRepository = $this->em->getRepository(Backup::class);
 
         /** @var User $user */
         $user = $userRepository->getById($userId);
         if (!$user) {
-            $output->write("Error: user with id {$userId} not found.");
-            return Command::FAILURE;
+            throw new Exception("Error: user with id {$userId} not found.");
         }
         // Check the number of existing backups for the user
         $existingBackupsCount = $backupRepository->count(['user' => $user]);
@@ -67,8 +92,7 @@ class BackupDataCommand extends Command
         // Check and enforce the maximum number of backups
         $maxBackupsPerUser = 3;
         if ($existingBackupsCount >= $maxBackupsPerUser) {
-            $output->write('Error: maximum number of backups reached. Delete existing backups before creating a new one.');
-            return Command::FAILURE;
+            throw new Exception('Error: maximum number of backups reached. Delete existing backups before creating a new one.');
         }
 
         // Create a new backup record in the Backups table
@@ -85,9 +109,5 @@ class BackupDataCommand extends Command
 
         $this->em->persist($backup);
         $this->em->flush();
-
-        $output->write("success");
-
-        return Command::SUCCESS;
     }
 }

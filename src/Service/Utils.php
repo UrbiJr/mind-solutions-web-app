@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use DateTime;
+use DateTimeInterface;
 use GuzzleHttp\Client;
 use Firebase\JWT\JWT;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
@@ -16,6 +18,15 @@ final class Utils
 
     public function __construct(private Client $client, private string $exchangeRateApiKey, private string $jwtKey, private readonly MemcachedAdapter $cache)
     {
+    }
+
+    public static function unixTimestampToDateTime(int $timestamp): DateTimeInterface
+    {
+        // Create a DateTime object
+        $dateTime = new DateTime();
+        $dateTime->setTimestamp($timestamp);
+
+        return $dateTime;
     }
 
     /**

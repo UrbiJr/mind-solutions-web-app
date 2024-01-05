@@ -14,6 +14,8 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -120,9 +122,14 @@ class ProfileController extends AbstractController
                     'accept' => '.csv',
                 ],
             ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Restore Inventory',
+            ->add('overwrite', CheckboxType::class, [
+                'label' => 'Overwrite',
+                'help' => 'Delete current inventory data?',
+            ])
+            ->add('submit', ButtonType::class, [
+                'label' => 'Import Inventory',
                 'attr' => [
+                    'class' => 'btn-primary btn',
                     'data-bs-toggle' => 'modal',
                     'data-bs-target' => '#confirmRestoreModal',
                 ],

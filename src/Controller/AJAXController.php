@@ -333,7 +333,7 @@ class AJAXController extends AbstractController
 
             /** @var array $dataArray */
             $dataArray = $request->request->all()['inventory_item'] ?? [];
-            $inventoryItem = InventoryItem::fromDataArray($dataArray, $user);
+            $inventoryItem = InventoryItem::fromAssociativeArray($dataArray, $user);
 
             $sectionListRepo = $em->getRepository(SectionList::class);
             $sectionList = $sectionListRepo->findOneByEventId($inventoryItem->getViagogoEventId());
@@ -424,7 +424,7 @@ class AJAXController extends AbstractController
 
             /** @var array $dataArray */
             $dataArray = $request->request->all()['inventory_item'] ?? [];
-            $inventoryItem = InventoryItem::fromDataArray($dataArray, $user);
+            $inventoryItem = InventoryItem::fromAssociativeArray($dataArray, $user);
             $inventoryItem->setUser($user);
 
             $this->inventoryItemRepo->edit($inventoryItem);

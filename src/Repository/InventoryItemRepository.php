@@ -91,7 +91,7 @@ class InventoryItemRepository extends ServiceEntityRepository
 
             // Iterate over the document IDs and update each one
             foreach ($itemIds as $id) {
-                $inventoryItem = InventoryItem::fromDataArray($attributes, $user);
+                $inventoryItem = InventoryItem::fromAssociativeArray($attributes, $user);
                 $inventoryItem->setId($id);
 
                 $this->getEntityManager()->persist($inventoryItem);
@@ -112,6 +112,18 @@ class InventoryItemRepository extends ServiceEntityRepository
             $this->getEntityManager()->remove($inventoryItem);
             $this->getEntityManager()->flush();
         }
+    }
+
+    function deleteAllByUser(User $user)
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->delete('App\Entity\InventoryItem', 'i')
+            ->where('i.user = :user')
+            ->setParameter('user', $user);
+
+        $query = $qb->getQuery();
+
+        return $query->execute();
     }
 
     function massDelete(array $itemIds): int

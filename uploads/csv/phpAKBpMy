@@ -1,0 +1,19 @@
+ItemId;ViagogoEventId;ViagogoCategoryId;Name;Country;City;Location;Section;Row;SeatFrom;SeatTo;FloorSeats;TicketType;TicketGenre;Retailer;IndividualTicketCostAmount;IndividualTicketCostCurrency;OrderNumber;OrderEmail;Status;YourPricePerTicketAmount;YourPricePerTicketCurrency;TotalPayoutAmount;TotalPayoutCurrency;QuantityRemain;Platform;SaleId;ListingId;ListingRestrictions;ListingTicketDetails;SaleDate;EventDate;PurchaseDate;SaleEndDate;DateLastModified
+1;152104027;11654;Coldplay;FI;Helsinki;"Olympic Stadium";C4;G;56;57;;1;"Concert Tickets";ticketmaster;60;EUR;;aaa@test.com;Inactive;570;EUR;1026;EUR;2;Viagogo;;;;;;1722088800;1704281280;1721923200;1690535106
+2;152419488;70125;"Madison Beer";GB;London;"Eventim Apollo";"General Admission";;;;;ETicket;"Concert Tickets";;0;EUR;;;Active;100;EUR;90;EUR;2;Viagogo;;;;;;1711393200;;1711227600;1699883935
+3;151973560;11113;"Taylor Swift";DE;Munich;"Olympiastadion München";"Front of Stage 2 Left";;;;;GenericMobileTransfer;"Concert Tickets";;0;EUR;;;Active;1000;EUR;900;EUR;4;Viagogo;;;;;;1722183300;;1722017700;1699883730
+4;150486746;;"Central Cee";;Manchester;"Mayfield Depot";"Placement Libre";;;;;"Mobile QR Code";;;0;EUR;;;Soldout;1000;EUR;44;EUR;0;Viagogo;509002982;;;;1669118360;1670007600;;;1670331311
+5;151516534;;"Post Malone";;London;"The O2";Floor;;;;;"Mobile Ticket Transfer";;;0;EUR;;;Soldout;1000;EUR;176;EUR;0;Viagogo;514974620;;;;1681850307;1683399600;;;1683724183
+6;151484111;;"Micky Flanagan";;London;"The O2";103;;94;95;;"Mobile Ticket Transfer";;;0;EUR;;;Soldout;1000;EUR;352;EUR;0;Viagogo;512383016;;;;1677062507;1684008000;;;1684925280
+7;150475993;;"Arctic Monkeys";;Sheffield;"Hillsborough Park";"General Admission";;;;;E-Ticket;;;0;EUR;;;Soldout;1000;EUR;145.2;EUR;0;Viagogo;514660089;;;;1681303161;1686416400;;;1686739635
+8;150475993;;"Arctic Monkeys";;Sheffield;"Hillsborough Park";"General Admission";;;;;E-Ticket;;;0;EUR;;;Soldout;1000;EUR;88;EUR;0;Viagogo;517147923;;;;1685702850;1686416400;;;1686739661
+9;151426307;;"Lollapalooza France 2023 - Friday";;Paris;"Longchamp Racecourse";NN;;;;;E-Ticket;;;0;EUR;;;Soldout;1000;EUR;66;EUR;0;Viagogo;514996003;;;;1681880309;1689951600;;;1690282025
+10;151945818;;"Fred Again";;Amsterdam;"Ziggo Dome";Floor;;;;;"Ticketmaster Mobile Ticket";;;0;EUR;;;Soldout;1000;EUR;161.92;EUR;0;Viagogo;520519482;;;;1691326436;1694808000;;;1695293269
+11;151945818;;"Fred Again";;Amsterdam;"Ziggo Dome";Floor;;;;;"Ticketmaster Mobile Ticket";;;0;EUR;;;Soldout;1000;EUR;161.92;EUR;0;Viagogo;520554091;;;;1691367543;1694808000;;;1695293270
+12;151838564;;Lovejoy;;London;"O2 Forum Kentish Town";"Stalls Standing";;;;;"Mobile Ticket Transfer";;;0;EUR;;;Soldout;1000;EUR;140.8;EUR;0;Viagogo;520470127;;;;1691252573;1695841200;;;1695909459
+13;151751932;;"Brent Faiyaz";;London;"Eventim Apollo";Stalls;;;;;E-Ticket;;;0;EUR;;;Soldout;1000;EUR;264;EUR;0;Viagogo;515770177;;;;1683279700;1698260400;;;1698575195
+14;151900217;;"Bring Me The Horizon";;London;"The O2";412;;740;741;;"Mobile Ticket Transfer";;;0;EUR;;;Soldout;1000;EUR;176;EUR;0;Viagogo;518129220;;;;1687345075;1705771800;;;1691398026
+15;151695863;;"John Mayer";;London;"The O2";409;;645;646;;E-Ticket;;;0;EUR;;;Soldout;1000;EUR;193.6;EUR;0;Viagogo;522167280;;;;1693907137;1710788400;;;1693907681
+16;152527721;;"Bruce Springsteen &amp; The E Street Band";;London;"Wembley Stadium";528;;40;41;;E-Ticket;;;0;EUR;;;Soldout;1000;EUR;352;EUR;0;Viagogo;525449456;;;;1699535917;1721934000;;;1699634342
+19;152237392;37636;"Travis Scott";US;Chicago;"United Center";302;9;34;35;;1;"Concert Tickets";ticketmaster;70;EUR;;federico.urbinelli@icloud.com;Inactive;0;EUR;0;EUR;2;;;;;;1704274807;1704333600;1704275040;;
+21;152237392;37636;"Travis Scott";US;Chicago;"United Center";"Floor General Admission";;;;3;1;"Concert Tickets";ticketmaster;35.5;EUR;;federico.urbinelli@gmail.com;Inactive;0;EUR;0;EUR;3;;;;;;1704298034;1704333600;1704298200;;

@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     $('#confirmRestoreInput').on('input', function () {
         const inputText = $(this).val();
-        if (inputText.toLowerCase() === 'restore') {
+        if (inputText.toLowerCase() === 'import') {
             $('#confirmRestoreBtn').prop('disabled', false);
         } else {
             $('#confirmRestoreBtn').prop('disabled', true);

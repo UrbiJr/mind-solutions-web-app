@@ -126,7 +126,7 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
         // Loop through inventory items for the user
         foreach ($inventory as $inventoryItem) {
             $csvRow = array_values($inventoryItem->toArray(true)); // Convert InventoryItem object to an array
-            fputcsv($csvFile, $csvRow, ";");
+            fputs($csvFile, implode(';', $csvRow) . "\n");
         }
 
         fclose($csvFile);

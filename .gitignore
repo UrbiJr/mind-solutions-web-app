@@ -28,3 +28,4 @@ phpstan.neon
 ###< phpstan/phpstan ###
 
 .DS_Store
+uploads/

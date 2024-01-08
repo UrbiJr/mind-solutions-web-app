@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Home
+{% endblock %}
 
 {% block content %}
 
@@ -32,178 +33,178 @@
 										</div>
 									</div>
 								</li>
-							</li>
-							<li class="swiper-slide card card-slide" data-aos="fade-up" data-aos-delay="800">
-								<div class="card-body">
-									<div class="progress-widget">
-										<div id="circle-progress-02" class="text-center circle-progress-01 circle-progress circle-progress-primary" data-min-value="0" data-max-value="100" data-value="100" data-type="percent">
-											{% if (viagogoAnalytics.totalSpent['amount'] > 0) %}
-												<svg class="card-slie-arrow icon-24" width="24px" viewbox="0 0 24 24">
-													<path fill="currentColor" d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z"/>
-												</svg>
-											{% elseif (viagogoAnalytics.totalSpent['amount'] < 0) %}
-												<svg class="card-slie-arrow icon-24" width="24" viewbox="0 0 24 24">
-													<path fill="currentColor" d="M19,6.41L17.59,5L7,15.59V9H5V19H15V17H8.41L19,6.41Z"/>
-												</svg>
-											{% endif %}
-										</div>
-										<div class="progress-detail">
-											<p class="mb-2">Total Expenses</p>
-											<h4 class="counter">{{ totalSpentFormatted }}</h4>
-										</div>
-									</div>
-								</div>
-							</li>
-							<li class="swiper-slide card card-slide" data-aos="fade-up" data-aos-delay="900">
-								<div class="card-body">
-									<div class="progress-widget">
-										<div id="circle-progress-03" class="text-center circle-progress-01 circle-progress <?= ($viagogoAnalytics->getQuantitySold() > $viagogoAnalytics->getQuantityRemaining()) ? " circle-progress-info" : " circle-progress-danger" ?>" data-min-value="0" data-max-value="<?= $viagogoAnalytics->getQuantitySold() + $viagogoAnalytics->getQuantityRemaining() ?>" data-value="<?= $viagogoAnalytics->getQuantitySold() ?>" data-type="percent">
-											{% if (viagogoAnalytics.quantitySold > viagogoAnalytics.quantityRemaining) %}
-												<svg class="card-slie-arrow icon-24" width="24px" viewbox="0 0 24 24">
-													<path fill="currentColor" d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z"/>
-												</svg>
-											{% else %}
-												<svg class="card-slie-arrow icon-24" width="24" viewbox="0 0 24 24">
-													<path fill="currentColor" d="M19,6.41L17.59,5L7,15.59V9H5V19H15V17H8.41L19,6.41Z"/>
-												</svg>
-											{% endif %}
-										</div>
-										<div class="progress-detail">
-											<p class="mb-2">Sold/Remaining</p>
-											<h4 class="counter">{{ viagogoAnalytics.quantitySold }}
-												/
-												{{ viagogoAnalytics.quantityRemaining }}</h4>
+								<li class="swiper-slide card card-slide" data-aos="fade-up" data-aos-delay="800">
+									<div class="card-body">
+										<div class="progress-widget">
+											<div id="circle-progress-02" class="text-center circle-progress-01 circle-progress circle-progress-primary" data-min-value="0" data-max-value="100" data-value="100" data-type="percent">
+												{% if (viagogoAnalytics.totalSpent['amount'] > 0) %}
+													<svg class="card-slie-arrow icon-24" width="24px" viewbox="0 0 24 24">
+														<path fill="currentColor" d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z"/>
+													</svg>
+												{% elseif (viagogoAnalytics.totalSpent['amount'] < 0) %}
+													<svg class="card-slie-arrow icon-24" width="24" viewbox="0 0 24 24">
+														<path fill="currentColor" d="M19,6.41L17.59,5L7,15.59V9H5V19H15V17H8.41L19,6.41Z"/>
+													</svg>
+												{% endif %}
+											</div>
+											<div class="progress-detail">
+												<p class="mb-2">Total Expenses</p>
+												<h4 class="counter">{{ totalSpentFormatted }}</h4>
+											</div>
 										</div>
 									</div>
-								</div>
-							</li>
-							<li class="swiper-slide card card-slide" data-aos="fade-up" data-aos-delay="1200">
-								<div class="card-body">
-									<div class="progress-widget">
-										<div id="circle-progress-06" class="text-center circle-progress-01 circle-progress <?= (isset($todayNetAmount) && $todayNetAmount[" amount"] >= 0) ? " circle-progress-info" : " circle-progress-danger" ?>" data-min-value="0" data-max-value="100" data-value="100" data-type="percent">
-											{% if (viagogoAnalytics.todayNetAmount["amount"]  > 0) %}
-												<svg class="card-slie-arrow icon-24" width="24px" viewbox="0 0 24 24">
-													<path fill="currentColor" d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z"/>
-												</svg>
-											{% elseif (viagogoAnalytics.todayNetAmount["amount"]  <= 0) %}
-												<svg class="card-slie-arrow icon-24" width="24" viewbox="0 0 24 24">
-													<path fill="currentColor" d="M19,6.41L17.59,5L7,15.59V9H5V19H15V17H8.41L19,6.41Z"/>
-												</svg>
-											{% endif %}
+								</li>
+								<li class="swiper-slide card card-slide" data-aos="fade-up" data-aos-delay="900">
+									<div class="card-body">
+										<div class="progress-widget">
+											<div id="circle-progress-03" class="text-center circle-progress-01 circle-progress <?= ($viagogoAnalytics->getQuantitySold() > $viagogoAnalytics->getQuantityRemaining()) ? " circle-progress-info" : " circle-progress-danger" ?>" data-min-value="0" data-max-value="<?= $viagogoAnalytics->getQuantitySold() + $viagogoAnalytics->getQuantityRemaining() ?>" data-value="<?= $viagogoAnalytics->getQuantitySold() ?>" data-type="percent">
+												{% if (viagogoAnalytics.quantitySold > viagogoAnalytics.quantityRemaining) %}
+													<svg class="card-slie-arrow icon-24" width="24px" viewbox="0 0 24 24">
+														<path fill="currentColor" d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z"/>
+													</svg>
+												{% else %}
+													<svg class="card-slie-arrow icon-24" width="24" viewbox="0 0 24 24">
+														<path fill="currentColor" d="M19,6.41L17.59,5L7,15.59V9H5V19H15V17H8.41L19,6.41Z"/>
+													</svg>
+												{% endif %}
+											</div>
+											<div class="progress-detail">
+												<p class="mb-2">Sold/Remaining</p>
+												<h4 class="counter">{{ viagogoAnalytics.quantitySold }}
+													/
+													{{ viagogoAnalytics.quantityRemaining }}</h4>
+											</div>
 										</div>
-										<div class="progress-detail">
-											<p class="mb-2">Today Net</p>
-											<h4 class="counter">{{ htmlTodayNetAmount }}</h4>
+									</div>
+								</li>
+								<li class="swiper-slide card card-slide" data-aos="fade-up" data-aos-delay="1200">
+									<div class="card-body">
+										<div class="progress-widget">
+											<div id="circle-progress-06" class="text-center circle-progress-01 circle-progress <?= (isset($todayNetAmount) && $todayNetAmount[" amount"] >= 0) ? " circle-progress-info" : " circle-progress-danger" ?>" data-min-value="0" data-max-value="100" data-value="100" data-type="percent">
+												{% if (viagogoAnalytics.todayNetAmount["amount"]  > 0) %}
+													<svg class="card-slie-arrow icon-24" width="24px" viewbox="0 0 24 24">
+														<path fill="currentColor" d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z"/>
+													</svg>
+												{% elseif (viagogoAnalytics.todayNetAmount["amount"]  <= 0) %}
+													<svg class="card-slie-arrow icon-24" width="24" viewbox="0 0 24 24">
+														<path fill="currentColor" d="M19,6.41L17.59,5L7,15.59V9H5V19H15V17H8.41L19,6.41Z"/>
+													</svg>
+												{% endif %}
+											</div>
+											<div class="progress-detail">
+												<p class="mb-2">Today Net</p>
+												<h4 class="counter">{{ htmlTodayNetAmount }}</h4>
+											</div>
 										</div>
 									</div>
-								</div>
-							</li>
-						</li>
-					</ul>
-					<div class="swiper-button swiper-button-next"></div>
-					<div class="swiper-button swiper-button-prev"></div>
-				</div>
-			{% endif %}
-		</div>
-	</div>
-	<div class="col-md-12 col-lg-8">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="card" data-aos="fade-up" data-aos-delay="800">
-					<div class="flex-wrap card-header d-flex justify-content-between align-items-center">
-						<div class="chart-legend-1 header-title">
-							<h4 class="chart-title card-title"></h4>
-							<p class="chart-subtitle mb-0">Realized Profit</p>
-						</div>
-						<div class="chart-legend-2 header-title" style="display: none;">
-							<h4 class="chart-title card-title"></h4>
-							<p class="chart-subtitle mb-0">Inventory Value</p>
-						</div>
-						<div id="chart-legend-1">
-							<div class="d-flex align-items-center align-self-center">
-								<div class="d-flex align-items-center text-primary">
-									<svg class="icon-12" xmlns="http://www.w3.org/2000/svg" width="12" viewbox="0 0 24 24" fill="currentColor">
-										<g>
-											<circle cx="12" cy="12" r="8" fill="currentColor"></circle>
-										</g>
-									</svg>
-									<div class="ms-2">
-										<span class="text-gray">Sales</span>
-									</div>
-								</div>
-								<div class="d-flex align-items-center ms-3 text-info">
-									<svg class="icon-12" xmlns="http://www.w3.org/2000/svg" width="12" viewbox="0 0 24 24" fill="currentColor">
-										<g>
-											<circle cx="12" cy="12" r="8" fill="currentColor"></circle>
-										</g>
-									</svg>
-									<div class="ms-2">
-										<span class="text-gray">Purchases</span>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div id="chart-legend-2" style="display: none;">
-							<div class="d-flex align-items-center align-self-center">
-								<div class="d-flex align-items-center text-primary">
-									<svg class="icon-12" xmlns="http://www.w3.org/2000/svg" width="12" viewbox="0 0 24 24" fill="currentColor">
-										<g>
-											<circle cx="12" cy="12" r="8" fill="currentColor"></circle>
-										</g>
-									</svg>
-									<div class="ms-2">
-										<span class="text-gray">Inventory Value</span>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="dropdown">
-							<a href="#!" class="text-gray dropdown-toggle" id="dropdownMenuButton22" data-bs-toggle="dropdown" aria-expanded="false">
-								Change Chart
-							</a>
-							<ul id="mainChartSelector" class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton22">
-								<li class="dropdown-item">Sales & Purchases</li>
-								<li class="dropdown-item">Inventory Value</li>
+								</li>
 							</ul>
+							<div class="swiper-button swiper-button-next"></div>
+							<div class="swiper-button swiper-button-prev"></div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+			<div class="col-md-12 col-lg-8">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="card" data-aos="fade-up" data-aos-delay="800">
+							<div class="flex-wrap card-header d-flex justify-content-between align-items-center">
+								<div class="chart-legend-1 header-title">
+									<h4 class="chart-title card-title"></h4>
+									<p class="chart-subtitle mb-0">Realized Profit</p>
+								</div>
+								<div class="chart-legend-2 header-title" style="display: none;">
+									<h4 class="chart-title card-title"></h4>
+									<p class="chart-subtitle mb-0">Inventory Value</p>
+								</div>
+								<div id="chart-legend-1">
+									<div class="d-flex align-items-center align-self-center">
+										<div class="d-flex align-items-center text-primary">
+											<svg class="icon-12" xmlns="http://www.w3.org/2000/svg" width="12" viewbox="0 0 24 24" fill="currentColor">
+												<g>
+													<circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+												</g>
+											</svg>
+											<div class="ms-2">
+												<span class="text-gray">Sales</span>
+											</div>
+										</div>
+										<div class="d-flex align-items-center ms-3 text-info">
+											<svg class="icon-12" xmlns="http://www.w3.org/2000/svg" width="12" viewbox="0 0 24 24" fill="currentColor">
+												<g>
+													<circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+												</g>
+											</svg>
+											<div class="ms-2">
+												<span class="text-gray">Purchases</span>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div id="chart-legend-2" style="display: none;">
+									<div class="d-flex align-items-center align-self-center">
+										<div class="d-flex align-items-center text-primary">
+											<svg class="icon-12" xmlns="http://www.w3.org/2000/svg" width="12" viewbox="0 0 24 24" fill="currentColor">
+												<g>
+													<circle cx="12" cy="12" r="8" fill="currentColor"></circle>
+												</g>
+											</svg>
+											<div class="ms-2">
+												<span class="text-gray">Inventory Value</span>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="dropdown">
+									<a href="#!" class="text-gray dropdown-toggle" id="dropdownMenuButton22" data-bs-toggle="dropdown" aria-expanded="false">
+										Change Chart
+									</a>
+									<ul id="mainChartSelector" class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton22">
+										<li class="dropdown-item">Sales & Purchases</li>
+										<li class="dropdown-item">Inventory Value</li>
+									</ul>
+								</div>
+							</div>
+							<div
+								id="d-main-container" class="card-body">
+								<!-- Purchases/Sales svg graph (Apex Charts) -->
+								<div id="d-main" class="d-main"></div>
+							</div>
+							<div
+								id="d-inventory-container" class="card-body" style="display: none;">
+								<!-- Purchases/Sales svg graph (Apex Charts) -->
+								<div id="d-inventory" class="d-main"></div>
+							</div>
 						</div>
 					</div>
-					<div
-						id="d-main-container" class="card-body">
-						<!-- Purchases/Sales svg graph (Apex Charts) -->
-						<div id="d-main" class="d-main"></div>
-					</div>
-					<div
-						id="d-inventory-container" class="card-body" style="display: none;">
-						<!-- Purchases/Sales svg graph (Apex Charts) -->
-						<div id="d-inventory" class="d-main"></div>
-					</div>
-				</div>
-			</div>
 
-		</div>
-	</div>
-	<div class="col-lg-4">
-		<div class="card">
-			<div class="card-header d-flex justify-content-between">
-				<div class="header-title">
-					<h4 class="card-title">Your Inventory</h4>
-					<div class="dropdown">
-						<a href="#!" class="text-gray dropdown-toggle" id="inventorySortByDropdownMenu" data-bs-toggle="dropdown" aria-expanded="false">
-							Sort by quantity
-						</a>
-						<ul id="inventorySortBySelector" class="dropdown-menu dropdown-menu-end" aria-labelledby="inventorySortByDropdownMenu">
-							<li class="dropdown-item">Quantity</li>
-							<li class="dropdown-item">Event date</li>
-							<li class="dropdown-item">ROI</li>
-							<li class="dropdown-item">Listing price</li>
-						</ul>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="card">
+					<div class="card-header d-flex justify-content-between">
+						<div class="header-title">
+							<h4 class="card-title">Your Inventory</h4>
+							<div class="dropdown">
+								<a href="#!" class="text-gray dropdown-toggle" id="inventorySortByDropdownMenu" data-bs-toggle="dropdown" aria-expanded="false">
+									Sort by quantity
+								</a>
+								<ul id="inventorySortBySelector" class="dropdown-menu dropdown-menu-end" aria-labelledby="inventorySortByDropdownMenu">
+									<li class="dropdown-item">Quantity</li>
+									<li class="dropdown-item">Event date</li>
+									<li class="dropdown-item">ROI</li>
+									<li class="dropdown-item">Listing price</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="hidden card-body" id="inventoryListContainer"></div>
+					<div id="inventoryListSpinner" class="hidden" style="text-align: center; margin: 20px;">
+						<span class="spinner" style="width: 45px; height: 45px;"></span>
 					</div>
 				</div>
 			</div>
-			<div class="hidden card-body" id="inventoryListContainer"></div>
-			<div id="inventoryListSpinner" class="hidden" style="text-align: center; margin: 20px;">
-				<span class="spinner" style="width: 45px; height: 45px;"></span>
-			</div>
 		</div>
 	</div>
-</div></div>{% endblock %}
+{% endblock %}

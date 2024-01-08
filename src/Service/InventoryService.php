@@ -146,7 +146,6 @@ class InventoryService
         }
 
         $analytics = new ViagogoAnalytics($userId, $lastSale, $quantitySold, $quantityRemaining, $totalSpent, $todaySpent, $netAmount, $todayNetAmount, $sales);
-
         return $analytics;
     }
 }

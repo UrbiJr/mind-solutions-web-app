@@ -53,7 +53,6 @@ class DashboardController extends AbstractController
                 'bannerBtnText' => new TranslatableMessage('Join Discord'),
                 'displayBanner' => true,
                 'displayBannerBtn' => true,
-                'viagogAnalytics' => $viagogoAnalytics,
                 'htmlNetAmount' => $htmlNetAmount,
                 'htmlTodayNetAmount' => $htmlTodayNetAmount,
                 'totalSpentFormatted' => $this->utils->formatAmountArrayAsSymbol($viagogoAnalytics->getTotalSpent()),

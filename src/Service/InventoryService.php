@@ -2,11 +2,14 @@
 
 namespace App\Service;
 
+use App\Controller\AJAXController;
 use App\Entity\InventoryItem;
+use App\Entity\User;
 use App\Entity\ViagogoAnalytics;
 use App\Repository\InventoryItemRepository;
 use DateTime;
 use DateTimeInterface;
+use GuzzleHttp\Client;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 
 class InventoryService
@@ -14,7 +17,8 @@ class InventoryService
     public function __construct(
         private readonly MemcachedAdapter $cache,
         private readonly Utils $utils,
-        private readonly InventoryItemRepository $inventoryItemRepository
+        private readonly InventoryItemRepository $inventoryItemRepository,
+        private readonly Client $client,
     ) {
     }
 
@@ -147,5 +151,104 @@ class InventoryService
 
         $analytics = new ViagogoAnalytics($userId, $lastSale, $quantitySold, $quantityRemaining, $totalSpent, $todaySpent, $netAmount, $todayNetAmount, $sales);
         return $analytics;
+    }
+
+    public function calculateInventoryValue(User $user)
+    {
+
+        $exchangeRates = $this->utils->cacheExchangeRates($user->getCurrency());
+
+        $items = $this->inventoryItemRepository->getAllByUserId($user->getId());
+        $today = new DateTime();
+        $floorPricesToFetch = array();
+        $inventoryValue = 0;
+
+        foreach ($items as $item) {
+            $categoryId = $item->getViagogoCategoryId(); // Replace with the actual category ID
+            $eventId = $item->getViagogoEventId(); // Replace with the actual event ID
+            $section = $item->getSection(); // Replace with the actual section name
+            $userCurrency = $user->getCurrency(); // Replace with the actual currency
+
+            // if event has already happened OR if item has soldout
+            if ($item->getEventDate() < $today || $item->getStatus() === InventoryItem::ITEM_SOLD) {
+                // then use the net amount as item value
+                $sold = ['amount' => $item->getPurchasedQuantity() * $item->getTotalPayout()["amount"], 'currency' => $item->getTotalPayout()["currency"]];
+                if (strtoupper($userCurrency) === strtoupper($sold["currency"])) {
+                    $inventoryItemValue = $sold['amount'];
+                } else {
+                    $inventoryItemValue = $this->utils->convertCurrency(floatval($sold["amount"]), $exchangeRates, $sold["currency"]);
+                }
+                $inventoryValue += $inventoryItemValue;
+            } else {
+                // otherwise use section Floor Price * quantity remaining
+                $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $section) . $eventId);
+                $floorPrice = $cacheItem->get();
+
+                // if floor price is in cache...
+                if ($cacheItem->isHit() && !is_bool($floorPrice)) {
+                    if (strtoupper($userCurrency) === strtoupper($floorPrice["currency"])) {
+                        $inventoryItemValue = $floorPrice["floorPrice"] * $item->getQuantityRemain();
+                    } else {
+                        $floorPriceConverted = $this->utils->convertCurrency(floatval($floorPrice["floorPrice"]), $exchangeRates, $floorPrice["currency"]);
+                        $inventoryItemValue = $floorPriceConverted * $item->getQuantityRemain();
+                    }
+                    $inventoryValue += $inventoryItemValue;
+                } else {
+                    // otherwise, fetch it later
+                    $floorPricesToFetch[$item->getId()] = array("itemId" => $item->getId(), "eventId" => $eventId, "categoryId" => $categoryId, "section" => $section, "quantityRemain" => $item->getQuantityRemain());
+                }
+            }
+        }
+
+        if (sizeof($floorPricesToFetch) > 0) {
+            /* fetch floor prices */
+            $apiEndpoint = 'https://api.mindsolutions.app/'; // Replace with the URL of your PHP script
+            $jwtToken = $this->utils->generateToken(AJAXController::JWT_EXPIRY_IN_SECONDS);
+
+            $data = [
+                'action' => 'get_bulk_event_section_floor_price',
+                'items' => array_values($floorPricesToFetch),
+                'currency' => $userCurrency,
+            ];
+
+            // Convert the POST data array to JSON
+            $postDataJson = json_encode($data);
+
+            // Make the POST request to the API using Guzzle
+            try {
+                $response = $this->client->post($apiEndpoint, [
+                    'headers' => [
+                        'Authorization' => "Bearer $jwtToken",
+                        'Content-Type' => 'application/json',
+                    ],
+                    'body' => $postDataJson,
+                ]);
+
+                // Get the response body
+                $responseBody = $response->getBody()->getContents();
+
+                $floorPrices = json_decode($responseBody);
+                if (isset($floorPrices) && is_array($floorPrices)) {
+                    foreach ($floorPrices as $floorPrice) {
+                        $floorPrice = (array) $floorPrice;
+                        if (isset($floorPricesToFetch[$floorPrice["itemId"]])) {
+                            $inventoryValue += $floorPrice['floorPrice'] * $floorPricesToFetch[$floorPrice["itemId"]]['quantityRemain'];
+                        }
+                        // Store section foor price in cache for 10 minutes (adjust TTL as needed)
+                        $cacheItem = $this->cache->getItem('viagogoSectionFloorPrice_' . str_replace(' ', '', $floorPrice['section']) . $floorPrice['eventId']);
+                        $cacheItem->set($floorPrice);
+                        $cacheItem->expiresAfter(600); // 10 minutes
+                        // save the cache item
+                        $this->cache->save($cacheItem);
+                    }
+                }
+            } catch (\GuzzleHttp\Exception\RequestException $e) {
+                // Handle exceptions or errors here
+                // You can access the error response using $e->getResponse()
+                // Example: $errorResponse = $e->getResponse()->getBody()->getContents();
+            }
+        }
+
+        return $inventoryValue;
     }
 }

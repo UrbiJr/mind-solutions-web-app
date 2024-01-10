@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AJAXController extends AbstractController
 {
-    private const JWT_EXPIRY_IN_SECONDS = 3600;
+    public const JWT_EXPIRY_IN_SECONDS = 3600;
 
     function __construct(
         private readonly MemcachedAdapter $cache,

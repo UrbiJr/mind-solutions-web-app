@@ -51,6 +51,7 @@ class DashboardController extends AbstractController
                 'bannerBtnAction' => "https://discord.gg/4S4uzSrys7",
                 'bannerBtnIcon' => '<i class="fa-brands fa-discord"></i>',
                 'bannerBtnText' => new TranslatableMessage('Join Discord'),
+                'viagogoAnalytics' => $viagogoAnalytics,
                 'displayBanner' => true,
                 'displayBannerBtn' => true,
                 'htmlNetAmount' => $htmlNetAmount,

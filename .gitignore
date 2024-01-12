@@ -29,3 +29,6 @@ phpstan.neon
 
 .DS_Store
 uploads/
+public/
+public_html/
+*.log

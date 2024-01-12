@@ -120,7 +120,7 @@ class AuthController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // generate a signed url and email it to the user
+	    // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation(
                 'app_verify_email',
                 $user,
@@ -129,7 +129,7 @@ class AuthController extends AbstractController
                     ->to($user->getUsername())
                     ->subject('Please Confirm your Email')
                     ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
+	    );
 
             $this->addFlash(
                 'notice',

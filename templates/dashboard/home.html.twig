@@ -57,7 +57,7 @@
 								<li class="swiper-slide card card-slide" data-aos="fade-up" data-aos-delay="900">
 									<div class="card-body">
 										<div class="progress-widget">
-											<div id="circle-progress-03" class="text-center circle-progress-01 circle-progress {{ (viagogoAnalytics.getQuantitySold > viagogoAnalytics.getQuantityRemaining) ? 'circle-progress-info' : 'circle-progress-danger' }}" data-min-value="0" data-max-value="{{ viagogoAnalytics.getQuantitySold + viagogoAnalytics.getQuantityRemaining }}" data-value="{{ viagogoAnalytics.getQuantitySold }}" data-type="percent">
+											<div id="circle-progress-03" class="text-center circle-progress-01 circle-progress {{ (viagogoAnalytics.getQuantitySold > viagogoAnalytics.getQuantityRemaining/2) ? 'circle-progress-info' : 'circle-progress-danger' }}" data-min-value="0" data-max-value="{{ viagogoAnalytics.getQuantitySold + viagogoAnalytics.getQuantityRemaining }}" data-value="{{ viagogoAnalytics.getQuantitySold }}" data-type="percent">
 												{% if (viagogoAnalytics.quantitySold > viagogoAnalytics.quantityRemaining) %}
 													<svg class="card-slie-arrow icon-24" width="24px" viewbox="0 0 24 24">
 														<path fill="currentColor" d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z"/>

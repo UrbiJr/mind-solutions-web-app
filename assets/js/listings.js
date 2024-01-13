@@ -13,7 +13,7 @@ function validateListingData(itemData) {
     }
     if (!itemData.section || itemData.section.length <= 0) {
         throw new Error('section is required');
-    } else if (itemData.section !== "Floor") {
+    } else if (!itemData.section.toLowerCase().includes('floor') && !itemData.section.toLowerCase().includes('general admission')) {
         if (!itemData.row || itemData.row.length <= 0) {
             throw new Error('row is required');
         }

@@ -1,35 +1,46 @@
 {% extends 'auth.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Register
+{% endblock %}
 
 {% block content %}
 
-<section class="login-content">
-	<div class="row m-0 align-items-center bg-white vh-100">
-		<div class="col-md-6 d-md-block d-none bg-primary p-0 mt-n1 vh-100 overflow-hidden">
-			<img src="{{ asset('/images/auth/05.png') }}" class="img-fluid gradient-main animated-scaleX" alt="images">
-		</div>
-		<div class="col-md-6">
-			<div class="row justify-content-center">
-				<div class="col-md-10">
-					<div class="card card-transparent auth-card shadow-none d-flex justify-content-center mb-0">
-						<div class="card-body">
-							<div class="navbar-brand d-flex align-items-center mb-3">
-								<div class="logo-main">
-									<div class="logo-normal">
-										<img class="text-primary icon-30" src="{{ asset('images/mindsolutions/logo.svg') }}" alt="">
+	<section class="login-content">
+		<div class="row m-0 align-items-center bg-white vh-100">
+			<div class="col-md-6 d-md-block d-none bg-primary p-0 mt-n1 vh-100 overflow-hidden">
+				<img src="{{ asset('/images/auth/05.png') }}" class="img-fluid gradient-main animated-scaleX" alt="images">
+			</div>
+			<div class="col-md-6">
+				<div class="row justify-content-center">
+					<div class="col-md-10">
+						<div class="card card-transparent auth-card shadow-none d-flex justify-content-center mb-0">
+							<div class="card-body">
+								<div class="navbar-brand d-flex align-items-center mb-3">
+									<div class="logo-main">
+										<div class="logo-normal">
+											<img class="text-primary icon-30" src="{{ asset('images/mindsolutions/logo.svg') }}" alt="">
+										</div>
+										<div class="logo-mini">
+											<img class="text-primary icon-30" src="{{ asset('images/mindsolutions/logo.svg') }}" alt="">
+										</div>
 									</div>
-									<div class="logo-mini">
-										<img class="text-primary icon-30" src="{{ asset('images/mindsolutions/logo.svg') }}" alt="">
-									</div>
+									<h4 class="logo-title ms-3">{{ site_name }}</h4>
 								</div>
-								<h4 class="logo-title ms-3">{{ site_name }}</h4>
-							</div>
-							<h2 class="mb-2 text-center">Sign Up</h2>
-							<p class="text-center">Create your
-								{{ site_name }}
-								account.</p>
-							{{ form(form) }}
+								<h2 class="mb-2 text-center">Sign Up</h2>
+								<p class="text-center">Create your
+									{{ site_name }}
+									account.</p>
+								{{ form_start(form) }}
+								{{ form_row(form.username)}}
+								{{ form_row(form.password)}}
+								{{ form_row(form.confirmPassword)}}
+								{{ form_row(form.terms)}}
+								<div class="mb-3 text-center">
+									{{ form_label(form.save) }}
+									{{ form_widget(form.save) }}
+								</div>
+								{{ form_end(form) }}
+
 								<p class="mt-3 text-center">
 									Already have an account?
 									<a href="{{ path('login') }}" class="text-underline">Sign In</a>

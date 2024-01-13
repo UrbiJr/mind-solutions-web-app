@@ -187,7 +187,7 @@
 							<span class="ticket-type">{{ item.ticketTypeAsString }}</span>
 						</p>
 						<p>Purchase Date:
-							<span class="purchase-date">{{ item.purchaseDate|format_date(pattern='full', locale=app.request.locale, timezone=null) }}</span>
+							<span class="purchase-date">{{ item.purchaseDate|date("F jS \\a\\t g:ia", false) }}</span>
 						</p>
 					</div>
 				</div>
@@ -236,7 +236,7 @@
 												</a>
 											</h6>
 											<small class="float-right mt-1">on
-												<span class="purchase-date">{{ item.purchaseDate|format_date(pattern='full', locale=app.request.locale, timezone=null) }}</span>
+												<span class="purchase-date">{{ item.purchaseDate|date("F jS \\a\\t g:ia", false) }}</span>
 											</small>
 											<div class="d-inline-block w-100">
 												<p>for
@@ -264,7 +264,7 @@
 												{{ item.purchasedQuantity }}
 												Tickets</h6>
 											<small class="float-right mt-1">on
-												{{ item.saleDate != null ? item.saleDate|format_date(pattern='full', locale=app.request.locale, timezone=null) : '' }}</small>
+												{{ item.saleDate != null ? item.saleDate|date("F jS \\a\\t g:ia", false) : '' }}</small>
 											<div class="d-inline-block w-100">
 												<p>for
 													<span class="total-payout">{{ formatAmountArrayAsSymbol(item.totalPayout) }}</span>.</p>
@@ -278,7 +278,7 @@
 											</div>
 											<h6 class="float-left mb-1">Sale Ends On</h6>
 											<small class="float-right mt-1">
-												{{ item.saleEndDate != null ? item.saleEndDate|format_date(pattern='full', locale=app.request.locale, timezone=null) : '' }}</small>
+												{{ item.saleEndDate != null ? item.saleEndDate|date("F jS \\a\\t g:ia", false) : '' }}</small>
 										</li>
 										<li class="event-date-timeline {{ null != item.eventDate ? '' : 'hidden' }}">
 											<div class="timeline-dots1 border-warning text-warning">
@@ -288,7 +288,7 @@
 											</div>
 											<h6 class="float-left mb-1">Event Date</h6>
 											<small class="float-right mt-1">
-												{{ item.eventDate != null ? item.eventDate|format_date(pattern='full', locale=app.request.locale, timezone=null) : '' }}</small>
+												{{ item.eventDate != null ? item.eventDate|date("F jS \\a\\t g:ia", false) : '' }}</small>
 										</li>
 									</ul>
 								</div>

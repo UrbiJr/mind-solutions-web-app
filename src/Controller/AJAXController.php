@@ -1197,7 +1197,6 @@ class AJAXController extends AbstractController
                         # code...
                         break;
                 }
-
                 $itemRoi = $this->inventoryService->calculateRoi($item);
                 $rowData = array(
                     'name' => $item->getName() . " - " . $item->getCity(),
@@ -1208,7 +1207,7 @@ class AJAXController extends AbstractController
                     'floorPrice' => $floorPriceFormatted,
                     'totalCost' => $totalCostConverted,
                     'yourPrice' => $yourPrice,
-                    'projectedProfit' => $projectedProfit,
+                    'projectedProfit' => is_string($projectedProfit) ? $projectedProfit : $this->utils->currencyStringToSymbol($userCurrency) . number_format($projectedProfit, 2, ',', '') ,
                     'roi' => ($itemRoi !== "N/A") ? $itemRoi . "%" : $itemRoi,
                 );
 

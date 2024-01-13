@@ -113,10 +113,11 @@ function makeInventoryList(rows) {
         <h5>${row.name}</h5>
         <p>${row.date}</p>
     </div>
-    <div>
+    <div class="row">
         <span>Cost: <span class="text-danger">${row.totalCost}</span></span>
         <p>Projected Profit: <span class="text-success">${row.projectedProfit}</span></p>
     </div>
+    <div>
     <a href="${row.link}" class="btn btn-outline-info btn-sm">
         <span class="btn-inner">
             <svg class="icon-20" xmlns="http://www.w3.org/2000/svg" width="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -124,6 +125,7 @@ function makeInventoryList(rows) {
             </svg>
         </span>
     </a>
+    </div>
 `;
         // Append the card to the inventory list container
         inventoryListContainer.appendChild(card);

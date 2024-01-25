@@ -287,23 +287,20 @@ function getFilteredEvents(genreId, countryCode, query, callback) {
 
     function makeApiRequest(jwtToken) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: 'https://api.mindsolutions.app/viagogo/events/search', // Replace with the URL of your PHP script
+            type: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-                'Content-Type': 'application/json',
             },
-            dataType: 'json',
-            data: JSON.stringify({
-                action: "filter_events",
+            data: {
                 genre: genreId,
                 country: countryCode,
                 query: query,
-            }),
+            },
             success: function (response) {
                 // Handle the response here
-                if (response) {
-                    callback(response);
+                if (response && response.success) {
+                    callback(response.events);
                 } else {
                     console.error('Failed to retrieve sections prices');
                 }
@@ -338,28 +335,22 @@ function getEventOverviewData(eventId, successCallback, errorCallback, addSectio
 
     function makeApiRequest(jwtToken) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: 'https://api.mindsolutions.app/viagogo/events/' + eventId, // Replace with the URL of your PHP script
+            type: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-                'Content-Type': 'application/json',
             },
-            dataType: 'json',
-            data: JSON.stringify({
-                action: "event_overview",
-                eventId: eventId,
-            }),
             success: function (response) {
                 // Handle the response here
-                if (response) {
-                    successCallback(response);
-                    if (addSectionListToDb && response.sections && response.sections.sections && Object.keys(response.sections.sections).length > 0) {
+                if (response && response.success) {
+                    successCallback(response.event);
+                    if (addSectionListToDb && response.event.sections && response.event.sections.sections && Object.keys(response.event.sections.sections).length > 0) {
                         // add section list to db
                         $.ajax({
                             type: "POST",
                             url: '/api/events/section_list',
                             data: {
-                                sectionList: Object.keys(response.sections.sections),
+                                sectionList: Object.keys(response.event.sections.sections),
                                 eventId: eventId,
                             },
                             success: function (response) {

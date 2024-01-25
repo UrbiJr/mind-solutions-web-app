@@ -1,11 +1,15 @@
 const requestJwtToken = async () => {
     try {
-        const response = await fetch('https://api.mindsolutions.app/', {
-            method: 'GET',
+        const response = await fetch('https://api.mindsolutions.app/authenticate', {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             mode: 'cors',
+            dataType: 'json',
+            data: JSON.stringify({
+                user: user
+            }),
         });
 
         if (response.ok) {

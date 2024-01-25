@@ -202,11 +202,10 @@ class InventoryService
 
         if (sizeof($floorPricesToFetch) > 0) {
             /* fetch floor prices */
-            $apiEndpoint = 'https://api.mindsolutions.app/'; // Replace with the URL of your PHP script
+            $apiEndpoint = 'https://api.mindsolutions.app/viagogo/sections/floor-price/all'; // Replace with the URL of your PHP script
             $jwtToken = $this->utils->generateToken(AJAXController::JWT_EXPIRY_IN_SECONDS);
 
             $data = [
-                'action' => 'get_bulk_event_section_floor_price',
                 'items' => array_values($floorPricesToFetch),
                 'currency' => $userCurrency,
             ];
@@ -227,7 +226,7 @@ class InventoryService
                 // Get the response body
                 $responseBody = $response->getBody()->getContents();
 
-                $floorPrices = json_decode($responseBody);
+                $floorPrices = json_decode($responseBody)['floorPrices'];
                 if (isset($floorPrices) && is_array($floorPrices)) {
                     foreach ($floorPrices as $floorPrice) {
                         $floorPrice = (array) $floorPrice;

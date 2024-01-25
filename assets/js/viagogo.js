@@ -21,7 +21,7 @@ function getViagogoSessionCookie(username, password, recaptchaToken, successCall
 
     function makeApiRequest(jwtToken) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
+            url: 'https://api.mindsolutions.app/service-integration/viagogo/login', // Replace with the URL of your PHP script
             type: 'POST',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
@@ -29,7 +29,6 @@ function getViagogoSessionCookie(username, password, recaptchaToken, successCall
             },
             dataType: 'json',
             data: JSON.stringify({
-                action: "process_viagogo_login",
                 username: username,
                 password: password,
                 recaptchaToken: recaptchaToken,

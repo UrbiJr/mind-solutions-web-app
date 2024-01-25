@@ -21,22 +21,18 @@ function getRecaptchaToken(sitekey, pageUrl, version, pageAction, provider, apiK
 
     function makeApiRequest(jwtToken) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: `https://api.mindsolutions.app/captcha/${provider}/harvest`,
+            type: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-                'Content-Type': 'application/json',
             },
-            dataType: 'json',
-            data: JSON.stringify({
-                action: "harvest_recaptcha_token",
+            data: {
                 sitekey: sitekey,
                 pageUrl: pageUrl,
                 version: version,
                 pageAction: pageAction,
-                provider: provider,
                 apiKey: apiKey,
-            }),
+            },
             success: function (response) {
                 // Handle the response here
                 if (response.success) {

@@ -39,15 +39,13 @@ function createListing(eventId, ticketFormatID, quantity, splitId, sectionText, 
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
+            url: 'https://api.mindsolutions.app/service-integration/viagogo/list', // Replace with the URL of your PHP script
             type: 'POST',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-                'Content-Type': 'application/json',
             },
             dataType: 'json',
             data: JSON.stringify({
-                action: "add_listing",
                 sessionCookie: viagogoSessionId,
                 sessionCookie2: viagogoSessionId2,
                 eventId: eventId,
@@ -106,19 +104,17 @@ function editListing(csrfToken, listingId, action) {
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: 'https://api.mindsolutions.app/service-integration/viagogo/listings/status/' + listingId, // Replace with the URL of your PHP script
+            type: 'PUT',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
                 'Content-Type': 'application/json',
             },
             dataType: 'json',
             data: JSON.stringify({
-                action: "edit_listing",
                 sessionCookie: viagogoSessionId,
                 sessionCookie2: viagogoSessionId2,
                 csrfToken: csrfToken,
-                listingId: listingId,
                 listingAction: action,
             }),
             success: function (response) {
@@ -164,18 +160,16 @@ function editListingDetails(listingId, eventId, ticketFormatID, quantity, splitI
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: 'https://api.mindsolutions.app/service-integration/viagogo/listings/' + listingId, // Replace with the URL of your PHP script
+            type: 'PUT',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
                 'Content-Type': 'application/json',
             },
             dataType: 'json',
             data: JSON.stringify({
-                action: "edit_full",
                 sessionCookie: viagogoSessionId,
                 sessionCookie2: viagogoSessionId2,
-                listingId: listingId,
                 eventId: eventId,
                 ticketFormatID: ticketFormatID,
                 quantity: quantity,

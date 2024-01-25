@@ -857,11 +857,10 @@ class AJAXController extends AbstractController
 
             if (sizeof($floorPricesToFetch) > 0) {
                 /* fetch floor prices */
-                $apiEndpoint = 'https://api.mindsolutions.app/'; // Replace with the URL of your PHP script
+                $apiEndpoint = 'https://api.mindsolutions.app/viagogo/sections/floor-price/all'; // Replace with the URL of your PHP script
                 $jwtToken = $this->utils->generateToken(self::JWT_EXPIRY_IN_SECONDS);
 
                 $data = [
-                    'action' => 'get_bulk_event_section_floor_price',
                     'items' => $floorPricesToFetch,
                     'currency' => $userCurrency,
                 ];
@@ -882,7 +881,7 @@ class AJAXController extends AbstractController
                     // Get the response body
                     $responseBody = $response->getBody()->getContents();
 
-                    $floorPrices = json_decode($responseBody);
+                    $floorPrices = json_decode($responseBody)['floorPrices'];
                     if (isset($floorPrices) && is_array($floorPrices)) {
                         foreach ($floorPrices as $floorPrice) {
                             $floorPrice = (array) $floorPrice;
@@ -1216,11 +1215,10 @@ class AJAXController extends AbstractController
 
             if (sizeof($floorPricesToFetch) > 0) {
                 /* fetch floor prices */
-                $apiEndpoint = 'https://api.mindsolutions.app/'; // Replace with the URL of your PHP script
+                $apiEndpoint = 'https://api.mindsolutions.app/viagogo/sections/floor-price/all'; // Replace with the URL of your PHP script
                 $jwtToken = $this->utils->generateToken(self::JWT_EXPIRY_IN_SECONDS);
 
                 $data = [
-                    'action' => 'get_bulk_event_section_floor_price',
                     'items' => $floorPricesToFetch,
                     'currency' => $userCurrency,
                 ];
@@ -1241,7 +1239,7 @@ class AJAXController extends AbstractController
                     // Get the response body
                     $responseBody = $response->getBody()->getContents();
 
-                    $floorPrices = json_decode($responseBody);
+                    $floorPrices = json_decode($responseBody)['floorPrices'];
                     if (isset($floorPrices) && is_array($floorPrices)) {
                         foreach ($floorPrices as $floorPrice) {
                             $floorPrice = (array) $floorPrice;
@@ -1539,11 +1537,10 @@ class AJAXController extends AbstractController
 
             if (sizeof($floorPricesToFetch) > 0) {
                 /* fetch floor prices */
-                $apiEndpoint = 'https://api.mindsolutions.app/'; // Replace with the URL of your PHP script
+                $apiEndpoint = 'https://api.mindsolutions.app/viagogo/sections/floor-price/all'; // Replace with the URL of your PHP script
                 $jwtToken = $this->utils->generateToken(self::JWT_EXPIRY_IN_SECONDS);
 
                 $data = [
-                    'action' => 'get_bulk_event_section_floor_price',
                     'items' => $floorPricesToFetch,
                     'currency' => $userCurrency,
                 ];
@@ -1564,7 +1561,7 @@ class AJAXController extends AbstractController
                     // Get the response body
                     $responseBody = $response->getBody()->getContents();
 
-                    $floorPrices = json_decode($responseBody);
+                    $floorPrices = json_decode($responseBody)['floorPrices'];
                     if (isset($floorPrices) && is_array($floorPrices)) {
                         foreach ($floorPrices as $floorPrice) {
                             $floorPrice = (array) $floorPrice;

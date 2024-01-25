@@ -475,6 +475,7 @@
 
 				<script>
 					const currentLocale = document.body.getAttribute('lang');
+					const user = {{ user|json_encode|raw }};
 				</script>
 
 				<script src="{{ asset('js/api.js') }}"></script>

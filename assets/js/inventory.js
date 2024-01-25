@@ -643,24 +643,21 @@ function lookupEvent(eventName, eventDate, country, ticketGenre) {
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: 'https://api.mindsolutions.app/viagogo/events/lookup', // Replace with the URL of your PHP script
+            type: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-                'Content-Type': 'application/json',
             },
-            dataType: 'json',
-            data: JSON.stringify({
-                action: "lookup_event",
+            data: {
                 eventName: eventName,
                 eventDate: eventDate,
                 country: country,
                 ticketGenre: ticketGenre,
-            }),
+            },
             success: function (response) {
                 // Handle the response from the server
                 if (response.success === true) {
-                    resolve(response);
+                    resolve(response.event);
                 } else {
                     reject('Error: ' + response.message); // Reject the Promise with an error message
                 }
@@ -716,21 +713,18 @@ function getUserListings(viagogoSessionId, callback) {
 
     function makeApiRequest(jwtToken) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: 'https://api.mindsolutions.app/service-integration/viagogo/listings', // Replace with the URL of your PHP script
+            type: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-                'Content-Type': 'application/json',
             },
-            dataType: 'json',
-            data: JSON.stringify({
-                action: "get_user_listings",
-                viagogoSessionId: viagogoSessionId,
-            }),
+            data: {
+                sessionCookie: viagogoSessionId,
+            },
             success: function (response) {
                 // Handle the response here
                 if (response) {
-                    callback(response);
+                    callback(response.listings);
                 } else {
                     console.error('Failed to retrieve user listings');
                 }
@@ -765,21 +759,18 @@ function getUserSales(viagogoSessionId, callback) {
 
     function makeApiRequest(jwtToken) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: 'https://api.mindsolutions.app/service-integration/viagogo/sales', // Replace with the URL of your PHP script
+            type: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-                'Content-Type': 'application/json',
             },
-            dataType: 'json',
-            data: JSON.stringify({
-                action: "get_user_sales",
-                viagogoSessionId: viagogoSessionId,
-            }),
+            data: {
+                sessionCookie: viagogoSessionId,
+            },
             success: function (response) {
                 // Handle the response here
                 if (response) {
-                    callback(response);
+                    callback(response.sales);
                 } else {
                     console.error('Failed to retrieve user listings');
                 }
@@ -1610,22 +1601,19 @@ function fetchSplitTypes(quantity, wsu2Cookie) {
 
     function makeApiRequest(jwtToken, resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/', // Replace with the URL of your PHP script
-            type: 'POST',
+            url: 'https://api.mindsolutions.app/service-integration/viagogo/split-types', // Replace with the URL of your PHP script
+            type: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-                'Content-Type': 'application/json',
             },
-            dataType: 'json',
-            data: JSON.stringify({
-                action: "get_split_types",
+            data: {
                 quantity: quantity,
                 sessionCookie: wsu2Cookie
-            }),
+            },
             success: function (response) {
                 // Handle the response from the server
                 if (response.success === true) {
-                    resolve(response);
+                    resolve(response.result);
                 } else {
                     reject('Error: ' + response.message); // Reject the Promise with an error message
                 }

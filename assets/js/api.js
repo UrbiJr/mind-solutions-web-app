@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://mindsolutions.api/';
+const API_BASE_URL = 'https://api.mindsolutions.app/';
 //const API_BASE_URL = 'https://127.0.0.1:8001/';
 
 // Set up a global AJAX interceptor

@@ -475,9 +475,15 @@
 
 				<script>
 					const currentLocale = document.body.getAttribute('lang');
-					const user = {{ user|json_encode|raw }};
+					const user = {{ app.user|serialize(format = 'json')|raw }};
 				</script>
 
+				<!-- Library Bundle Script -->
+				<script src="{{ asset('js/core/libs.min.js') }}"></script>
+
+				<!-- External Library Bundle Script -->
+				<script src="{{ asset('js/core/external.min.js') }}"></script>
+				
 				<script src="{{ asset('js/api.js') }}"></script>
 
 				<script src="{{ asset('js/custom-functions.js') }}"></script>
@@ -493,11 +499,7 @@
 				
 				<script src="https://kit.fontawesome.com/f4362b7dfa.js" crossorigin="anonymous"></script>
 
-				<!-- Library Bundle Script -->
-				<script src="{{ asset('js/core/libs.min.js') }}"></script>
-
-				<!-- External Library Bundle Script -->
-				<script src="{{ asset('js/core/external.min.js') }}"></script>
+				
 
 				<!-- Widgetchart Script -->
 				<script src="{{ asset('js/charts/widgetcharts.js') }}"></script>

@@ -266,32 +266,13 @@ function onSubmitFilterViagogoEvents(form) {
 
 function getFilteredEvents(genreId, countryCode, query, callback) {
 
-    // Check if the token is already available in localStorage
-    var token = getWithExpiry('jwtToken');
 
-    if (token) {
-        makeApiRequest(token);
-    } else {
-        // Token is not available, request it
-        requestJwtToken()
-            .then((token) => {
-                var parsed = JSON.parse(token);
-                setWithExpiry('jwtToken', parsed.token, parsed.expiresIn * 1000)
-                makeApiRequest(parsed.token);
-            })
-            .catch((error) => {
-                console.error('Error receiving token:', error);
-                // Handle the error here
-            });
-    }
+    makeApiRequest();
 
-    function makeApiRequest(jwtToken) {
+    function makeApiRequest() {
         $.ajax({
             url: 'https://api.mindsolutions.app/viagogo/events/search', // Replace with the URL of your PHP script
             type: 'GET',
-            headers: {
-                'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-            },
             data: {
                 genre: genreId,
                 country: countryCode,
@@ -314,32 +295,12 @@ function getFilteredEvents(genreId, countryCode, query, callback) {
 
 function getEventOverviewData(eventId, successCallback, errorCallback, addSectionListToDb = false) {
 
-    // Check if the token is already available in localStorage
-    var token = getWithExpiry('jwtToken');
+    makeApiRequest();
 
-    if (token) {
-        makeApiRequest(token);
-    } else {
-        // Token is not available, request it
-        requestJwtToken()
-            .then((token) => {
-                var parsed = JSON.parse(token);
-                setWithExpiry('jwtToken', parsed.token, parsed.expiresIn * 1000)
-                makeApiRequest(parsed.token);
-            })
-            .catch((error) => {
-                console.error('Error receiving token:', error);
-                errorCallback(error);
-            });
-    }
-
-    function makeApiRequest(jwtToken) {
+    function makeApiRequest() {
         $.ajax({
             url: 'https://api.mindsolutions.app/viagogo/events/' + eventId, // Replace with the URL of your PHP script
             type: 'GET',
-            headers: {
-                'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
-            },
             success: function (response) {
                 // Handle the response here
                 if (response && response.success) {

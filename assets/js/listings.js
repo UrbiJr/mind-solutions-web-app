@@ -37,12 +37,12 @@ function createListing(eventId, ticketFormatID, quantity, splitId, sectionText, 
     const viagogoSessionId = window.viagogoUser.wsu2Cookie;
     const viagogoSessionId2 = window.viagogoUser.rvtCookie;
 
-    function makeApiRequest(jwtToken, resolve, reject) {
+    function makeApiRequest(resolve, reject) {
         $.ajax({
             url: 'https://api.mindsolutions.app/service-integration/viagogo/list', // Replace with the URL of your PHP script
             type: 'POST',
             headers: {
-                'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
+                'Content-Type': 'application/json',
             },
             dataType: 'json',
             data: JSON.stringify({
@@ -76,24 +76,9 @@ function createListing(eventId, ticketFormatID, quantity, splitId, sectionText, 
     }
 
     return new Promise(function (resolve, reject) {
-        // Check if the token is already available in localStorage
-        var token = getWithExpiry('jwtToken');
 
-        if (token) {
-            makeApiRequest(token, resolve, reject); // Pass resolve and reject as arguments
-        } else {
-            // Token is not available, request it
-            requestJwtToken()
-                .then((token) => {
-                    var parsed = JSON.parse(token);
-                    setWithExpiry('jwtToken', parsed.token, parsed.expiresIn * 1000);
-                    makeApiRequest(parsed.token, resolve, reject); // Pass resolve and reject as arguments
-                })
-                .catch((error) => {
-                    console.error('Error receiving token:', error);
-                    reject('Error receiving token:', error);
-                });
-        }
+        makeApiRequest(resolve, reject); // Pass resolve and reject as arguments
+
     });
 }
 
@@ -102,12 +87,11 @@ function editListing(csrfToken, listingId, action) {
     const viagogoSessionId = window.viagogoUser.wsu2Cookie;
     const viagogoSessionId2 = window.viagogoUser.rvtCookie;
 
-    function makeApiRequest(jwtToken, resolve, reject) {
+    function makeApiRequest(resolve, reject) {
         $.ajax({
             url: 'https://api.mindsolutions.app/service-integration/viagogo/listings/status/' + listingId, // Replace with the URL of your PHP script
             type: 'PUT',
             headers: {
-                'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
                 'Content-Type': 'application/json',
             },
             dataType: 'json',
@@ -132,24 +116,9 @@ function editListing(csrfToken, listingId, action) {
     }
 
     return new Promise(function (resolve, reject) {
-        // Check if the token is already available in localStorage
-        var token = getWithExpiry('jwtToken');
 
-        if (token) {
-            makeApiRequest(token, resolve, reject); // Pass resolve and reject as arguments
-        } else {
-            // Token is not available, request it
-            requestJwtToken()
-                .then((token) => {
-                    var parsed = JSON.parse(token);
-                    setWithExpiry('jwtToken', parsed.token, parsed.expiresIn * 1000);
-                    makeApiRequest(parsed.token, resolve, reject); // Pass resolve and reject as arguments
-                })
-                .catch((error) => {
-                    console.error('Error receiving token:', error);
-                    reject('Error receiving token:', error);
-                });
-        }
+        makeApiRequest(resolve, reject); // Pass resolve and reject as arguments
+
     });
 }
 
@@ -158,12 +127,11 @@ function editListingDetails(listingId, eventId, ticketFormatID, quantity, splitI
     const viagogoSessionId = window.viagogoUser.wsu2Cookie;
     const viagogoSessionId2 = window.viagogoUser.rvtCookie;
 
-    function makeApiRequest(jwtToken, resolve, reject) {
+    function makeApiRequest(resolve, reject) {
         $.ajax({
             url: 'https://api.mindsolutions.app/service-integration/viagogo/listings/' + listingId, // Replace with the URL of your PHP script
             type: 'PUT',
             headers: {
-                'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
                 'Content-Type': 'application/json',
             },
             dataType: 'json',
@@ -196,23 +164,8 @@ function editListingDetails(listingId, eventId, ticketFormatID, quantity, splitI
     }
 
     return new Promise(function (resolve, reject) {
-        // Check if the token is already available in localStorage
-        var token = getWithExpiry('jwtToken');
 
-        if (token) {
-            makeApiRequest(token, resolve, reject); // Pass resolve and reject as arguments
-        } else {
-            // Token is not available, request it
-            requestJwtToken()
-                .then((token) => {
-                    var parsed = JSON.parse(token);
-                    setWithExpiry('jwtToken', parsed.token, parsed.expiresIn * 1000);
-                    makeApiRequest(parsed.token, resolve, reject); // Pass resolve and reject as arguments
-                })
-                .catch((error) => {
-                    console.error('Error receiving token:', error);
-                    reject('Error receiving token:', error);
-                });
-        }
+        makeApiRequest(resolve, reject); // Pass resolve and reject as arguments
+
     });
 }

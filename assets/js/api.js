@@ -1,3 +1,29 @@
+// Set up a global AJAX interceptor
+$.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+        // Check if the token is already available in localStorage
+        var token = getWithExpiry('jwtToken');
+
+        if (token) {
+            // If the token exists, add it to the Authorization header
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        } else {
+            // Token is not available, fetch it
+            requestJwtToken()
+                .then((token) => {
+                    var parsed = JSON.parse(token);
+                    setWithExpiry('jwtToken', parsed.token, parsed.expiresIn * 1000);
+
+                    // Add the fetched token to the Authorization header
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + parsed.token);
+                })
+                .catch((error) => {
+                    console.error('Error receiving token:', error);
+                });
+        }
+    },
+});
+
 const requestJwtToken = async () => {
     try {
         const response = await fetch('https://api.mindsolutions.app/authenticate', {
@@ -6,8 +32,7 @@ const requestJwtToken = async () => {
                 'Content-Type': 'application/json',
             },
             mode: 'cors',
-            dataType: 'json',
-            data: JSON.stringify({
+            body: JSON.stringify({
                 user: user
             }),
         });

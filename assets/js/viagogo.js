@@ -1,30 +1,12 @@
 function getViagogoSessionCookie(username, password, recaptchaToken, successCallback, errorCallback) {
 
-    // Check if the token is already available in localStorage
-    var token = getWithExpiry('jwtToken');
+    makeApiRequest();
 
-    if (token) {
-        makeApiRequest(token);
-    } else {
-        // Token is not available, request it
-        requestJwtToken()
-            .then((token) => {
-                var parsed = JSON.parse(token);
-                setWithExpiry('jwtToken', parsed.token, parsed.expiresIn * 1000)
-                makeApiRequest(parsed.token);
-            })
-            .catch((error) => {
-                console.error('Error receiving token:', error);
-                errorCallback(error);
-            });
-    }
-
-    function makeApiRequest(jwtToken) {
+    function makeApiRequest() {
         $.ajax({
             url: 'https://api.mindsolutions.app/service-integration/viagogo/login', // Replace with the URL of your PHP script
             type: 'POST',
             headers: {
-                'Authorization': `Bearer ${jwtToken}`, // Use the retrieved JWT token
                 'Content-Type': 'application/json',
             },
             dataType: 'json',

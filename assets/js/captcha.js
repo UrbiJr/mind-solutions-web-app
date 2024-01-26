@@ -8,7 +8,7 @@ function getRecaptchaToken(sitekey, pageUrl, version, pageAction, provider, apiK
             url: `${API_BASE_URL}captcha/${provider}/harvest`,
             type: 'GET',
             data: {
-                sitekey: sitekey,
+                siteKey: sitekey,
                 pageUrl: pageUrl,
                 version: version,
                 pageAction: pageAction,

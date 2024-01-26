@@ -39,7 +39,7 @@ function createListing(eventId, ticketFormatID, quantity, splitId, sectionText, 
 
     function makeApiRequest(resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/service-integration/viagogo/list', // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}service-integration/viagogo/list`,
             type: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ function editListing(csrfToken, listingId, action) {
 
     function makeApiRequest(resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/service-integration/viagogo/listings/status/' + listingId, // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}service-integration/viagogo/listings/status/${listingId}`,
             type: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -129,7 +129,7 @@ function editListingDetails(listingId, eventId, ticketFormatID, quantity, splitI
 
     function makeApiRequest(resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/service-integration/viagogo/listings/' + listingId, // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}service-integration/viagogo/listings/{listingId}`,
             type: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

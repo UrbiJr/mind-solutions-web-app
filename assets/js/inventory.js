@@ -643,7 +643,7 @@ function lookupEvent(eventName, eventDate, country, ticketGenre) {
 
     function makeApiRequest(resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/viagogo/events/lookup', // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}viagogo/events/lookup`,
             type: 'GET',
             data: {
                 eventName: eventName,
@@ -678,7 +678,7 @@ function getUserListings(viagogoSessionId, callback) {
 
     function makeApiRequest() {
         $.ajax({
-            url: 'https://api.mindsolutions.app/service-integration/viagogo/listings', // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}service-integration/viagogo/listings`,
             type: 'GET',
             data: {
                 sessionCookie: viagogoSessionId,
@@ -704,7 +704,7 @@ function getUserSales(viagogoSessionId, callback) {
 
     function makeApiRequest() {
         $.ajax({
-            url: 'https://api.mindsolutions.app/service-integration/viagogo/sales', // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}service-integration/viagogo/sales`,
             type: 'GET',
             data: {
                 sessionCookie: viagogoSessionId,
@@ -1543,7 +1543,7 @@ function fetchSplitTypes(quantity, wsu2Cookie) {
 
     function makeApiRequest(resolve, reject) {
         $.ajax({
-            url: 'https://api.mindsolutions.app/service-integration/viagogo/split-types', // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}service-integration/viagogo/split-types`,
             type: 'GET',
             data: {
                 quantity: quantity,

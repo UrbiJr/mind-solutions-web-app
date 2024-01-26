@@ -1,3 +1,6 @@
+const API_BASE_URL = 'https://mindsolutions.api/';
+//const API_BASE_URL = 'https://127.0.0.1:8001/';
+
 // Set up a global AJAX interceptor
 $.ajaxSetup({
     beforeSend: function (xhr, settings) {
@@ -26,7 +29,7 @@ $.ajaxSetup({
 
 const requestJwtToken = async () => {
     try {
-        const response = await fetch('https://api.mindsolutions.app/authenticate', {
+        const response = await fetch(API_BASE_URL + 'authenticate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

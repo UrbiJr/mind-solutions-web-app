@@ -4,7 +4,7 @@ function getViagogoSessionCookie(username, password, recaptchaToken, successCall
 
     function makeApiRequest() {
         $.ajax({
-            url: 'https://api.mindsolutions.app/service-integration/viagogo/login', // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}service-integration/viagogo/login`,
             type: 'POST',
             headers: {
                 'Content-Type': 'application/json',

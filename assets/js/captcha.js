@@ -5,7 +5,7 @@ function getRecaptchaToken(sitekey, pageUrl, version, pageAction, provider, apiK
 
     function makeApiRequest() {
         $.ajax({
-            url: `https://api.mindsolutions.app/captcha/${provider}/harvest`,
+            url: `${API_BASE_URL}captcha/${provider}/harvest`,
             type: 'GET',
             data: {
                 sitekey: sitekey,

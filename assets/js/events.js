@@ -271,7 +271,7 @@ function getFilteredEvents(genreId, countryCode, query, callback) {
 
     function makeApiRequest() {
         $.ajax({
-            url: 'https://api.mindsolutions.app/viagogo/events/search', // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}viagogo/events/search`,
             type: 'GET',
             data: {
                 genre: genreId,
@@ -299,7 +299,7 @@ function getEventOverviewData(eventId, successCallback, errorCallback, addSectio
 
     function makeApiRequest() {
         $.ajax({
-            url: 'https://api.mindsolutions.app/viagogo/events/' + eventId, // Replace with the URL of your PHP script
+            url: `${API_BASE_URL}viagogo/events/${eventId}`, // Replace with the URL of your PHP script
             type: 'GET',
             success: function (response) {
                 // Handle the response here

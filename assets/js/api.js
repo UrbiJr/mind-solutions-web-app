@@ -4,6 +4,16 @@ const API_BASE_URL = 'https://api.mindsolutions.app/';
 // Set up a global AJAX interceptor
 $.ajaxSetup({
     beforeSend: function (xhr, settings) {
+        // Only intercept requests that include API_BASE_URL
+        if (!settings.url.startsWith(API_BASE_URL)) {
+            return;
+        }
+
+        // Bypass /authenticate request
+        if (settings.url.endsWith('/authenticate')) {
+            return;
+        }
+
         // Check if the token is already available in localStorage
         var token = getWithExpiry('jwtToken');
 

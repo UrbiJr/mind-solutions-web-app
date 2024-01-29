@@ -1,85 +1,110 @@
 const API_BASE_URL = 'https://api.mindsolutions.app/';
 //const API_BASE_URL = 'https://127.0.0.1:8001/';
+let refreshingToken = false;
+let originalOptionsForRetry; // Store the original options for retry
 
-// Set up a global AJAX interceptor
-$.ajaxSetup({
-    beforeSend: function (xhr, settings) {
-        // Only intercept requests that include API_BASE_URL
-        if (!settings.url.startsWith(API_BASE_URL)) {
-            return;
-        }
+$.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+    if (options.url.endsWith('/authenticate')) {
+        return;
+    }
+    if (!options.url.startsWith(API_BASE_URL)) {
+        return;
+    }
+    if (refreshingToken) {
+        return;
+    }
 
-        // Bypass /authenticate request
-        if (settings.url.endsWith('/authenticate')) {
-            return;
-        }
+    console.log('ajaxPrefilter', options.url);
 
-        // Check if the token is already available in localStorage
-        var token = getWithExpiry('jwtToken');
+    beforeSend = function (xhr) {
+        const refreshedToken = getWithExpiry('token');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + refreshedToken);
+    };
 
-        if (token) {
-            // If the token exists, add it to the Authorization header
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        } else {
-            // Token is not available, fetch it
-            requestJwtToken()
-                .then((token) => {
-                    var parsed = JSON.parse(token);
-                    setWithExpiry('jwtToken', parsed.token, parsed.expiresIn * 1000);
-
-                    // Add the fetched token to the Authorization header
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + parsed.token);
-                })
-                .catch((error) => {
-                    console.error('Error receiving token:', error);
-                });
-        }
-    },
+    originalOptionsForRetry = options; // Store the original options for retry
+    options.beforeSend = beforeSend; // Set beforeSend for the initial request
+    checkTokenExp();
 });
 
-const requestJwtToken = async () => {
-    try {
-        const response = await fetch(API_BASE_URL + 'authenticate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            mode: 'cors',
-            body: JSON.stringify({
-                user: user
+function checkTokenExp() {
+    var token = getWithExpiry('token');
+
+    if (!token) {
+        refreshingToken = true;
+        // API TOKEN EXPIRED
+        $.ajax({
+            type: 'POST',
+            url: API_BASE_URL + 'authenticate',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify({
+                user: user,
             }),
+            success: function (data) {
+                if (data.token && data.expiresIn) {
+                    setWithExpiry('token', data.token, data.expiresIn); // 1 hour
+
+                    // Retry the original request with the new token
+                    originalOptionsForRetry.headers = {
+                        'Authorization': 'Bearer ' + data.token,
+                    };
+
+                    $.ajax(originalOptionsForRetry)
+                        .done(function (response) {
+                            console.log('Request successful after token refresh:', response);
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            if (jqXHR.status === 401) {
+                                console.error('Token expired');
+                                sessionStorage.removeItem('token');
+                            } else {
+                                console.error('Error in the original request after token refresh:', errorThrown);
+                            }
+                        });
+                }
+                // TODO: log error here, don't do validToken = true
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error refreshing token:', errorThrown);
+            },
         });
-
-        if (response.ok) {
-            const token = await response.text();
-
-            return token
-        } else {
-            console.error('Failed to request token from server');
-        }
-    } catch (error) {
-        console.error('Error requesting token:', error);
     }
+    // API TOKEN NOT EXPIRED - No need to do anything, the initial request will be made with the current token
 }
 
 function getWithExpiry(key) {
-    const itemStr = localStorage.getItem(key)
-    // if the item doesn't exist, return null
+    const itemStr = sessionStorage.getItem(key);
+    // If the item doesn't exist, or if there's an issue parsing it, return null
     if (!itemStr) {
-        return null
+        return null;
     }
-    const item = JSON.parse(itemStr)
-    const now = new Date()
-    // compare the expiry time of the item with the current time
-    if (now.getTime() > item.expiry) {
-        // If the item is expired, delete the item from storage
-        // and return null
-        localStorage.removeItem(key)
-        return null
-    }
-    return item.value
-}
 
+    try {
+        const item = JSON.parse(itemStr);
+        // Ensure that the item has both a value and an expiry property
+        if (!item || !item.value || !item.expiry) {
+            sessionStorage.removeItem(key);
+            return null;
+        }
+
+        const now = new Date();
+
+        // Compare the expiry time of the item with the current time
+        if (now.getTime() > item.expiry) {
+            console.log('Token expired');
+            // If the item is expired, delete it from storage and return null
+            sessionStorage.removeItem(key);
+            return null;
+        }
+
+        // Return the value if it's still valid
+        return item.value;
+    } catch (error) {
+        console.error('Error parsing item from local storage:', error);
+        sessionStorage.removeItem(key);
+        return null;
+    }
+}
 
 function setWithExpiry(key, value, ttl) {
     const now = new Date()
@@ -90,7 +115,7 @@ function setWithExpiry(key, value, ttl) {
         value: value,
         expiry: now.getTime() + ttl,
     }
-    localStorage.setItem(key, JSON.stringify(item))
+    sessionStorage.setItem(key, JSON.stringify(item));
 }
 
 function setViagogoUser(username, password, cookie1, cookie2) {
